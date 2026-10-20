@@ -1,11 +1,12 @@
 // Landing — the whole marketing page, top to bottom.
-// Flow: smooth scrolling turns on → the aurora backdrop sits fixed behind
+// Flow: the startup curtain lifts (ui/StartupIntro.jsx) → smooth scrolling
+// turns on → the aurora backdrop sits fixed behind
 // everything → NavBar, hero, marquee, then the chapters in the owner's order:
-// What is Coach Connect? → FAQs → Subscription → Waitlist. The For Trainers /
-// For Clients chapters moved off this page (they're becoming their own pages;
-// the components still live in ui/Sections.jsx as seed content).
+// What is Coach Connect? → Subscription → Waitlist. The For Trainers /
+// For Clients / FAQs chapters moved off this page to their own pages
+// (the FAQ component still lives in ui/Sections.jsx; /faqs renders it).
 // Also handled here: arriving from another page with a hash in the URL
-// ("/#act-faqs" from the nav) glides to that section once the page renders.
+// ("/#act-finale" from the nav) glides to that section once the page renders.
 // The 3D scene and its scroll-driven camera were removed earlier at the
 // owner's request; the old scene code still sits in src/scene/, unused.
 // Used by: App.js at "/".
@@ -14,6 +15,7 @@ import { useEffect } from 'react';
 import Lenis from 'lenis';
 import { useLocation } from 'react-router-dom';
 import Seo from '../ui/Seo';
+import { StartupIntro } from '../ui/StartupIntro';
 import { NavBar } from '../navbar/NavBar';
 import { usePrefersReducedMotion } from '../hooks/useLanding';
 import { scrollToSection } from '../ui/scrollToHash';
@@ -21,7 +23,6 @@ import {
   TopSection,
   ScrollingTextStrip,
   WhatIsSection,
-  FaqSection,
   BenefitsBento,
   JoinNowFooter,
 } from '../ui/Sections';
@@ -89,6 +90,7 @@ export default function Landing() {
   return (
     <div className="relative min-h-screen bg-void" data-testid="landing">
       <Seo />
+      <StartupIntro />
 
       {/* The static gradient backdrop that replaced the old WebGL canvas */}
       <div className="aurora-static" data-testid="aurora-fallback" aria-hidden />
@@ -98,7 +100,6 @@ export default function Landing() {
         <TopSection />
         <ScrollingTextStrip />
         <WhatIsSection />
-        <FaqSection />
         <BenefitsBento />
         <JoinNowFooter />
       </div>

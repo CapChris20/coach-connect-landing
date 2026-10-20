@@ -334,66 +334,10 @@ body {
     .cc-faq-answer { transition: none; }
   }
 
-  /* What-is pieces: a stronger wash than the rest of the cards, still
-     glass. The color drifts slowly so the gradient doesn't sit still.
-     vocab: background-size over 100% is what lets background-position
-     slide the wash. The second layer is the rim, so it drifts too.
-     Manipulate here: 9s is the drift. Lower = busier. */
-  .what-is-pieces .what-is-piece {
-    overflow: hidden;
-    background: linear-gradient(
-      145deg,
-      color-mix(in srgb, var(--card-accent) 62%, transparent) 0%,
-      rgba(255, 255, 255, 0.12) 46%,
-      color-mix(in srgb, var(--grad-to) 44%, transparent) 100%
-    );
-    background-size: 180% 180%;
-    animation: glass-wash 9s ease-in-out infinite;
-  }
-  .what-is-pieces .what-is-piece > * {
-    position: relative;
-    z-index: 1;
-  }
-  .what-is-pieces .what-is-piece-wide .what-is-piece {
-    background: linear-gradient(
-      105deg,
-      color-mix(in srgb, var(--card-accent) 55%, transparent),
-      rgba(255, 255, 255, 0.14) 46%,
-      color-mix(in srgb, var(--grad-to) 48%, transparent)
-    );
-    background-size: 180% 180%;
-  }
-  /* A light streak that crosses the card on hover. It lives on top of the
-     glass and never catches clicks.
-     Manipulate here: 0.7s is how fast the streak crosses. */
-  .what-is-piece::after {
-    content: "";
-    position: absolute;
-    inset: -40% auto -40% -55%;
-    width: 42%;
-    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.22), transparent);
-    transform: translateX(0) rotate(12deg);
-    opacity: 0;
-    pointer-events: none;
-    transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
-  }
-  @keyframes glass-wash {
-    0%, 100% { background-position: 0% 40%; }
-    50% { background-position: 100% 60%; }
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .what-is-pieces .what-is-piece.cc-card-hover:hover::after {
-      opacity: 1;
-      transform: translateX(320%) rotate(12deg);
-    }
-    .what-is-pieces .what-is-piece.cc-card-hover:hover .cc-icon-disc {
-      transform: scale(1.08) rotate(-8deg);
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .what-is-pieces .what-is-piece { animation: none; }
-    .what-is-piece::after { display: none; }
-  }
+  /* What-is pieces used to wear a loud animated gradient wash here;
+     the owner called it, so the pieces are now quiet dark glass styled
+     inline where they render (ui/Sections.jsx, WhatIsPiece) and only
+     the layout grid (.what-is-pieces above) remains in CSS. */
 
   /* Lit display type — hero wordmark, "Day One", and the big headers.
      The face is a vertical gradient: a highlight along the top of each
@@ -615,7 +559,8 @@ body {
     transform: translateY(-1px);
   }
 
-  /* Hero video background (ui/HeroVideoBackground.jsx). The dumbbell
+  /* Hero video background (ui/HeroVideoBackground.jsx, PARKED — the
+     hero is on the mouse-follow grid again). The dumbbell
      clip lives in public/videos/; this wrapper fills the hero section
      only and never takes clicks. The poster still and the video are
      both object-fit: cover — the clip is wider (960×404) than the hero,
@@ -896,6 +841,7 @@ body {
   display: inline-flex;
   align-items: baseline;
   gap: 0.32rem;
+  max-width: max-content;
   padding: 0.4rem 1rem;
   border-radius: 999px;
   background: rgba(10, 10, 15, 0.55);
@@ -903,6 +849,13 @@ body {
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+/* The phrase never breaks: each word group stays on the one line, even
+   when the hero's left column is narrower than the pill wants to be.
+   Without this the flex items shrink and "One Day" stacks into a blob. */
+.hero-tagline-pill > span {
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* Partner headline under the tagline. Display font; "budget." wears the
@@ -1003,29 +956,30 @@ body {
    and the mark's sides start leaving the frame as it sways. */
 @media (min-width: 1024px) {
   .hero-center-logo .logo-model-stage {
-    width: min(560px, 40vw);
+    width: min(520px, 38vw);
     height: min(400px, 44vh);
   }
 }
 
 /* The watch in the hero's right THIRD (it had a half before the logo
    took the middle). Its stage keeps the band cropped to the row
-   instead of demanding the whole hero height, and the case scales
-   down so the fixed 500px watch fits a ~340-440px column without its
-   sides being cropped by the stage.
-   Manipulate here: 0.68 / 0.78 = case scale at lg / wide screens.
-   Raise them and the case edges start disappearing into the crop. */
+   instead of demanding the whole hero height. The owner asked for the
+   watch BIGGER than the first pass, so the case now runs near full
+   size and the hero grid gives this column the extra width to hold it
+   (TopSection's lg:grid-cols and the logo stage below split the room).
+   Manipulate here: 0.82 / 0.95 = case scale at lg / wide screens.
+   Push past them and the case edges start disappearing into the crop. */
 @media (min-width: 1024px) {
   .hero-middle-watch .ccw-wrap {
-    min-height: 420px;
+    min-height: 540px;
   }
   .hero-middle-watch .ccw-watch {
-    transform: scale(0.68);
+    transform: scale(0.82);
   }
 }
 @media (min-width: 1440px) {
   .hero-middle-watch .ccw-watch {
-    transform: scale(0.78);
+    transform: scale(0.95);
   }
 }
 
@@ -1061,7 +1015,7 @@ body {
    ════════════════════════════════════════════════════════════════════ */
 
 /* The stage: fills the hero's right column (height: 100%) and crops the
-   straps, which run 610px past the case top and bottom — long enough that
+   straps, which run 970px past the case top and bottom — long enough that
    the band always spans the full stage, from under the nav to the fold,
    like a real watch product shot instead of a cut-off floating case. */
 /* Manipulate here: min-height 620px = the shortest the stage (and so the
@@ -1096,22 +1050,25 @@ body {
   flex-shrink: 0;
 }
 
-/* The band: 640px long each way with 610px sticking out past the case
+/* The band: 1000px long each way with 970px sticking out past the case
    (the last 30px tucks behind it), so it always reaches both edges of
-   the stage no matter how tall the hero gets. */
-/* Manipulate here: width 240px = band thickness against the 500px case */
+   the stage no matter how tall the hero gets. The owner asked for the
+   bands wider and taller than the first pass — the visible length is
+   set by the stage height (.ccw-wrap min-height), the extra length
+   here just guarantees the ends never show inside the stage. */
+/* Manipulate here: width 300px = band thickness against the 500px case */
 .ccw-strap {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  width: 240px;
-  height: 640px;
+  width: 300px;
+  height: 1000px;
   border-radius: 18px;
   z-index: 1;
   box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.08);
 }
-.ccw-strap-top { top: -610px; background: linear-gradient(to top, #e2e4e9, #f3f4f6); }
-.ccw-strap-bottom { bottom: -610px; background: linear-gradient(to bottom, #e2e4e9, #f3f4f6); }
+.ccw-strap-top { top: -970px; background: linear-gradient(to top, #e2e4e9, #f3f4f6); }
+.ccw-strap-bottom { bottom: -970px; background: linear-gradient(to bottom, #e2e4e9, #f3f4f6); }
 
 /* Band details — what makes it read as a band and not a gray rectangle.
    Like a real sport band: the top strap carries the metal pin stud, the
@@ -1714,8 +1671,7 @@ body {
    "or skip the line" divider — the owner cut that; side by side now.
    ════════════════════════════════════════════════════════════════════ */
 
-/* A slow light streak across the glass on hover (same trick as
-   .what-is-piece). overflow: hidden is what clips the streak to the
+/* A slow light streak across the glass on hover. overflow: hidden is what clips the streak to the
    card's rounded corners. No margin-top here: the finale's row gap
    owns the spacing, and a margin would drop this card below the
    waitlist beside it.

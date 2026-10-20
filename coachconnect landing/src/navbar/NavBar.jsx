@@ -20,7 +20,7 @@ const NAV_BAR_LINKS = [
   { label: 'Account', sectionHash: '#act-finale', testId: 'nav-account' },
   { label: 'For trainers', routePath: '/for-trainers', testId: 'nav-trainers' },
   { label: 'For clients', routePath: '/for-clients', testId: 'nav-clients' },
-  { label: 'FAQs', sectionHash: '#act-faqs', testId: 'nav-faqs' },
+  { label: 'FAQs', routePath: '/faqs', testId: 'nav-faqs' },
   { label: 'Contact us', sectionHash: '#act-finale', testId: 'nav-contact' },
 ];
 

@@ -49,7 +49,7 @@ const WATCH_ROWS = [
 export function HeroWatch() {
   return (
     // vocab: .ccw-wrap = the stage that centers the watch and crops the
-    // straps (they run 610px past the case, top and bottom, so the band
+    // straps (they run 970px past the case, top and bottom, so the band
     // spans the full hero height — see index.css)
     <div className="ccw-wrap" data-testid="hero-watch">
       <div className="ccw-watch">

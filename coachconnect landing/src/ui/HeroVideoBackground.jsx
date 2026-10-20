@@ -10,7 +10,9 @@
 // Flow: poster still paints instantly → the muted looping video fades in
 // over it → an IntersectionObserver pauses it off-screen → reduced
 // motion never renders the video at all, just the poster.
-// Used by: ui/Sections.jsx (TopSection, the hero).
+// PARKED: was the hero background until the owner put the mouse-follow
+// grid back (MouseGridBackground). One import swap in ui/Sections.jsx
+// (TopSection) brings it back; the clips stay in public/videos/.
 
 import { useEffect, useRef, useState } from 'react';
 import { usePrefersReducedMotion } from '../hooks/useLanding';

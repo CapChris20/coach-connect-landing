@@ -1,13 +1,14 @@
 // Sections — every visible chapter of the landing page, in page order.
-// Flow: hero → marquee → what is Coach Connect → FAQs → subscription →
-// waitlist + footer. (The for-clients / for-trainers / why chapters are parked
+// Flow: hero → marquee → what is Coach Connect → subscription →
+// waitlist + footer. (The FAQs live here too but render on /faqs, not
+// the homepage. The for-clients / for-trainers / why chapters are parked
 // further down this file — off the homepage, kept as seed content for the
 // /for-clients and /for-trainers pages.) The nav bar above them lives in
-// navbar/NavBar.jsx. The hero plays the dumbbell-rack video behind its
-// columns (HeroVideoBackground; the liquid-twist, sunset, and
-// gym-interior shaders are parked in LiquidTwistBackground /
-// SunsetOceanBackground / GymSceneBackground, one import swap away
-// each). Under the tagline, HeroLeftColumn adds
+// navbar/NavBar.jsx. The hero sits on the mouse-follow grid
+// (MouseGridBackground, like every other chapter). The dumbbell video
+// and the liquid-twist / sunset / gym-interior shaders are parked in
+// HeroVideoBackground / LiquidTwistBackground / SunsetOceanBackground /
+// GymSceneBackground, one import swap away each. Under the tagline, HeroLeftColumn adds
 // the support line, a waitlist button (glides to the finale's real form),
 // audience pills, and proof chips. Every chapter after the hero is wrapped in
 // the mouse-glow section (MouseGridBackground). Reveals all go through FadeIn,
@@ -28,15 +29,15 @@ import {
   ClipboardList,
   CreditCard,
   MessageCircle,
+  Plus,
   Search,
-  TrendingUp,
-  Users,
   Wallet,
   Zap,
 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { usePrefersReducedMotion } from '../hooks/useLanding';
 import { FadeIn } from './FadeIn';
 import { HeroWatch } from './HeroWatch';
-import { HeroVideoBackground } from './HeroVideoBackground';
 import { LogoModel } from './LogoModel';
 import { HeroLeftColumn } from './HeroLeftColumn';
 import MouseGridBackground from './MouseGridBackground';
@@ -53,6 +54,15 @@ import { ANNUAL_SAVINGS_COPY, FEE_COPY, TESTFLIGHT_URL, TRIAL_COPY } from '../co
 // Where the hero's scroll hint glides. The next real chapter after the hero
 // (the marquee between them is just a ribbon, not a destination).
 const HERO_SCROLL_TARGET = '#act-connection';
+
+// The hero's load-in choreography, timed to the startup curtain
+// (ui/StartupIntro.jsx lifts at ~1s): wordmark first, then the words,
+// the logo, and the watch, each a beat after the last.
+// Manipulate here: raise the delays and the entrance feels slower and
+// grander; the gaps between them are the stagger.
+const HERO_ENTRANCE_DELAYS_SECONDS = { wordmark: 0.9, words: 1.02, logo: 1.14, watch: 1.26 };
+// The signature settle the whole site rises with (same curve as FadeIn).
+const HERO_ENTRANCE_EASE = [0.16, 1, 0.3, 1];
 
 // Manipulate here: marquee copy — keep about 6 short phrases so the loop
 // reads as one continuous ribbon
@@ -74,68 +84,61 @@ const TESTFLIGHT_STEPS = [
   'Open Coach Connect & sign in',
 ];
 
-// Manipulate here: the FAQ questions, in order. Starter set written from
-// facts already on this page — the owner replaces these with his real Q&A.
-// Answers may reuse the locked strings (trial, savings, fees) imported above.
-// color → gradientTo is each card's gradient pair (never a flat fill).
+// Manipulate here: the FAQ questions, grouped for the /faqs page.
+// Starter set written from facts already on this site — the owner
+// replaces these with his real Q&A. Answers may reuse the locked
+// strings (trial, savings, fees) imported above. group names the
+// heading the question sits under; keep groups in FAQ_GROUPS order.
+const FAQ_GROUPS = ['Getting started', 'Pricing and rates', 'Finding your coach', 'The app'];
 const FAQ_ITEMS = [
   {
-    color: '#FF6B9D',
-    gradientTo: '#F97316',
+    group: 'Getting started',
     question: 'When does Coach Connect launch?',
     answer:
-      'Coach Connect is coming soon — we open late 2026, founding trainers first. Join the waitlist below and you will hear from us before the doors open.',
+      'Coach Connect is coming soon — we open late 2026, founding trainers first. Join the waitlist and you will hear from us before the doors open.',
   },
   {
-    color: '#C084FC',
-    gradientTo: '#FF6B9D',
+    group: 'Pricing and rates',
     question: 'How much does it cost?',
     answer: `Coach Connect Pro is $59.99/mo, or $49/mo billed annually at $588/yr (${ANNUAL_SAVINGS_COPY}). Every plan starts with a ${TRIAL_COPY}.`,
   },
   {
-    color: '#F97316',
-    gradientTo: '#FF6B9D',
+    group: 'Pricing and rates',
     question: 'Is there a per-client fee?',
     answer: `No. One flat price covers your whole roster — there are no per-client fees as it grows. ${FEE_COPY}`,
   },
   {
-    color: '#06B6D4',
-    gradientTo: '#C084FC',
+    group: 'Getting started',
     question: "I'm a client — do I pay for the app?",
     answer:
       'The app is free for clients. You find your coach in the marketplace, follow your plan, log your nutrition, and pay your coach in the app.',
   },
   {
-    color: '#F97316',
-    gradientTo: '#C084FC',
+    group: 'Finding your coach',
     question: 'How does Coach Connect match me with a trainer?',
     answer:
       'By expertise, experience, training style, and reviews — not by how big a trainer’s social following is. You discover trainers suited to your needs without spending hours comparing profiles across different platforms.',
   },
   {
-    color: '#10B981',
-    gradientTo: '#F97316',
+    group: 'Pricing and rates',
     question: 'How is a trainer’s rate set?',
     answer:
       'Trainers submit their preferred minimum and maximum earnings per client for monthly or yearly coaching. Coach Connect then sets the rate based on their expertise, experience, and what they’ve earned previously — keeping coaching within reach for clients while recognizing the value trainers bring.',
   },
   {
-    color: '#06B6D4',
-    gradientTo: '#10B981',
+    group: 'Finding your coach',
     question: 'I’m a trainer — how do clients find me?',
     answer:
       'Your years of coaching, training specialties, and reviews help you get discovered. Coach Connect uses those details to match you with potential clients looking for what you offer, so you spend less time trying to get noticed and more time building coaching relationships.',
   },
   {
-    color: '#10B981',
-    gradientTo: '#06B6D4',
+    group: 'The app',
     question: 'What does the AI Coach do?',
     answer:
       'It can log a meal, water, sleep or steps for you, or edit a workout — and it asks you to confirm before anything changes.',
   },
   {
-    color: '#FF6B9D',
-    gradientTo: '#F97316',
+    group: 'The app',
     question: 'How do payments work?',
     answer:
       'Clients pay through Stripe right in the app. No payment links over DM, no separate invoicing tool — payouts are part of the same system as the coaching.',
@@ -240,18 +243,9 @@ const WHY_ITEMS = [
   { color: '#10B981', text: 'Weekly reports built from real check-ins, exportable to PDF' },
 ];
 
-// Manipulate here: the bento tiles. Tile labels mirror PRICING_BENEFITS below —
-// keep the two lists saying the same five things. color → gradientTo is the
-// tile's gradient pair (never a flat fill; pairs cycle the brand palette).
-const BENEFIT_TILES = [
-  { icon: Users, color: '#FF6B9D', gradientTo: '#F97316', label: 'No per-client fees', body: 'One flat price as your roster grows.' },
-  { icon: Zap, color: '#C084FC', gradientTo: '#FF6B9D', label: 'AI workout plans', body: 'Three AI-built plans included each month.' },
-  { icon: Apple, color: '#10B981', gradientTo: '#06B6D4', label: 'Nutrition tracking', body: 'Cross-checked numbers, plus barcode scanning.' },
-  { icon: TrendingUp, color: '#06B6D4', gradientTo: '#C084FC', label: 'Progress photos and history', body: 'Photos and history, kept in one place.' },
-  { icon: MessageCircle, color: '#F97316', gradientTo: '#FF6B9D', label: 'Messaging', body: 'Client messaging beside plans and payments.' },
-];
-
-// The pricing panel's checklist. Price figures are brand-locked copy — do not edit numbers.
+// The pricing panel's checklist — the only place these five are listed
+// now (the bento tiles that repeated them were cut with the slim-down).
+// Price figures are brand-locked copy — do not edit numbers.
 const PRICING_BENEFITS = [
   'No per-client fees',
   'AI workout plans (3 per month)',
@@ -341,7 +335,9 @@ function HeroScrollHint() {
 }
 
 /**
- * One piece of the broken-apart "what it helps with" cluster.
+ * One piece of the broken-apart "what it helps with" cluster. Quiet dark
+ * glass like the hero point cards — the owner called the old loud
+ * gradient wash on these cards; only the small icon disc keeps color.
  * @param {Object} props
  * @param {{ area: string, icon: React.ElementType, color: string, gradientTo: string, title: string, body: string }} props.piece
  * @returns {JSX.Element}
@@ -351,7 +347,7 @@ function WhatIsPiece({ piece }) {
 
   return (
     <div
-      className="what-is-piece cc-card cc-card-hover flex h-full items-center gap-4 rounded-2xl px-4 py-4"
+      className="flex h-full items-center gap-4 rounded-2xl border border-white/10 bg-[#0a0a0f]/55 px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl"
       style={{ '--card-accent': piece.color, '--grad-to': piece.gradientTo }}
     >
       <span className="cc-icon-disc h-12 w-12">
@@ -453,16 +449,29 @@ function PricingAndDiscoveryCards() {
  * logo BIG in the middle — review feedback said the hero's center
  * should sell the brand instead of leaving the sunset empty, so the
  * logo moved out of the left column and grew; and the Apple
- * Watch-style card (ui/HeroWatch.jsx) on the right, scaled down to
- * fit its narrower third. On smaller screens it stacks: wordmark,
- * words, logo, watch. The dumbbell video sits behind everything
- * and does not take clicks.
+ * Watch-style card (ui/HeroWatch.jsx) on the right, in the widest of
+ * the three columns so the case can run near full size. On smaller screens it stacks: wordmark,
+ * words, logo, watch. The mouse-follow grid sits behind everything
+ * and does not take clicks. On load, the pieces rise in staggered
+ * behind the startup curtain (ui/StartupIntro.jsx) — wordmark, words,
+ * logo, watch — unless the visitor prefers reduced motion.
  * @returns {JSX.Element}
  */
 export function TopSection() {
+  const userPrefersReducedMotion = usePrefersReducedMotion();
+
+  // Where each hero piece starts before it rises in. Reduced motion
+  // turns the whole choreography off: initial={false} in framer-motion
+  // means "render the finished state immediately, animate nothing."
+  // vocab: filter blur = the piece starts softly out of focus and
+  // sharpens as it lands — the fashionable part of the entrance.
+  const wordmarkStart = userPrefersReducedMotion ? false : { opacity: 0, y: 28, filter: 'blur(10px)' };
+  const wordsStart = userPrefersReducedMotion ? false : { opacity: 0, y: 34, filter: 'blur(6px)' };
+  const logoStart = userPrefersReducedMotion ? false : { opacity: 0, y: 24, scale: 0.92 };
+  const watchStart = userPrefersReducedMotion ? false : { opacity: 0, x: 48 };
+
   return (
-    <section id="act-arrival" className="landing-section relative isolate overflow-hidden">
-      <HeroVideoBackground />
+    <MouseGridBackground id="act-arrival" className="landing-section isolate overflow-hidden">
       {/* Full width on purpose. min-h calc(100dvh - 6.6rem) = viewport minus
           this section's own padding, so the middle row can fill the hero.
           Manipulate here: lg:px-6 = how far the outer zones sit from the
@@ -471,23 +480,34 @@ export function TopSection() {
         {/* 1. Top row: the wordmark on ONE centered line (not COACH over
             CONNECT), spanning the full width so the bigger size never
             has to fit inside a side column. */}
-        <h1 className="flex w-full justify-center pt-2" data-testid="hero-wordmark">
+        <motion.h1
+          className="flex w-full justify-center pt-2"
+          data-testid="hero-wordmark"
+          initial={wordmarkStart}
+          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          transition={{ duration: 0.9, delay: HERO_ENTRANCE_DELAYS_SECONDS.wordmark, ease: HERO_ENTRANCE_EASE }}
+        >
           <Wordmark stacked={false} className="items-center" />
-        </h1>
+        </motion.h1>
 
         {/* 2. The middle row: words left, logo center, watch right.
             Items center vertically so the logo's middle is the hero's
             middle. Text widths are capped in index.css so the copy
             stays in its third and off the logo. */}
-        <div className="grid flex-1 grid-cols-1 items-center gap-8 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:gap-6">
+        <div className="grid flex-1 grid-cols-1 items-center gap-8 lg:grid-cols-[minmax(0,0.85fr)_auto_minmax(0,1.15fr)] lg:gap-6">
           {/* 2a. Left: the tagline pill, then the headline and points. */}
-          <div className="flex min-w-0 flex-col items-start justify-center py-3 text-left lg:justify-self-start lg:pl-6">
+          <motion.div
+            className="flex min-w-0 flex-col items-start justify-center py-3 text-left lg:justify-self-start lg:pl-6"
+            initial={wordsStart}
+            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            transition={{ duration: 0.9, delay: HERO_ENTRANCE_DELAYS_SECONDS.words, ease: HERO_ENTRANCE_EASE }}
+          >
             {/* The catchphrase in a pill (.hero-tagline-pill in index.css —
                 same dark glass as the point cards). "Day One." wears the lit
                 brand gradient (.wordmark-connect). The extrusion sits on the
                 wrapper so the shadow follows the letters. "One Day or" stays
                 flat so one phrase isn't three effects. */}
-            <p className="hero-tagline-pill font-display text-xl font-bold leading-snug sm:text-2xl" data-testid="hero-tagline">
+            <p className="hero-tagline-pill font-display text-lg font-bold leading-snug sm:text-xl xl:text-2xl" data-testid="hero-tagline">
               <span className="text-white">One Day </span>
               <span className="text-white/60">or </span>
               <span className="display-extrude inline-block">
@@ -496,27 +516,38 @@ export function TopSection() {
             </p>
 
             <HeroLeftColumn />
-          </div>
+          </motion.div>
 
           {/* 2b. Center: the CC logo, big. Its enlarged stage lives in
-              index.css (.hero-center-logo). The dumbbell rack runs
-              behind it — the logo is the hero's centerpiece. */}
-          <div className="hero-center-logo justify-self-center" data-testid="hero-center-logo">
+              index.css (.hero-center-logo). The grid runs behind it —
+              the logo is the hero's centerpiece. */}
+          <motion.div
+            className="hero-center-logo justify-self-center"
+            data-testid="hero-center-logo"
+            initial={logoStart}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 1, delay: HERO_ENTRANCE_DELAYS_SECONDS.logo, ease: HERO_ENTRANCE_EASE }}
+          >
             <LogoModel />
-          </div>
+          </motion.div>
 
-          {/* 2c. Right: the watch in its narrower third. The
-              .hero-middle-watch rules in index.css scale the case down
-              and shorten its stage so the third never crops it. */}
-          <FadeIn className="hero-middle-watch h-full w-full max-w-[560px] justify-self-center lg:justify-self-end">
+          {/* 2c. Right: the watch, in the widest column. The
+              .hero-middle-watch rules in index.css set the case scale
+              and stage height so the column never crops it. */}
+          <motion.div
+            className="hero-middle-watch h-full w-full max-w-[560px] justify-self-center lg:justify-self-end"
+            initial={watchStart}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, delay: HERO_ENTRANCE_DELAYS_SECONDS.watch, ease: HERO_ENTRANCE_EASE }}
+          >
             <HeroWatch />
-          </FadeIn>
+          </motion.div>
         </div>
       </div>
 
-      {/* Sits centered over the video, so it stays clickable above the background. */}
+      {/* Sits centered over the grid, so it stays clickable above the background. */}
       <HeroScrollHint />
-    </section>
+    </MouseGridBackground>
   );
 }
 
@@ -565,8 +596,7 @@ export function WhatIsSection() {
             What Is Coach Connect
           </p>
           <h2 className="display-extrude chapter-title font-display" data-testid="caption-connection-title">
-            <span className="display-face">What is </span>
-            <span className="headline-grad">Coach Connect?</span>
+            <span className="display-face">What is Coach Connect?</span>
           </h2>
           <span className="chapter-rule" aria-hidden="true" />
           <p className="chapter-lead" data-testid="what-is-body">
@@ -606,72 +636,104 @@ export function WhatIsSection() {
 }
 
 /**
- * Chapter 02 — FAQs: one card per question, tap to open the answer.
- * The open/close animation is pure CSS (.cc-faq-answer in index.css);
- * this component only tracks which card is open.
+ * The FAQs — one card per question, tap to open the answer. These moved
+ * off the homepage to their own page (pages/Faqs.jsx at /faqs) at the
+ * owner's call; the nav's FAQs link lands there now. The open/close
+ * animation is pure CSS (.cc-faq-answer in index.css); this component
+ * only tracks which card is open.
  * @returns {JSX.Element}
  */
 export function FaqSection() {
-  // Which question is open. -1 would mean none; the first starts open so
-  // visitors see the cards are tappable.
-  const [openFaqIndex, setOpenFaqIndex] = useState(0);
+  // Which questions are open — several can be open at once, so visitors
+  // never have to close one answer to read another. The first starts
+  // open so visitors see the rows are tappable.
+  const [openFaqQuestions, setOpenFaqQuestions] = useState([FAQ_ITEMS[0].question]);
+
+  /**
+   * Open one answer, or close it if it is already open.
+   * @param {string} question - the row that was tapped
+   * @returns {void}
+   */
+  const toggleFaqQuestion = (question) => {
+    // vocab: the function form of the setter reads the latest state, so
+    // two fast taps can never overwrite each other's open answer.
+    setOpenFaqQuestions((currentlyOpenQuestions) => {
+      if (currentlyOpenQuestions.includes(question)) {
+        return currentlyOpenQuestions.filter((openQuestion) => openQuestion !== question);
+      }
+      return [...currentlyOpenQuestions, question];
+    });
+  };
 
   return (
     <MouseGridBackground id="act-faqs" className="landing-section-alt">
-      <div className="mx-auto w-full max-w-6xl px-5" data-testid="faq">
-        <SectionHeader
-          color="#C084FC"
-          eyebrow="02 · FAQs"
-          title="Questions, answered."
-          body="The short version of everything people ask before joining the waitlist."
-          testId="faq"
-        />
+      <div className="mx-auto grid w-full max-w-6xl gap-10 px-5 lg:grid-cols-[minmax(0,21rem)_minmax(0,1fr)] lg:gap-16" data-testid="faq">
+        {/* 1. The intro column. On wide screens it sticks while the
+            questions scroll beside it (the Stripe/Linear pattern); on
+            phones it simply sits on top. No card, no eyebrow chip —
+            the heading carries the column on its own. */}
+        <FadeIn className="lg:sticky lg:top-28 lg:self-start">
+          <h2 className="display-extrude font-display text-4xl font-extrabold leading-tight text-white sm:text-5xl" data-testid="faq-title">
+            <span className="display-face">Questions, answered.</span>
+          </h2>
+          <p className="mt-4 font-mono text-sm leading-relaxed text-white/60" data-testid="faq-body">
+            The short version of everything people ask before joining the waitlist.
+          </p>
+          <p className="mt-6 font-mono text-sm leading-relaxed text-white/60">
+            Still stuck?{' '}
+            <Link to="/#act-finale" className="font-semibold text-white underline decoration-orange/60 decoration-2 underline-offset-4 transition-colors hover:text-orange">
+              Join the waitlist
+            </Link>{' '}
+            and we will tell you when the doors open.
+          </p>
+        </FadeIn>
 
-        <div className="mx-auto mt-8 grid max-w-3xl gap-3" data-testid="faq-list">
-          {FAQ_ITEMS.map((faqItem, i) => {
-            const isFaqOpen = openFaqIndex === i;
-            return (
-              <FadeIn key={faqItem.question} delay={i * 0.06}>
-                <div
-                  className="cc-card cc-card-hover rounded-2xl"
-                  style={{ '--card-accent': faqItem.color }}
-                  data-testid="faq-item"
-                >
-                  <button
-                    type="button"
-                    onClick={() => setOpenFaqIndex(isFaqOpen ? -1 : i)}
-                    aria-expanded={isFaqOpen}
-                    className="flex w-full items-center gap-4 px-5 py-4 text-left sm:px-6"
-                    data-testid="faq-question"
-                  >
-                    <span
-                      className="cc-gradient-text font-display text-sm font-bold"
-                      style={{ '--grad-from': faqItem.color, '--grad-to': faqItem.gradientTo }}
-                    >
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-                    <span className="flex-1 font-display text-[0.95rem] font-semibold leading-snug text-white">
-                      {faqItem.question}
-                    </span>
-                    <ChevronDown
-                      size={18}
-                      className={`shrink-0 transition-transform duration-300 ${isFaqOpen ? 'rotate-180' : ''}`}
-                      style={{ color: faqItem.color }}
-                    />
-                  </button>
+        {/* 2. The questions, grouped, as plain hairline rows — no cards.
+            Research pattern (Tally/Stripe): full-width rows, a divider
+            between each, the whole row tappable, a plus that rotates
+            into an × on the open row. */}
+        <div data-testid="faq-list">
+          {FAQ_GROUPS.map((faqGroup, faqGroupIndex) => (
+            <div key={faqGroup}>
+              <h3 className={`mb-1 font-mono text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-white/40 ${faqGroupIndex === 0 ? 'mt-0' : 'mt-10'}`}>
+                {faqGroup}
+              </h3>
+              <div className="border-b border-white/10">
+                {FAQ_ITEMS.filter((faqItem) => faqItem.group === faqGroup).map((faqItem) => {
+                  const isFaqOpen = openFaqQuestions.includes(faqItem.question);
+                  return (
+                    <div key={faqItem.question} className="border-t border-white/10" data-testid="faq-item">
+                      <button
+                        type="button"
+                        onClick={() => toggleFaqQuestion(faqItem.question)}
+                        aria-expanded={isFaqOpen}
+                        className="group flex w-full items-center gap-4 py-5 text-left"
+                        data-testid="faq-question"
+                      >
+                        <span className="flex-1 font-display text-base font-semibold leading-snug text-white/85 transition-colors group-hover:text-white sm:text-lg">
+                          {faqItem.question}
+                        </span>
+                        <Plus
+                          size={20}
+                          strokeWidth={2.2}
+                          className={`shrink-0 transition-transform duration-300 ${isFaqOpen ? 'rotate-45 text-orange' : 'text-white/40 group-hover:text-white/70'}`}
+                        />
+                      </button>
 
-                  {/* vocab: data-open drives the .cc-faq-answer grid-rows animation in index.css */}
-                  <div className="cc-faq-answer" data-open={isFaqOpen} data-testid="faq-answer">
-                    <div>
-                      <p className="px-5 pb-5 pl-[3.25rem] font-mono text-sm leading-relaxed text-white/60 sm:px-6 sm:pl-[3.5rem]">
-                        {faqItem.answer}
-                      </p>
+                      {/* vocab: data-open drives the .cc-faq-answer grid-rows animation in index.css */}
+                      <div className="cc-faq-answer" data-open={isFaqOpen} data-testid="faq-answer">
+                        <div>
+                          <p className="max-w-[65ch] pb-6 font-mono text-sm leading-relaxed text-white/60">
+                            {faqItem.answer}
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </FadeIn>
-            );
-          })}
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </MouseGridBackground>
@@ -800,9 +862,10 @@ export function WhyUsMatchup() {
 }
 
 /**
- * Chapter 03 — subscription: pricing as a bento grid. The price panel wears
- * the gradient border (the section's hero card), the wide get-paid tile and
- * the five benefit tiles use the card system.
+ * Chapter 02 — subscription: one quiet pricing panel, nothing else. The
+ * owner cut the old bento (a wide get-paid tile plus five benefit tiles
+ * repeating this panel's checklist) as too much information. Every
+ * figure here is locked copy from config/siteConfig.js.
  * @returns {JSX.Element}
  */
 export function BenefitsBento() {
@@ -811,91 +874,53 @@ export function BenefitsBento() {
       <div className="mx-auto w-full max-w-6xl px-5" data-testid="pricing-section">
         <SectionHeader
           color="#F97316"
-          eyebrow="03 · Subscription"
+          eyebrow="02 · Subscription"
           title="Everything included. One price."
           body="One flat price, no per-client fees. One subscription runs the whole practice."
           testId="pricing"
         />
 
-        <div className="mt-8 grid gap-3 md:grid-cols-3" data-testid="benefits-bento">
-          {/* Pricing tile — spans both rows; every figure is locked copy */}
-          <FadeIn className="cc-gradient-border rounded-3xl p-7 sm:p-8 md:row-span-2">
-            <div className="flex h-full flex-col" data-testid="pricing-panel">
-              <p className="mb-3 font-pixel text-[0.55rem] uppercase leading-relaxed text-orange" data-testid="pricing-eyebrow">
-                Coach Connect Pro
-              </p>
-              <p className="font-display text-5xl font-extrabold text-white" data-testid="pricing-amount">
-                $59.99
-                <span className="text-lg font-medium text-white/45">/mo</span>
-              </p>
-              <p className="mt-3 flex flex-wrap items-center gap-2 text-sm text-white/65" data-testid="pricing-annual">
-                Annual: $49/mo, billed $588/yr
-                <span className="rounded-md bg-green/15 px-2 py-0.5 text-xs font-semibold text-green-bright">{ANNUAL_SAVINGS_COPY}</span>
-              </p>
-              <p className="mt-2 text-sm text-cyan-bright" data-testid="pricing-trial">
-                {TRIAL_COPY}
-              </p>
-              <ul className="mt-6 space-y-2.5" data-testid="pricing-benefits">
-                {PRICING_BENEFITS.map((pricingBenefit) => (
-                  <li key={pricingBenefit} className="flex items-center gap-3 text-sm text-white/75">
-                    <span className="h-px w-4 bg-gradient-to-r from-pink to-orange" />
-                    {pricingBenefit}
-                  </li>
-                ))}
-              </ul>
-              <a href="#act-finale" onClick={(e) => scrollToHash(e, '#act-finale')} className="cta-primary hero-action hero-action-primary mt-7 w-full" data-testid="pricing-cta">
-                Start free trial
-              </a>
-              <p className="mt-4 text-xs leading-relaxed text-white/40" data-testid="pricing-note">
-                Clients use the app free and pay their coach in the app. {FEE_COPY}
-              </p>
-            </div>
-          </FadeIn>
-
-          {/* The wide get-paid tile */}
-          <FadeIn delay={0.08} className="md:col-span-2">
-            <div className="cc-card h-full rounded-3xl p-6 sm:p-7" style={{ '--card-accent': '#F97316' }}>
-              <p className="display-extrude font-display text-3xl font-extrabold sm:text-4xl">
-                <span className="headline-grad">Get paid in the app.</span>
-              </p>
-              <p className="mt-3 max-w-lg text-sm leading-relaxed text-white/55">
-                Clients pay through Stripe right in the app. No payment links over DM, no separate
-                invoicing tool — payouts are part of the same system as the coaching.
-              </p>
-              {/* The subscription-related slice of the partner text: how a
-                  trainer's coaching rate gets set from the range they submit. */}
-              <p className="mt-3 max-w-lg text-sm leading-relaxed text-white/55">
-                Trainers submit their preferred earnings range for monthly or yearly coaching, and
-                Coach Connect sets the rate from their expertise, experience, and previous
-                earnings — within reach for clients, and fair to the trainer.
-              </p>
-            </div>
-          </FadeIn>
-
-          {/* The five benefit tiles, staggered a beat behind the pricing tile */}
-          {BENEFIT_TILES.map((benefitTile, i) => (
-            <FadeIn key={benefitTile.label} delay={0.12 + i * 0.06}>
-              <div
-                className="cc-card cc-card-hover h-full rounded-2xl p-5"
-                style={{ '--card-accent': benefitTile.color, '--grad-to': benefitTile.gradientTo }}
-                data-testid="benefit-tile"
-              >
-                <span className="cc-icon-disc h-9 w-9">
-                  <benefitTile.icon size={17} strokeWidth={2.2} />
-                </span>
-                <h3 className="mt-3 font-display text-[0.85rem] font-semibold leading-snug text-white">{benefitTile.label}</h3>
-                <p className="mt-1.5 text-[0.8rem] leading-relaxed text-white/55">{benefitTile.body}</p>
-              </div>
-            </FadeIn>
-          ))}
-        </div>
+        {/* The one panel: price, annual, trial, the five included things,
+            the CTA, and the fee note. Quiet dark glass — no gradient rim. */}
+        <FadeIn className="mx-auto mt-8 w-full max-w-xl rounded-3xl border border-white/10 bg-[#0a0a0f]/55 p-7 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl sm:p-8">
+          <div className="flex h-full flex-col" data-testid="pricing-panel">
+            <p className="mb-3 font-pixel text-[0.55rem] uppercase leading-relaxed text-orange" data-testid="pricing-eyebrow">
+              Coach Connect Pro
+            </p>
+            <p className="font-display text-5xl font-extrabold text-white" data-testid="pricing-amount">
+              $59.99
+              <span className="text-lg font-medium text-white/45">/mo</span>
+            </p>
+            <p className="mt-3 flex flex-wrap items-center gap-2 text-sm text-white/65" data-testid="pricing-annual">
+              Annual: $49/mo, billed $588/yr
+              <span className="rounded-md bg-green/15 px-2 py-0.5 text-xs font-semibold text-green-bright">{ANNUAL_SAVINGS_COPY}</span>
+            </p>
+            <p className="mt-2 text-sm text-cyan-bright" data-testid="pricing-trial">
+              {TRIAL_COPY}
+            </p>
+            <ul className="mt-6 space-y-2.5" data-testid="pricing-benefits">
+              {PRICING_BENEFITS.map((pricingBenefit) => (
+                <li key={pricingBenefit} className="flex items-center gap-3 text-sm text-white/75">
+                  <span className="h-px w-4 bg-gradient-to-r from-pink to-orange" />
+                  {pricingBenefit}
+                </li>
+              ))}
+            </ul>
+            <a href="#act-finale" onClick={(e) => scrollToHash(e, '#act-finale')} className="cta-primary hero-action hero-action-primary mt-7 w-full" data-testid="pricing-cta">
+              Start free trial
+            </a>
+            <p className="mt-4 text-xs leading-relaxed text-white/40" data-testid="pricing-note">
+              Clients use the app free and pay their coach in the app. {FEE_COPY}
+            </p>
+          </div>
+        </FadeIn>
       </div>
     </MouseGridBackground>
   );
 }
 
 /**
- * Chapter 04 — the waitlist finale (Coming Soon), with the footer directly
+ * Chapter 03 — the waitlist finale (Coming Soon), with the footer directly
  * under it. The catchphrase headline stays; under it, one horizontal row
  * holds both paths: the waitlist form on the left and, directly beside it,
  * the TestFlight shortcut for anyone who would rather run the live iOS
@@ -911,7 +936,7 @@ export function JoinNowFooter() {
           <FadeIn className="flex w-full max-w-6xl flex-col items-center">
             {/* 1. Where in the story we are, and when the doors open */}
             <p className="mb-4 font-pixel text-[0.6rem] uppercase leading-relaxed text-pink" data-testid="finale-eyebrow">
-              04 · Waitlist
+              03 · Waitlist
             </p>
             {/* Manipulate here: launch timing wording — the owner's to confirm */}
             <span
