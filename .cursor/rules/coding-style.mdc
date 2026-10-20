@@ -1,0 +1,15 @@
+---
+description: Plain-English coding style (Variation 3) for all code in this project
+alwaysApply: true
+---
+
+# Coding Style
+
+Every new or edited `.js` / `.jsx` file MUST follow `docs/CODING_STYLE.md` (Variation 3).
+
+Required: plain-English spoken names (no `t` / `gp` / `bg` locals) · file shape
+(header → imports → NAMED CONSTANTS → HELPERS → MAIN) · main reads as a numbered
+recipe (`// 1.`–`// 6.`, mains/handlers only) · JSDoc on every export · nesting max 2 ·
+freeze list respected (same exports, same import paths, same string letters, same behavior).
+
+Also keep `docs/INLINE_COMMENT_STYLE.md` comment depth: `// vocab:` · `// Manipulate here:`.

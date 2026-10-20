@@ -1,0 +1,1437 @@
+/* Coach Connect global styles — Devora's CSS patterns reproduced, recolored via tokens ONLY.
+   Flow: lenis CSS → Tailwind layers → theme tokens (on html) → base → component utilities
+   → landing patterns (sections, mouse grid, marquee, cycle bar, hero actions).
+   Recolor rule: change values in the PALETTE MAPPING block / token values / gradient stops —
+   never the mechanics (timings, eases, structure) below.
+   Fonts: --font-display Unbounded (headlines), --font-mono Space Mono (body/UI),
+   --font-pixel "Press Start 2P" (chapter labels). Loaded in public/index.html. */
+@import "lenis/dist/lenis.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ════════════════════════════════════════════════════════════════════
+   THEME TOKENS + PALETTE MAPPING (the ONLY place colors should change)
+   Structure copied from Devora; values swapped to the Coach Connect palette.
+   Coach Connect ships dark-only, so [data-theme="light"] intentionally
+   resolves to the same dark tokens (brand rule: the void is the brand).
+   ════════════════════════════════════════════════════════════════════ */
+html {
+  /* font roles */
+  --font-display: 'Unbounded', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+  --font-pixel: 'Press Start 2P', monospace;
+
+  /* surfaces + text */
+  --page-bg: #0a0a0f;
+  /* section washes stay transparent/translucent on purpose: the fixed WebGL
+     canvas (3D acts) IS the animated background layer behind every section */
+  --section-bg: transparent;
+  --section-bg-alt: rgba(20, 20, 25, 0.35);
+  --text-primary: #f5f2fa;
+  --heading-color: #ffffff;
+  --text-body: rgba(255, 255, 255, 0.88);
+  --text-muted: rgba(255, 255, 255, 0.6);
+  --text-faint: rgba(255, 255, 255, 0.4);
+  --surface-glass: rgba(10, 10, 15, 0.38);
+  --surface-glass-mid: rgba(10, 10, 15, 0.45);
+  --surface-glass-strong: rgba(10, 10, 15, 0.62);
+  --surface-glass-subtle: rgba(10, 10, 15, 0.28);
+
+  /* 3D depth + easing — mechanics, do not retime */
+  --btn-3d-depth: 6px;
+  --btn-3d-depth-hover: 10px;
+  --btn-3d-ease: cubic-bezier(0.34, 1.25, 0.64, 1);
+  /* multi-layer shadow stack that gives panels their lifted-off-the-void depth */
+  --card-3d-stack:
+    0 30px 80px rgba(0, 0, 0, 0.55),
+    0 12px 32px rgba(0, 0, 0, 0.45),
+    0 4px 12px rgba(0, 0, 0, 0.35);
+
+  /* ── PALETTE MAPPING ──────────────────────────────────────────────
+     Manipulate here: these five slots recolor the whole page.
+     1. headline gradient   2. CTA gradient   3. outline border
+     4. glow line           5. grid glow                            */
+  --pal-headline-from: #ff6b9d;
+  --pal-headline-to: #f97316;
+  --pal-cta-from: #be185d;
+  --pal-cta-to: #c2410c;
+  --pal-outline: rgba(255, 107, 157, 0.45);
+  --pal-glow-line: rgba(255, 107, 157, 0.65);
+  --pal-grid: rgba(255, 107, 157, 0.32);
+  --pal-grid-2: rgba(6, 182, 212, 0.08);
+  --grid-line-soft: rgba(255, 107, 157, 0.14);
+  --grid-line-strong: rgba(255, 107, 157, 0.65);
+
+  /* legacy brand vars (scene-adjacent utilities below still read these) */
+  --void: #0a0a0f;
+  --deep-black: #000000;
+  --elevated: #141419;
+  --pink: #ff6b9d;
+  --purple: #c084fc;
+  --cyan: #06b6d4;
+  --cyan-bright: #64d2ff;
+  --orange: #f97316;
+  --green: #10b981;
+  --green-bright: #34d399;
+  --cta-from: #be185d;
+  --cta-to: #c2410c;
+  --glass-fill: rgba(255, 255, 255, 0.06);
+  --glass-border: rgba(255, 255, 255, 0.12);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* NOTE: no `scroll-behavior: smooth` on html — Lenis owns smooth scrolling on
+   the landing page now; a CSS smooth-scroll on top would fight it. */
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--page-bg);
+  color: var(--text-primary);
+  /* Owner's call (Oct 19): main text uses the pixel font (Press Start 2P) — the
+     blocky one — everywhere unless a display/mono class overrides it.
+     Manipulate here: back to Space Mono body text = var(--font-mono) instead */
+  font-family: var(--font-pixel);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: rgba(255, 107, 157, 0.35);
+  color: #fff;
+}
+
+@layer components {
+  .glass-panel {
+    background: var(--surface-glass-mid);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow:
+      0 18px 50px rgba(0, 0, 0, 0.45),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  /* Devora .what-is-panel — the signature gradient glass panel (chapter 01).
+     Only the gradient stops are brand-swapped; blur/border/shadow are the pattern. */
+  /* The lifter beside chapter 01 (ui/WeightliftingAnimation.jsx).
+     The file is 1020×800. An explicit box stops the SVG's own pixel size
+     (1020×800) from blowing the chapter into a tall empty scroll.
+     Manipulate here: 380px wide × 298px tall. Keep the ratio near 1020:800
+     or the lifter stretches. */
+  .what-is-lottie {
+    width: min(100%, 380px);
+    height: 298px;
+    margin-inline: auto;
+    overflow: hidden;
+  }
+  .what-is-lottie svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Two columns of full-size pieces. AI Coach takes the whole last row
+     so the grid doesn't end on an empty hole.
+     Manipulate here: 0.75rem gap. A bigger gap pushes the chapter past one screen. */
+  .what-is-pieces {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 640px) {
+    .what-is-pieces {
+      grid-template-columns: 1fr 1fr;
+    }
+    .what-is-piece-wide {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .what-is-panel {
+    background:
+      linear-gradient(160deg, rgba(255, 107, 157, 0.14), rgba(192, 132, 252, 0.08) 45%, rgba(6, 182, 212, 0.1)),
+      var(--surface-glass-strong);
+    border: 1px solid rgba(255, 107, 157, 0.28);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    box-shadow:
+      var(--card-3d-stack),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
+  /* Devora .landing-surface-card — gradient glass card for features/cycles/bento tiles */
+  .landing-surface-card {
+    background:
+      linear-gradient(165deg, rgba(255, 107, 157, 0.1), rgba(255, 255, 255, 0.04) 40%, rgba(6, 182, 212, 0.07)),
+      var(--surface-glass-mid);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow:
+      var(--card-3d-stack),
+      inset 0 1px 0 rgba(255, 255, 255, 0.09);
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     CARD SYSTEM (.cc-card-*) — one card language for the whole site.
+     Glass, not a painted slab: a translucent accent wash, a gradient
+     rim, and a dark lift. No flat fill, no solid lip, no colored glow.
+     Every card carries --card-accent and --grad-to (set inline where
+     the card renders). color-mix tints the wash and the rim from those
+     two, so a card recolors by changing the pair — no per-color classes.
+     The rim is a separate layer (.cc-card::before) with a mask, so the
+     vivid gradient stays on the 1px edge. Painting that gradient as a
+     background layer bleeds through any clear fill and the card looks
+     like a solid color.
+     Manipulate here: the first color-mix percent is how much of the
+     accent shows through the glass. Higher = more color, lower = clearer.
+     ════════════════════════════════════════════════════════════════ */
+  .cc-card {
+    position: relative;
+    border: none;
+    background: linear-gradient(
+      155deg,
+      color-mix(in srgb, var(--card-accent, #ff6b9d) 46%, transparent),
+      rgba(255, 255, 255, 0.08) 46%,
+      color-mix(in srgb, var(--grad-to, #06b6d4) 30%, transparent)
+    );
+    backdrop-filter: blur(18px) saturate(1.45);
+    -webkit-backdrop-filter: blur(18px) saturate(1.45);
+    /* Dark lift only. A colored blur reads as the glow that was rejected.
+       Manipulate here: the -24px spread keeps the shadow tight under the card. */
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.32),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.06),
+      0 18px 36px -24px rgba(0, 0, 0, 0.78);
+    transition:
+      transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Hover lifts the glass. The shadow stays dark — it gets deeper, not brighter. */
+  @media (hover: hover) and (pointer: fine) {
+    .cc-card-hover:hover {
+      transform: translateY(-4px);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.42),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.08),
+        0 24px 40px -22px rgba(0, 0, 0, 0.72);
+    }
+    .cc-card-hover:active {
+      transform: translateY(1px);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
+        0 10px 20px -18px rgba(0, 0, 0, 0.7);
+    }
+  }
+
+  /* Gradient rim only. The mask punches out the middle, so the color
+     never fills the card.
+     vocab: mask-composite: exclude = keep the padding ring, drop the
+     center. padding: 1px is the thickness of that ring.
+     Manipulate here: 1px = hairline. 1.5px reads heavier. */
+  .cc-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--card-accent, #ff6b9d) 88%, white),
+      rgba(255, 255, 255, 0.55) 48%,
+      color-mix(in srgb, var(--grad-to, #f97316) 82%, white)
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* The accent disc with a white glyph inside (watch-row style). It is a
+     GRADIENT, never a flat color — the owner is explicit: no plain solid
+     purple/orange/blue fills anywhere. --card-accent is the gradient's
+     start, --grad-to its end (both set inline per card; the pairs cycle
+     the brand palette, e.g. pink→orange like CONNECT in the wordmark).
+     Size comes from the caller. */
+  .cc-icon-disc {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, var(--card-accent, #ff6b9d), var(--grad-to, #f97316));
+    color: #fff;
+    /* A white edge on top and a dark pool inside the disc, so the gradient
+       reads as glass. No solid bar under the disc.
+       Manipulate here: the -10px inset is the dark pool. Raise it and the
+       disc looks flatter. */
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.55),
+      inset 0 -10px 14px rgba(0, 0, 0, 0.22);
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Gradient text (the CONNECT trick) driven by the same two variables —
+     for numbers/labels that used to be one flat color. */
+  .cc-gradient-text {
+    background: linear-gradient(120deg, var(--grad-from, #ff6b9d), var(--grad-to, #f97316));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Gradient-border panel for the one hero card of a section (the price
+     panel): the signature glass wash inside, the CTA gradient as the rim.
+     vocab: padding-box vs border-box = the first backgrounds paint only
+     inside the border, the last one paints under it — together they fake
+     a gradient border without border-image. */
+  .cc-gradient-border {
+    border: 1px solid transparent;
+    /* The middle layer must be OPAQUE (#12121a): with a translucent glass
+       layer the vivid CTA gradient bleeds through and stains the whole
+       panel pink. Opaque inside = gradient shows only at the 1px rim. */
+    background:
+      linear-gradient(160deg, rgba(255, 107, 157, 0.14), rgba(192, 132, 252, 0.08) 45%, rgba(6, 182, 212, 0.1)) padding-box,
+      linear-gradient(#12121a, #12121a) padding-box,
+      linear-gradient(135deg, var(--pal-cta-from), var(--pal-cta-to)) border-box;
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    box-shadow:
+      var(--card-3d-stack),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
+  /* FAQ answer reveal: grid-rows 0fr → 1fr animates height smoothly
+     without measuring anything in JS. The inner div clips the overflow. */
+  .cc-faq-answer {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .cc-faq-answer[data-open="true"] { grid-template-rows: 1fr; }
+  .cc-faq-answer > div { overflow: hidden; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cc-card { transition: none; }
+    .cc-faq-answer { transition: none; }
+  }
+
+  /* What-is pieces: a stronger wash than the rest of the cards, still
+     glass. The color drifts slowly so the gradient doesn't sit still.
+     vocab: background-size over 100% is what lets background-position
+     slide the wash. The second layer is the rim, so it drifts too.
+     Manipulate here: 9s is the drift. Lower = busier. */
+  .what-is-pieces .what-is-piece {
+    overflow: hidden;
+    background: linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--card-accent) 62%, transparent) 0%,
+      rgba(255, 255, 255, 0.12) 46%,
+      color-mix(in srgb, var(--grad-to) 44%, transparent) 100%
+    );
+    background-size: 180% 180%;
+    animation: glass-wash 9s ease-in-out infinite;
+  }
+  .what-is-pieces .what-is-piece > * {
+    position: relative;
+    z-index: 1;
+  }
+  .what-is-pieces .what-is-piece-wide .what-is-piece {
+    background: linear-gradient(
+      105deg,
+      color-mix(in srgb, var(--card-accent) 55%, transparent),
+      rgba(255, 255, 255, 0.14) 46%,
+      color-mix(in srgb, var(--grad-to) 48%, transparent)
+    );
+    background-size: 180% 180%;
+  }
+  /* A light streak that crosses the card on hover. It lives on top of the
+     glass and never catches clicks.
+     Manipulate here: 0.7s is how fast the streak crosses. */
+  .what-is-piece::after {
+    content: "";
+    position: absolute;
+    inset: -40% auto -40% -55%;
+    width: 42%;
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+    transform: translateX(0) rotate(12deg);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+  }
+  @keyframes glass-wash {
+    0%, 100% { background-position: 0% 40%; }
+    50% { background-position: 100% 60%; }
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .what-is-pieces .what-is-piece.cc-card-hover:hover::after {
+      opacity: 1;
+      transform: translateX(320%) rotate(12deg);
+    }
+    .what-is-pieces .what-is-piece.cc-card-hover:hover .cc-icon-disc {
+      transform: scale(1.08) rotate(-8deg);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .what-is-pieces .what-is-piece { animation: none; }
+    .what-is-piece::after { display: none; }
+  }
+
+  /* Lit display type — hero wordmark, "Day One", and the big headers.
+     The face is a vertical gradient: a highlight along the top of each
+     letter, the brand color through the middle, a deeper shade on the
+     underside. Vertical (not corner-to-corner) so it reads as one
+     rounded surface instead of a stripe.
+     vocab: background-clip: text = paint that gradient only inside the
+     letter shapes. color stays transparent so the fill doesn't cover it.
+     Manipulate here: first stop = the highlight, last stop = the shaded
+     underside. Keep every stop in the pink-to-orange family. */
+  .headline-grad,
+  .wordmark-connect {
+    background: linear-gradient(
+      180deg,
+      #ffd4e6 0%,
+      #ff6b9d 46%,
+      #f97316 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* White headers, same light direction as the brand words. The bottom
+     stop is only a little cooler than white, so the title stays white
+     and the bevel stays quiet.
+     Manipulate here: pull the last stop toward #ffffff if the headers
+     start looking gray. */
+  .display-face {
+    background: linear-gradient(180deg, #ffffff 0%, #fbfbfd 62%, #e6e2ee 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Thickness under the lit face. Put this on a WRAPPER around the
+     clipped text — a filter on the same element as background-clip
+     shadows the box, not the letters.
+     vocab: drop-shadow follows the painted shape of the glyphs.
+     Two layers only: a 1px edge (the thickness) and a soft lift.
+     A third, colored glow is what makes this look busy.
+     Manipulate here: the 1px layer is the bevel; the 6px blur is the
+     lift. Raise the blur and the stacked hero lines smear together. */
+  .display-extrude {
+    filter:
+      drop-shadow(0 1px 0 rgba(0, 0, 0, 0.65))
+      drop-shadow(0 6px 8px rgba(0, 0, 0, 0.28));
+  }
+
+  /* Chapter opener for "What is Coach Connect?": a glass pill, a two-tone
+     title, a short gradient rule, then the lead. The pill is glass (a
+     gradient rim, a clear fill) — the number is gradient text, not a
+     flat purple label.
+     Manipulate here: the pill padding is the height of the eyebrow. */
+  .chapter-intro {
+    margin-bottom: 1.35rem;
+    text-align: center;
+  }
+  .chapter-kicker {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 0 auto 0.85rem;
+    padding: 0.28rem 0.85rem 0.28rem 0.28rem;
+    border-radius: 999px;
+    border: none;
+    /* A light color wash, not a painted capsule. The rainbow stays on
+       the rim (::before), or the clear middle shows the rainbow through
+       and the pill looks like a solid gradient. */
+    background: linear-gradient(100deg, rgba(255, 107, 157, 0.2), rgba(192, 132, 252, 0.12) 50%, rgba(6, 182, 212, 0.16));
+    backdrop-filter: blur(16px) saturate(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
+    font-family: var(--font-pixel);
+    font-size: 0.55rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.88);
+  }
+  .chapter-kicker::before,
+  .chapter-kicker-index::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(120deg, #ff6b9d, #f97316, #c084fc, #06b6d4);
+    background-size: 220% 220%;
+    animation: kicker-rim 8s ease-in-out infinite;
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+  .chapter-kicker-index {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.85rem;
+    height: 1.85rem;
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04));
+  }
+  .chapter-kicker-index::before {
+    background: linear-gradient(135deg, #ff6b9d, #f97316);
+    animation: none;
+  }
+  .chapter-title {
+    margin: 0;
+    font-size: 1.9rem;
+    font-weight: 600;
+    line-height: 1.12;
+    letter-spacing: -0.03em;
+  }
+  @media (min-width: 640px) {
+    .chapter-title { font-size: 2.7rem; }
+  }
+  .chapter-rule {
+    display: block;
+    width: 5.5rem;
+    height: 2px;
+    margin: 0.8rem auto 0;
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, #ff6b9d, #f97316, #06b6d4, transparent);
+  }
+  .chapter-lead {
+    margin: 0.7rem auto 0;
+    max-width: 38rem;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 1.02rem;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.74);
+  }
+  @keyframes kicker-rim {
+    0%, 100% { background-position: 0 0, 0% 50%; }
+    50% { background-position: 0 0, 100% 50%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .chapter-kicker::before { animation: none; }
+  }
+
+  .cta-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1.6rem;
+    border-radius: 9999px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #fff;
+    background: linear-gradient(135deg, var(--pal-cta-from), var(--pal-cta-to));
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.18),
+      0 8px 28px rgba(190, 24, 93, 0.35);
+    transition:
+      transform 0.25s ease,
+      filter 0.25s ease,
+      box-shadow 0.25s ease;
+  }
+
+  .cta-primary:hover {
+    transform: translateY(-2px) scale(1.03);
+    filter: brightness(1.15);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.22),
+      0 12px 36px rgba(190, 24, 93, 0.45);
+  }
+
+  .cta-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1.5rem;
+    border-radius: 9999px;
+    font-family: var(--font-mono);
+    font-weight: 400;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.88);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    transition:
+      border-color 0.25s ease,
+      background 0.25s ease,
+      transform 0.25s ease;
+  }
+
+  .cta-ghost:hover {
+    border-color: rgba(6, 182, 212, 0.5);
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-1px);
+  }
+
+  /* Hero sunset canvas (ui/SunsetOceanBackground.jsx). Fills the hero
+     section only. The dark fill shows until the first GPU frame lands,
+     so the page never flashes white. */
+  .sunset-ocean-canvas {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    pointer-events: none;
+    background: #07060a;
+  }
+
+  /* Static fallback shown instead of WebGL when the user prefers reduced motion */
+  .aurora-static {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 60% 50% at 85% 12%, rgba(255, 107, 157, 0.28), transparent 55%),
+      radial-gradient(ellipse 55% 45% at 12% 88%, rgba(6, 182, 212, 0.22), transparent 55%),
+      radial-gradient(ellipse 50% 40% at 88% 85%, rgba(249, 115, 22, 0.18), transparent 50%),
+      radial-gradient(ellipse 45% 40% at 15% 15%, rgba(192, 132, 252, 0.2), transparent 50%),
+      #0a0a0f;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   LANDING SECTION SIZING — chapters read as one-screen panels on desktop
+   ════════════════════════════════════════════════════════════════════ */
+.landing-section,
+.landing-section-alt {
+  padding-top: 4.75rem;
+  padding-bottom: 2.25rem;
+  transition: background-color 0.45s ease;
+}
+.landing-section { background-color: var(--section-bg); }
+.landing-section-alt { background-color: var(--section-bg-alt); }
+@media (min-width: 1024px) {
+  .landing-section,
+  .landing-section-alt {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: 5.25rem;
+    padding-bottom: 1.35rem;
+  }
+  .landing-section-body { width: 100%; }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   MOUSE-FOLLOW INTERACTIVE GRID — drawn by primitives/MouseGridBackground.
+   ::before = faint always-on grid. ::after = the same grid + radial glow,
+   revealed only while hovering, masked to a soft circle at the cursor.
+   ════════════════════════════════════════════════════════════════════ */
+.interactive-grid-section { --grid-x: 50%; --grid-y: 50%; }
+.interactive-grid-bg::before,
+.interactive-grid-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-size: 44px 44px;
+  pointer-events: none;
+}
+.interactive-grid-bg::before {
+  background-image:
+    linear-gradient(var(--grid-line-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line-soft) 1px, transparent 1px);
+}
+.interactive-grid-bg::after {
+  background-image:
+    radial-gradient(
+      520px circle at var(--grid-x) var(--grid-y),
+      var(--pal-grid),
+      var(--pal-grid-2) 42%,
+      transparent 70%
+    ),
+    linear-gradient(var(--grid-line-strong) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line-strong) 1px, transparent 1px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  mask-image: radial-gradient(
+    560px circle at var(--grid-x) var(--grid-y),
+    black 0%,
+    rgba(0, 0, 0, 0.65) 55%,
+    transparent 78%
+  );
+  -webkit-mask-image: radial-gradient(
+    560px circle at var(--grid-x) var(--grid-y),
+    black 0%,
+    rgba(0, 0, 0, 0.65) 55%,
+    transparent 78%
+  );
+}
+.interactive-grid-section.is-hovering .interactive-grid-bg::after { opacity: 1; }
+
+/* ════════════════════════════════════════════════════════════════════
+   MARQUEE (ScrollingTextStrip) — track holds the row twice; translating
+   −50% loops seamlessly because both halves are identical.
+   Manipulate here: 46s = scroll speed (lower = faster)
+   ════════════════════════════════════════════════════════════════════ */
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 46s linear infinite;
+}
+.marquee-track:hover { animation-play-state: paused; }
+@keyframes marquee {
+  to { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation: none; }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   HERO SCROLL HINT — a clickable pill at the bottom of the hero.
+   Twin chevrons bounce so the control reads as "this scrolls".
+   Manipulate here: bottom 1.35rem = how high it sits off the fold;
+   7px in the keyframes = how far the chevrons travel.
+   ════════════════════════════════════════════════════════════════════ */
+.hero-scroll-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 1.35rem;
+  z-index: 20;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.05rem;
+  min-width: 7.75rem;
+  padding: 0.72rem 1.4rem 0.45rem;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  background: rgba(10, 10, 15, 0.78);
+  color: #fff;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.5),
+    0 0 0 6px rgba(255, 255, 255, 0.1);
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.hero-scroll-hint:hover {
+  background: rgba(10, 10, 15, 0.92);
+  border-color: #fff;
+}
+.hero-scroll-hint:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+}
+.hero-scroll-hint-chevrons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 1.55rem;
+}
+.hero-scroll-hint-chevron {
+  width: 22px;
+  height: 22px;
+  animation: hero-scroll-hint-bounce 1.35s ease-in-out infinite;
+}
+.hero-scroll-hint-chevron + .hero-scroll-hint-chevron {
+  margin-top: -12px;
+}
+.hero-scroll-hint-chevron-delay {
+  animation-delay: 0.18s;
+}
+@keyframes hero-scroll-hint-bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.45; }
+  50% { transform: translateY(7px); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-scroll-hint-chevron { animation: none; opacity: 1; }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   HERO LEFT COLUMN — support line, waitlist pill, audience links, proof
+   chips, and (only when SHOW_FLOATING_CARDS is on) example notes.
+   Colors come from the tokens on html. The submit button is .cta-primary.
+   Manipulate here: the margins are the air between the blocks. Raise them
+   if the column feels tight; lower them if the logo falls off the sun.
+   ════════════════════════════════════════════════════════════════════ */
+.hero-support-line {
+  margin-top: 1.6rem;
+  max-width: min(60ch, 100%);
+  font-family: var(--font-mono);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.hero-waitlist {
+  width: 100%;
+  max-width: 34rem;
+  margin-top: 1.5rem;
+}
+
+/* vocab: backdrop-filter = the blur that makes the pill read as glass
+   over the sunset, instead of a solid bar. */
+.hero-waitlist-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 0.3rem 0.3rem 0.3rem 1.05rem;
+  border-radius: 999px;
+  background: var(--surface-glass-mid);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.hero-waitlist-pill:focus-within {
+  border-color: rgba(255, 107, 157, 0.75);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 0 3px rgba(255, 107, 157, 0.28);
+}
+.hero-waitlist-input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  line-height: 1.3;
+  outline: none;
+}
+.hero-waitlist-input::placeholder {
+  color: var(--text-faint);
+}
+.hero-waitlist-input:focus-visible {
+  border-radius: 999px;
+  box-shadow: 0 0 0 2px var(--pink);
+}
+.hero-waitlist-submit {
+  flex-shrink: 0;
+  padding: 0.72rem 1.15rem;
+  font-size: 0.82rem;
+}
+.hero-waitlist-submit:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+.hero-waitlist-submit:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+.hero-waitlist-status {
+  margin-top: 0.55rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--pink);
+}
+.hero-waitlist-status[data-state='success'] {
+  color: var(--green-bright);
+}
+
+.hero-audience-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 1.15rem;
+}
+.hero-audience-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.42rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.88);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.2;
+  text-decoration: none;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+.hero-audience-pill:hover {
+  border-color: rgba(255, 107, 157, 0.55);
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-1px);
+}
+.hero-audience-pill:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+.hero-proof-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1.15rem;
+}
+.hero-proof-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  max-width: 100%;
+  padding: 0.32rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.3;
+}
+
+/* The logo's box. The turn lives inside the canvas (ui/LogoModel.jsx),
+   so this slot is free to use margin for placement.
+   Manipulate here: a more negative margin-top pulls the mark up onto the
+   sun's left edge. Do not use transform — the logo's own hop uses it. */
+.hero-logo-slot {
+  position: relative;
+  margin-top: -0.5rem;
+}
+@media (min-width: 1024px) {
+  .hero-logo-slot {
+    margin-top: -2.25rem;
+  }
+}
+
+/* Example notes. One card is visible at a time. --hero-note-hold comes from
+   HERO_NOTE_HOLD_MS in HeroLeftColumn.jsx (default 4000ms, so a 3-card loop
+   is 12s). The cards are out of flow so they don't stretch the column. */
+.hero-example-notes {
+  position: absolute;
+  z-index: 2;
+  left: 62%;
+  top: 22%;
+  width: 12.5rem;
+  height: 4.25rem;
+  pointer-events: none;
+}
+.hero-example-note {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 12.5rem;
+  padding: 0.55rem 0.75rem 0.65rem;
+  border-radius: 0.9rem;
+  background: var(--surface-glass-strong);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.35;
+  opacity: 0;
+  animation: hero-note-fade calc(var(--hero-note-hold) * 3) linear infinite;
+}
+.hero-example-note:nth-child(2) {
+  animation-delay: var(--hero-note-hold);
+}
+.hero-example-note:nth-child(3) {
+  animation-delay: calc(var(--hero-note-hold) * 2);
+}
+.hero-example-kicker {
+  display: block;
+  margin-bottom: 0.15rem;
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+@keyframes hero-note-fade {
+  0% { opacity: 0; transform: translateY(6px); }
+  6% { opacity: 1; transform: translateY(0); }
+  28% { opacity: 1; transform: translateY(0); }
+  33.33% { opacity: 0; transform: translateY(-4px); }
+  100% { opacity: 0; transform: translateY(-4px); }
+}
+
+/* Under 900px the hero is already one column (two columns start at 1024px).
+   The bar goes edge to edge, and every proof chip after the first is hidden. */
+@media (max-width: 899px) {
+  .hero-waitlist {
+    max-width: none;
+  }
+  .hero-waitlist-pill {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.55rem;
+    padding: 0.65rem;
+    border-radius: 1.35rem;
+  }
+  .hero-waitlist-submit {
+    width: 100%;
+  }
+  .hero-proof-chip:not(:first-child) {
+    display: none;
+  }
+  .hero-example-notes {
+    left: auto;
+    right: 0;
+    top: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-example-note {
+    animation: none;
+    opacity: 0;
+    transform: none;
+  }
+  .hero-example-note:first-child {
+    opacity: 1;
+  }
+  .hero-audience-pill:hover {
+    transform: none;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   HERO WATCH (.ccw-*) — the Apple Watch-style card in the hero's right
+   cell (ui/HeroWatch.jsx). Ported from the owner's Uiverse component:
+   same case/crown/strap construction, but the cream page background is
+   gone (the stage is transparent so the watch floats on the site's
+   backdrop), the five swipeable faces were cut to one Coach Connect
+   screen, and the yellow accent became brand orange #F97316.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* The stage: fills the hero's right column (height: 100%) and crops the
+   straps, which run 610px past the case top and bottom — long enough that
+   the band always spans the full stage, from under the nav to the fold,
+   like a real watch product shot instead of a cut-off floating case. */
+/* Manipulate here: min-height 620px = the shortest the stage (and so the
+   band) ever gets, on mobile where the watch stacks under the logo */
+.ccw-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  height: 100%;
+  min-height: 620px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* The watch itself. Screen text uses Space Mono via --font-mono: the
+   project's pixel font would be unreadable at watch sizes. */
+/* Manipulate here: width/height = the whole watch's size. The original
+   component was 310×375 (real-watch proportions); the owner stretched it
+   to 500 wide so the screen fits two columns of feature rows — widen or
+   narrow here and the case, screen, and rows all follow.
+   --ccw-screen-bg #FFFDF4 = the light screen — swap to #0A0A0F for a
+   dark screen (and flip --ccw-text/--ccw-dim) */
+.ccw-watch {
+  --ccw-screen-bg: #fffdf4;
+  --ccw-text: #1c1c1e;
+  --ccw-dim: rgba(28, 28, 30, 0.52);
+  position: relative;
+  width: 500px;
+  height: 375px;
+  flex-shrink: 0;
+}
+
+/* The band: 640px long each way with 610px sticking out past the case
+   (the last 30px tucks behind it), so it always reaches both edges of
+   the stage no matter how tall the hero gets. */
+/* Manipulate here: width 240px = band thickness against the 500px case */
+.ccw-strap {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 240px;
+  height: 640px;
+  border-radius: 18px;
+  z-index: 1;
+  box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.08);
+}
+.ccw-strap-top { top: -610px; background: linear-gradient(to top, #e2e4e9, #f3f4f6); }
+.ccw-strap-bottom { bottom: -610px; background: linear-gradient(to bottom, #e2e4e9, #f3f4f6); }
+
+/* Band details — what makes it read as a band and not a gray rectangle.
+   Like a real sport band: the top strap carries the metal pin stud, the
+   bottom strap carries the keeper loop and the row of adjustment holes.
+   All distances are measured from the case end of each strap, so they
+   stay put no matter how much band the stage crops. */
+
+/* The pin: a small metallic stud head sticking up from the top strap */
+/* Manipulate here: bottom 105px = how far above the case the pin sits
+   (kept close so it never gets cropped by the stage's top edge) */
+.ccw-strap-top::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 105px;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffffff, #d1d5db 45%, #8e939c);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.35),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.25);
+}
+
+/* The keeper loop: the little ring the loose end threads through, drawn
+   as a slightly darker wrap across the full band width */
+/* Manipulate here: top 44px = gap between the case and the loop */
+.ccw-strap-bottom::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 44px;
+  height: 30px;
+  background: linear-gradient(to bottom, #dfe3e9, #ccd1d9);
+  border-radius: 4px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.12),
+    0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* The adjustment holes: a punched column down the bottom strap. Two
+   stacked radial-gradients fake the depth — a dark hole with a lit rim
+   along its bottom edge — tiled every 46px. */
+/* Manipulate here: 46px (in background-size) = spacing between holes;
+   top 110px = where the first hole starts below the case */
+.ccw-strap-bottom::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 110px;
+  bottom: 24px;
+  width: 24px;
+  background-image:
+    radial-gradient(circle at 50% calc(50% + 1px), rgba(255, 255, 255, 0.5) 5px, transparent 6.5px),
+    radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.3) 5px, transparent 6.5px);
+  background-size: 24px 46px;
+  background-position: center top;
+  background-repeat: repeat-y;
+}
+
+.ccw-case {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(145deg, #f9fafb, #d1d5db, #9ca3af);
+  border-radius: 68px;
+  z-index: 10;
+  box-shadow:
+    0 60px 100px rgba(0, 0, 0, 0.45),
+    inset 0 1px 1px rgba(255, 255, 255, 0.9),
+    inset 0 -3px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  box-sizing: border-box;
+  border: 1px solid #c2c6cc;
+}
+
+/* The hardware bumps: each button sits in a darker "well" carved into the
+   case edge. The crown (right, ridged dial) is the wide one with the
+   repeating-linear-gradient ridges; the action button (left) wears the
+   brand orange instead of the original's yellow. */
+.ccw-crown-well {
+  position: absolute;
+  right: -2px;
+  top: 55px;
+  width: 12px;
+  height: 90px;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  z-index: 8;
+  box-shadow: inset 2px 0 5px rgba(0, 0, 0, 0.2);
+}
+.ccw-crown {
+  position: absolute;
+  right: -12px;
+  top: 75px;
+  width: 20px;
+  height: 50px;
+  background: linear-gradient(to right, #d1d5db, #f3f4f6, #9ca3af);
+  border-radius: 6px;
+  z-index: 20;
+  box-shadow: 4px 2px 10px rgba(0, 0, 0, 0.15);
+}
+.ccw-crown::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  background: radial-gradient(circle, #f3f4f6 30%, #9ca3af 100%);
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  z-index: 21;
+}
+.ccw-crown::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.08) 0,
+    rgba(0, 0, 0, 0.08) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  border-radius: 6px;
+}
+.ccw-side-btn-well {
+  position: absolute;
+  right: -2px;
+  top: 155px;
+  width: 8px;
+  height: 65px;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  z-index: 8;
+  box-shadow: inset 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+.ccw-side-btn {
+  position: absolute;
+  right: -6px;
+  top: 162px;
+  width: 9px;
+  height: 50px;
+  background: linear-gradient(to right, #9ca3af, #d1d5db);
+  border-radius: 4px;
+  z-index: 15;
+  border: 1px solid #8e939c;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.6),
+    1px 1px 3px rgba(0, 0, 0, 0.1);
+}
+.ccw-action-btn-well {
+  position: absolute;
+  left: -2px;
+  top: 125px;
+  width: 8px;
+  height: 90px;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  z-index: 8;
+  box-shadow: inset -2px 0 5px rgba(0, 0, 0, 0.1);
+}
+.ccw-action-btn {
+  position: absolute;
+  left: -6px;
+  top: 135px;
+  width: 9px;
+  height: 70px;
+  background: linear-gradient(to left, #f97316, #fb923c);
+  border-radius: 4px;
+  z-index: 15;
+  border: 1px solid #c2410c;
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.6),
+    -1px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* The screen. The ::after sheen is a light streak that drifts when the
+   case is hovered — the one piece of motion kept from the original. */
+.ccw-display {
+  width: 100%;
+  height: 100%;
+  background: var(--ccw-screen-bg);
+  border-radius: 58px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.02);
+  border: 5px solid #000;
+}
+.ccw-display::after {
+  content: "";
+  position: absolute;
+  top: -40%;
+  left: -40%;
+  width: 150%;
+  height: 150%;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.4) 0%,
+    transparent 35%,
+    transparent 65%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  z-index: 100;
+  pointer-events: none;
+  transition: 0.8s cubic-bezier(0.2, 1, 0.2, 1);
+}
+.ccw-case:hover .ccw-display::after { transform: translate(20px, 20px); }
+
+/* Screen content: title, the four pillar rows, and the mini wordmark
+   pinned to the bottom by margin-top: auto. */
+.ccw-screen {
+  position: relative;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 36px 30px 22px;
+  display: flex;
+  flex-direction: column;
+  color: var(--ccw-text);
+  font-family: var(--font-mono);
+}
+.ccw-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+.ccw-title-gradient {
+  background: linear-gradient(90deg, #ff6b9d, #f97316);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+/* Two columns of four rows — the reason the case is stretched wide.
+   grid-auto-flow: row (the default) fills left column then right, per row. */
+.ccw-rows {
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 18px;
+  row-gap: 15px;
+}
+.ccw-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+/* Gradient accent disc with a white glyph — the original's activity-row
+   look, recolored: the gradient itself is set inline per row (never flat) */
+.ccw-row-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+}
+.ccw-row-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+.ccw-row-sub {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ccw-dim);
+  margin-top: 2px;
+}
+.ccw-footer {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0, 0, 0, 0.07);
+  text-align: center;
+}
+.ccw-footer-wordmark {
+  font-family: var(--font-display);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  background: linear-gradient(90deg, #ff6b9d, #f97316);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Small phones: shrink the whole watch rather than letting it crowd out
+   the logo stacked above it */
+/* Manipulate here: 0.66 = watch scale under 480px viewport width (the
+   wide 500px case needs a smaller scale than a real-width watch would) */
+@media (max-width: 480px) {
+  .ccw-wrap { min-height: 540px; }
+  .ccw-watch { transform: scale(0.66); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ccw-display::after { transition: none; }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   HERO ACTIONS — lift on hover, physical press on click (3D depth vars).
+   Unlayered on purpose: these mechanics must win over .cta-primary's
+   layered hover transform wherever both classes sit on the same button.
+   ════════════════════════════════════════════════════════════════════ */
+.hero-action { border-radius: 9999px; transform: translateY(0); transition: transform 0.18s var(--btn-3d-ease), box-shadow 0.18s var(--btn-3d-ease); }
+.hero-action-primary:hover { transform: translateY(-3px); }
+.hero-action:active { transform: translateY(var(--btn-3d-depth)); }
+
+/* ════════════════════════════════════════════════════════════════════
+   AUTO-CYCLE PROGRESS BAR (CardCycle primitive) — segmented fill.
+   The bar never takes clicks (dots do), hence pointer-events: none.
+   ════════════════════════════════════════════════════════════════════ */
+.card-cycle-bar { position: absolute; top: 0.75rem; left: 1.15rem; right: 1.15rem; display: flex; gap: 0.35rem; pointer-events: none; }
+.card-cycle-seg { flex: 1; height: 3px; overflow: hidden; border-radius: 999px; background: rgba(255, 255, 255, 0.16); }
+.card-cycle-fill { height: 100%; width: 100%; display: block; transform: scaleX(0); transform-origin: left center; background: linear-gradient(90deg, var(--pal-headline-from), var(--pal-headline-to)); }
+.card-cycle-fill-active { animation-name: cardCycleFill; animation-timing-function: linear; animation-fill-mode: forwards; }
+@keyframes cardCycleFill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+/* Hovering the card freezes the fill (the primitive also pauses via animationPlayState) */
+.cycle-card:hover .card-cycle-fill-active { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .card-cycle-bar { display: none; } }
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}

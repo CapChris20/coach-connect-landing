@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <!-- Theme set BEFORE first paint (Devora pattern): reads the saved choice and
+         stamps data-theme on <html> so CSS tokens apply with zero flash.
+         Coach Connect ships dark-only, so anything but "light" resolves to dark. -->
+    <script>
+      (function(){try{var t=localStorage.getItem("coachconnect-theme");document.documentElement.setAttribute("data-theme",t==="light"?"light":"dark");}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0A0A0F" />
+    <meta
+      name="description"
+      content="Coach Connect — Find your coach. Run your business. One app. Trainers and clients share plans, nutrition, messaging, payments, and AI tools."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Devora type system: Unbounded (display) · Space Mono (body) · Press Start 2P (pixel labels) -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&family=Unbounded:wght@300;400;600;800&display=swap"
+      rel="stylesheet"
+    />
+    <title>Coach Connect — Find your coach. Run your business. One app.</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run Coach Connect.</noscript>
+    <div id="root"></div>
+  </body>
+</html>

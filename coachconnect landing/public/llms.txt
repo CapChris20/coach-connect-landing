@@ -1,0 +1,31 @@
+# Coach Connect
+
+> Pre-launch: Coach Connect is not publicly released yet. Trainers join the founding trainer waitlist on the site, and the iOS beta runs through TestFlight. Client messaging, workout plans, nutrition tracking, documents and in-app payments, plus an AI Coach that asks before it changes anything.
+
+## Status
+- Pre-launch — no public App Store release yet
+- Founding trainer waitlist: open on the landing page
+- iOS beta: TestFlight https://testflight.apple.com/join/rArzZF5v
+
+## Product
+- Trainers: roster and client history, messaging, notes and files, built-in document and spreadsheet editor, session scheduling, weekly reports, in-app Stripe payouts — one flat price, no per-client fees
+- Clients: find a trainer in the marketplace, follow plans, log meals with a barcode scan, message their coach; the app is free, clients pay their coach in the app
+- AI Coach: 15 actions (log a meal, water, sleep or steps, edit a workout, and more), each behind a confirmation step
+- Nutrition numbers cross-checked across multiple databases, plus barcode scanning
+- Weekly reports built from real check-ins, exportable to PDF
+
+## Pricing
+- Coach Connect Pro: $59.99/mo; annual $49/mo, billed $588/yr (Save $132/yr); 3-day free trial
+- Benefits: No per-client fees / AI workout plans (3 per month) / Nutrition tracking / Progress photos and history / Messaging
+- Clients use the app free and pay their coach in the app
+- Coach Connect takes a 10% platform fee per payment. Stripe's standard card processing fees also apply.
+
+## Brand
+- Aesthetic: premium dark neon glass over void #0A0A0F
+- Palette: hot pink #FF6B9D, soft purple #C084FC, cyan #06B6D4, orange #F97316, green #10B981
+- CTA gradient: #BE185D → #C2410C
+- Typography: Unbounded (display) + Space Mono (body) + Press Start 2P (labels)
+- Tagline: "One Day or Day One!"
+
+## Site
+- Scroll-driven 3D landing (React Three Fiber); reduced-motion = static aurora fallback

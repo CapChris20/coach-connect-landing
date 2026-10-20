@@ -1,0 +1,13 @@
+---
+description: Frame-depth inline commenting standard
+alwaysApply: true
+---
+
+# Inline Comment Style
+
+Every new or significantly edited `.ts` / `.tsx` / `.js` / `.jsx` / `.css` file MUST follow
+`docs/INLINE_COMMENT_STYLE.md`.
+
+Required: file-top summary · block explanations · `// vocab:` · `// Manipulate here:`
+Gold standard: the `frame` function example in that doc.
+Do not put teaching in a separate explanations file — keep it inline.
