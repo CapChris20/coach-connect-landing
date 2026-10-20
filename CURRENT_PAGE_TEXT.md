@@ -100,6 +100,10 @@ Small tiles:
 - Error if the address looks wrong: "That email doesn't look right — check it and try again."
 - After joining: "You're on the list. We'll email you when Coach Connect opens."
 - One email when we open. The app is free for clients; coaches start with a 3-day free trial.
+- OR SKIP THE LINE (divider)
+- LIVE · IOS BETA chip — **Can't wait 'til late 2026? Good — don't.** Coach Connect is already on iPhones through TestFlight. Grab the beta now, sign in with the login you just made above, and make today Day One — rough edges, early features, and all.
+- **Get the beta** button (Apple icon — opens https://testflight.apple.com/join/rArzZF5v in a new tab; URL lives in `src/config/siteConfig.js` as `TESTFLIGHT_URL`)
+- Steps: 1 Tap "Get the beta" · 2 Install TestFlight — Apple's free beta app · 3 Open Coach Connect & sign in — Opens in Apple TestFlight · about 2 minutes · no waitlist spot needed
 - See how it works (button — glides back up to section 01)
 - NOTE: the form's save is a stub for now (see src/waitlist/saveWaitlistEmail.js) — Firestore hookup is one function swap once credentials are confirmed.
 

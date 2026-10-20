@@ -417,6 +417,24 @@ body {
     color: transparent;
   }
 
+  /* CONNECT in the wordmark wears ORANGE, not the pink above — the
+     owner's call. Same lit-face construction (light on top, deeper
+     shade underneath), just the orange family end to end.
+     Manipulate here: first stop = the highlight, last stop = the
+     shaded underside. Keep every stop in the orange family. */
+  .wordmark-orange {
+    background: linear-gradient(
+      180deg,
+      #ffe7c2 0%,
+      #ffb25e 38%,
+      #f97316 72%,
+      #ea580c 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
   /* White headers, same light direction as the brand words. The bottom
      stop is only a little cooler than white, so the title stays white
      and the bevel stays quiet.
@@ -595,6 +613,83 @@ body {
     border-color: rgba(6, 182, 212, 0.5);
     background: rgba(255, 255, 255, 0.08);
     transform: translateY(-1px);
+  }
+
+  /* Hero video background (ui/HeroVideoBackground.jsx). The dumbbell
+     clip lives in public/videos/; this wrapper fills the hero section
+     only and never takes clicks. The poster still and the video are
+     both object-fit: cover — the clip is wider (960×404) than the hero,
+     so the sides crop and the rack stays centered at any screen size.
+     Manipulate here: the video starts at opacity 0 and fades in once it
+     can play (.hero-video-is-playing), so the poster hands off without
+     a flash. The overlay gradient is what keeps the white hero text
+     readable over the clip's brightest bokeh highlights — deepen the
+     first stop if text ever washes out, lighten it to show more gym. */
+  .hero-video-background {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    background: #07060a;
+  }
+  .hero-video-background .hero-video-poster,
+  .hero-video-background video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .hero-video-background video {
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+  .hero-video-background video.hero-video-is-playing {
+    opacity: 1;
+  }
+  .hero-video-background .hero-video-overlay {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg, rgba(7, 6, 10, 0.32) 0%, rgba(7, 6, 10, 0) 60%),
+      linear-gradient(180deg, rgba(7, 6, 10, 0.38) 0%, rgba(7, 6, 10, 0.18) 42%, rgba(7, 6, 10, 0.72) 100%);
+  }
+
+  /* Hero liquid-twist mount (ui/LiquidTwistBackground.jsx, PARKED —
+     was the hero background until the dumbbell video replaced it). Three.js
+     appends its canvas inside this div; the div fills the hero section
+     only. Black fill shows until the first GPU frame lands, so the
+     page never flashes white — and black IS the shader's background,
+     so even a dead GPU leaves a clean hero. */
+  .liquid-twist-canvas {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    pointer-events: none;
+    background: #000;
+  }
+  .liquid-twist-canvas canvas {
+    display: block;
+  }
+
+  /* Hero gym canvas (ui/GymSceneBackground.jsx, PARKED — tried in the
+     hero, rejected by the owner). Fills the hero section only.
+     The dark fill shows until the first GPU frame lands, so the page
+     never flashes white. */
+  .gym-scene-canvas {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    pointer-events: none;
+    background: #07060a;
   }
 
   /* Hero sunset canvas (ui/SunsetOceanBackground.jsx). Fills the hero
@@ -781,248 +876,178 @@ body {
 }
 
 /* ════════════════════════════════════════════════════════════════════
-   HERO LEFT COLUMN — support line, waitlist pill, audience links, proof
-   chips, and (only when SHOW_FLOATING_CARDS is on) example notes.
-   Colors come from the tokens on html. The submit button is .cta-primary.
-   Manipulate here: the margins are the air between the blocks. Raise them
-   if the column feels tight; lower them if the logo falls off the sun.
+   HERO LEFT COLUMN — budget headline, three matching points, then the
+   logo. Everything hugs the left edge and the text widths are capped
+   so lines end BEFORE the sun in the middle of the hero instead of
+   running over it. No promise paragraph, no pills, nothing waitlist-
+   related here, so the points and logo sit high in the first screen.
+   Colors come from the tokens on html.
+   Manipulate here: the max-widths below are how close text gets to the
+   sun. Smaller = further from it, but more wrapped lines.
    ════════════════════════════════════════════════════════════════════ */
-.hero-support-line {
-  margin-top: 1.6rem;
-  max-width: min(60ch, 100%);
-  font-family: var(--font-mono);
-  font-size: 0.92rem;
-  line-height: 1.5;
-  color: var(--text-muted);
-}
-
-.hero-waitlist {
-  width: 100%;
-  max-width: 34rem;
-  margin-top: 1.5rem;
-}
-
-/* vocab: backdrop-filter = the blur that makes the pill read as glass
-   over the sunset, instead of a solid bar. */
-.hero-waitlist-pill {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  width: 100%;
-  padding: 0.3rem 0.3rem 0.3rem 1.05rem;
-  border-radius: 999px;
-  background: var(--surface-glass-mid);
-  border: 1px solid var(--glass-border);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-}
-.hero-waitlist-pill:focus-within {
-  border-color: rgba(255, 107, 157, 0.75);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 0 0 3px rgba(255, 107, 157, 0.28);
-}
-.hero-waitlist-input {
-  flex: 1;
-  min-width: 0;
-  width: 100%;
-  border: 0;
-  background: transparent;
-  color: #fff;
-  font-family: var(--font-mono);
-  font-size: 1rem;
-  line-height: 1.3;
-  outline: none;
-}
-.hero-waitlist-input::placeholder {
-  color: var(--text-faint);
-}
-.hero-waitlist-input:focus-visible {
-  border-radius: 999px;
-  box-shadow: 0 0 0 2px var(--pink);
-}
-.hero-waitlist-submit {
-  flex-shrink: 0;
-  padding: 0.72rem 1.15rem;
-  font-size: 0.82rem;
-}
-.hero-waitlist-submit:disabled {
-  cursor: wait;
-  opacity: 0.7;
-}
-.hero-waitlist-submit:focus-visible {
-  outline: 2px solid #fff;
-  outline-offset: 3px;
-}
-.hero-waitlist-status {
-  margin-top: 0.55rem;
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  line-height: 1.4;
-  color: var(--pink);
-}
-.hero-waitlist-status[data-state='success'] {
-  color: var(--green-bright);
-}
-
-.hero-audience-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-  margin-top: 1.15rem;
-}
-.hero-audience-pill {
+/* "One Day or Day One." sits in a pill under the wordmark — the same
+   quiet dark glass as the point cards below, so the hero reads as one
+   family. inline-flex shrink-wraps the pill to the words; the gap
+   stands in for the spaces between the phrase's spans (flex trims
+   the trailing spaces inside them).
+   Manipulate here: padding = how chunky the pill feels; 999px radius
+   is what makes it a pill instead of a rounded box. */
+.hero-tagline-pill {
   display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.42rem 0.85rem;
+  align-items: baseline;
+  gap: 0.32rem;
+  padding: 0.4rem 1rem;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.88);
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  line-height: 1.2;
-  text-decoration: none;
+  background: rgba(10, 10, 15, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* Partner headline under the tagline. Display font; "budget." wears the
+   brand gradient (.wordmark-connect in HeroLeftColumn.jsx). */
+.hero-budget-headline {
+  margin-top: 0.9rem;
+  /* Unbounded's ch is wide — 19ch here is roughly 380px on screen */
+  max-width: min(19ch, 100%);
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1.22;
+  color: #fff;
+}
+@media (min-width: 640px) {
+  .hero-budget-headline {
+    font-size: 1.4rem;
+  }
+}
+
+/* The three matching points as quiet dark-glass cards, stacked down
+   the left edge. NOT the .cc-card system — its loud gradient wash
+   fought the sunset and washed out the text here. These stay near-black
+   glass with a hairline border; only the icon disc carries color, and
+   the border warms to the accent on hover. Capped width keeps them
+   clear of the sun like the headline above them.
+   Manipulate here: the 0.55 background alpha = how see-through the
+   cards are; lower lets more sunset show through. */
+.hero-points {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+  max-width: min(25rem, 100%);
+  margin: 0.65rem 0 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+.hero-point {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: 1.1rem;
+  background: rgba(10, 10, 15, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
   transition:
     border-color 0.2s ease,
-    background 0.2s ease,
     transform 0.2s ease;
 }
-.hero-audience-pill:hover {
-  border-color: rgba(255, 107, 157, 0.55);
-  background: rgba(255, 255, 255, 0.08);
-  transform: translateY(-1px);
-}
-.hero-audience-pill:focus-visible {
-  outline: 2px solid #fff;
-  outline-offset: 3px;
-}
-
-.hero-proof-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-  margin-top: 1.15rem;
-}
-.hero-proof-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  max-width: 100%;
-  padding: 0.32rem 0.7rem;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: transparent;
-  color: var(--text-muted);
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  line-height: 1.3;
-}
-
-/* The logo's box. The turn lives inside the canvas (ui/LogoModel.jsx),
-   so this slot is free to use margin for placement.
-   Manipulate here: a more negative margin-top pulls the mark up onto the
-   sun's left edge. Do not use transform — the logo's own hop uses it. */
-.hero-logo-slot {
-  position: relative;
-  margin-top: -0.5rem;
-}
-@media (min-width: 1024px) {
-  .hero-logo-slot {
-    margin-top: -2.25rem;
-  }
-}
-
-/* Example notes. One card is visible at a time. --hero-note-hold comes from
-   HERO_NOTE_HOLD_MS in HeroLeftColumn.jsx (default 4000ms, so a 3-card loop
-   is 12s). The cards are out of flow so they don't stretch the column. */
-.hero-example-notes {
-  position: absolute;
-  z-index: 2;
-  left: 62%;
-  top: 22%;
-  width: 12.5rem;
-  height: 4.25rem;
-  pointer-events: none;
-}
-.hero-example-note {
-  position: absolute;
-  inset: 0 auto auto 0;
-  width: 12.5rem;
-  padding: 0.55rem 0.75rem 0.65rem;
-  border-radius: 0.9rem;
-  background: var(--surface-glass-strong);
-  border: 1px solid var(--glass-border);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
-  color: #fff;
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  line-height: 1.35;
-  opacity: 0;
-  animation: hero-note-fade calc(var(--hero-note-hold) * 3) linear infinite;
-}
-.hero-example-note:nth-child(2) {
-  animation-delay: var(--hero-note-hold);
-}
-.hero-example-note:nth-child(3) {
-  animation-delay: calc(var(--hero-note-hold) * 2);
-}
-.hero-example-kicker {
-  display: block;
-  margin-bottom: 0.15rem;
-  font-size: 0.58rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--text-faint);
-}
-@keyframes hero-note-fade {
-  0% { opacity: 0; transform: translateY(6px); }
-  6% { opacity: 1; transform: translateY(0); }
-  28% { opacity: 1; transform: translateY(0); }
-  33.33% { opacity: 0; transform: translateY(-4px); }
-  100% { opacity: 0; transform: translateY(-4px); }
-}
-
-/* Under 900px the hero is already one column (two columns start at 1024px).
-   The bar goes edge to edge, and every proof chip after the first is hidden. */
-@media (max-width: 899px) {
-  .hero-waitlist {
-    max-width: none;
-  }
-  .hero-waitlist-pill {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.55rem;
-    padding: 0.65rem;
-    border-radius: 1.35rem;
-  }
-  .hero-waitlist-submit {
-    width: 100%;
-  }
-  .hero-proof-chip:not(:first-child) {
-    display: none;
-  }
-  .hero-example-notes {
-    left: auto;
-    right: 0;
-    top: 0;
-  }
+.hero-point:hover {
+  border-color: color-mix(in srgb, var(--card-accent, #ff6b9d) 55%, transparent);
+  transform: translateY(-2px);
 }
 @media (prefers-reduced-motion: reduce) {
-  .hero-example-note {
-    animation: none;
-    opacity: 0;
+  .hero-point:hover {
     transform: none;
   }
-  .hero-example-note:first-child {
-    opacity: 1;
+}
+/* A touch smaller than the section discs: three of these stack in the hero */
+.hero-point-disc {
+  width: 1.9rem;
+  height: 1.9rem;
+  flex-shrink: 0;
+}
+.hero-point-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+.hero-point-title {
+  font-family: var(--font-display);
+  font-size: 0.84rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #fff;
+}
+.hero-point-body {
+  font-family: var(--font-mono);
+  font-size: 0.73rem;
+  line-height: 1.32;
+  color: var(--text-muted);
+}
+
+/* The logo's stage in the MIDDLE of the hero (TopSection wraps
+   LogoModel in .hero-center-logo). Review feedback: the hero's center
+   should be the CC mark, big — not empty sunset. The model's own
+   scale in LogoModel.jsx stays put (its edges are already near the
+   frame); the on-screen size comes from this stage, so this override
+   grows the stage instead. Only at lg and up: below that the hero
+   stacks and the default stage below is the right size.
+   Manipulate here: keep width/height aspect above ~1.35 — narrower
+   and the mark's sides start leaving the frame as it sways. */
+@media (min-width: 1024px) {
+  .hero-center-logo .logo-model-stage {
+    width: min(560px, 40vw);
+    height: min(400px, 44vh);
   }
-  .hero-audience-pill:hover {
-    transform: none;
+}
+
+/* The watch in the hero's right THIRD (it had a half before the logo
+   took the middle). Its stage keeps the band cropped to the row
+   instead of demanding the whole hero height, and the case scales
+   down so the fixed 500px watch fits a ~340-440px column without its
+   sides being cropped by the stage.
+   Manipulate here: 0.68 / 0.78 = case scale at lg / wide screens.
+   Raise them and the case edges start disappearing into the crop. */
+@media (min-width: 1024px) {
+  .hero-middle-watch .ccw-wrap {
+    min-height: 420px;
+  }
+  .hero-middle-watch .ccw-watch {
+    transform: scale(0.68);
+  }
+}
+@media (min-width: 1440px) {
+  .hero-middle-watch .ccw-watch {
+    transform: scale(0.78);
+  }
+}
+
+/* The 3D logo's stage (ui/LogoModel.jsx). Height follows the VIEWPORT
+   height: on a short screen the stage shrinks so wordmark, headline,
+   cards, and the whole logo still fit the first screen — nothing in the
+   hero should need a scroll to be seen. The logo's on-screen size rides
+   on this height (the model's own scale in LogoModel.jsx is already at
+   the edge of its frame), so the pixels for the 27vh below were taken
+   back from the card spacing above it — the column still ends in the
+   same place.
+   Manipulate here: 27vh = how much of the screen height the logo may
+   take; 280px = its tallest ever. Raise either and short screens scroll. */
+.logo-model-stage {
+  width: min(350px, 90vw);
+  height: 200px;
+  max-width: 100%;
+}
+@media (min-width: 640px) {
+  .logo-model-stage {
+    width: min(430px, 90vw);
+    height: min(280px, 27vh);
   }
 }
 
@@ -1422,6 +1447,384 @@ body {
 /* Hovering the card freezes the fill (the primitive also pauses via animationPlayState) */
 .cycle-card:hover .card-cycle-fill-active { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) { .card-cycle-bar { display: none; } }
+
+/* ════════════════════════════════════════════════════════════════════
+   ONBOARDING SETUP — the waitlist's question pages.
+   Same glass and gradient as .what-is-panel, drawn as choice cards
+   and a segmented progress track instead of a pile of tiny pills.
+   vocab: is-selected = the visitor's current answer on that question
+   Manipulate here: 4px track height. Taller reads as a loading bar.
+   ════════════════════════════════════════════════════════════════════ */
+.setup-progress {
+  display: flex;
+  gap: 0.28rem;
+}
+.setup-seg {
+  flex: 1;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+}
+.setup-seg.is-done,
+.setup-seg.is-current {
+  background: linear-gradient(90deg, #ff6b9d, #f97316);
+}
+.setup-seg.is-current {
+  box-shadow: 0 0 10px rgba(255, 107, 157, 0.55);
+}
+.setup-count {
+  margin-top: 0.85rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 107, 157, 0.9);
+}
+.setup-title {
+  margin-top: 0.35rem;
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  color: #fff;
+}
+.setup-note {
+  margin-top: 0.45rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.55);
+}
+.setup-fields {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin-top: 0.85rem;
+}
+.setup-fields fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-inline-size: 0;
+}
+.setup-label {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  margin-bottom: 0.5rem;
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.46);
+}
+.setup-optional {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.32);
+}
+.setup-choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
+}
+.setup-choice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-height: 2.65rem;
+  padding: 0.55rem 0.8rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  font-family: var(--font-display);
+  font-size: 0.84rem;
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: left;
+  color: rgba(255, 255, 255, 0.78);
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+.setup-choice:hover {
+  border-color: rgba(255, 107, 157, 0.45);
+  transform: translateY(-1px);
+}
+.setup-choice.is-selected {
+  color: #fff;
+  border-color: rgba(255, 107, 157, 0.75);
+  background:
+    linear-gradient(145deg, rgba(190, 24, 93, 0.42), rgba(194, 65, 12, 0.28)),
+    rgba(10, 10, 15, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+.setup-choice.is-selected::after {
+  content: "";
+  flex: none;
+  width: 0.4rem;
+  height: 0.7rem;
+  margin-top: -0.15rem;
+  border-right: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(40deg);
+}
+.setup-days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+.setup-day {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  aspect-ratio: 1;
+  max-width: 2.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.75);
+}
+.setup-day.is-selected {
+  color: #fff;
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--pal-cta-from), var(--pal-cta-to));
+  box-shadow: 0 8px 18px rgba(190, 24, 93, 0.35);
+}
+.setup-input,
+.setup-area {
+  width: 100%;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0.85rem 1rem;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  color: #fff;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.setup-input::placeholder,
+.setup-area::placeholder {
+  color: rgba(255, 255, 255, 0.32);
+}
+.setup-input:focus,
+.setup-area:focus {
+  border-color: rgba(255, 107, 157, 0.7);
+  box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.16);
+}
+.setup-area {
+  min-height: 5.25rem;
+  resize: vertical;
+  line-height: 1.45;
+}
+.setup-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+.setup-meter {
+  margin-top: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.38);
+}
+.setup-meter.is-met {
+  color: #86efac;
+}
+.setup-code {
+  padding: 1.4rem 0.5rem;
+  border-radius: 1.4rem;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 6vw, 2.2rem);
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  color: #fff;
+  background:
+    linear-gradient(160deg, rgba(255, 107, 157, 0.2), rgba(6, 182, 212, 0.1)),
+    rgba(10, 10, 15, 0.35);
+  border: 1px solid rgba(255, 107, 157, 0.35);
+}
+.setup-error {
+  margin-top: 1rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.9rem;
+  background: rgba(255, 107, 157, 0.12);
+  border: 1px solid rgba(255, 107, 157, 0.35);
+  color: #ffd6e6;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+.setup-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.9rem;
+}
+.setup-back {
+  padding: 0.85rem 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+.setup-back:hover { color: #fff; }
+.setup-back:disabled { opacity: 0.28; }
+.setup-next { flex: 1; }
+/* The legal line under the card is for the login form. Hide it once setup starts. */
+.what-is-panel:has([data-testid="waitlist-onboarding"]) .waitlist-aside,
+.what-is-panel:has([data-testid="waitlist-success"]) .waitlist-aside {
+  display: none;
+}
+/* Wide screens use the card's width so a step stays one screen tall.
+   Manipulate here: 800px is where answers move from two columns to a full row. */
+@media (min-width: 800px) {
+  .setup-fields {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.6rem 0.7rem;
+  }
+  .setup-fields.is-thirds {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .setup-span-2 { grid-column: span 2; }
+  .setup-span-all { grid-column: 1 / -1; }
+  .setup-fields.is-thirds .setup-span-2 { grid-column: auto; }
+  .setup-choices { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .setup-choices.is-pair { grid-template-columns: 1fr 1fr; }
+  .setup-choices.is-trio { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .setup-choices.is-quad { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 420px) {
+  .setup-title { font-size: 1.25rem; }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   TESTFLIGHT SHORTCUT — the "skip the line" beta beside the waitlist
+   form in the finale (ui/Sections.jsx, JoinNowFooter). One horizontal
+   row holds both: .what-is-panel glass on the left (reserve your
+   spot), this slim dark-glass card on the right (get the app today).
+   It used to be a standalone full-width card under the form with an
+   "or skip the line" divider — the owner cut that; side by side now.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* A slow light streak across the glass on hover (same trick as
+   .what-is-piece). overflow: hidden is what clips the streak to the
+   card's rounded corners. No margin-top here: the finale's row gap
+   owns the spacing, and a margin would drop this card below the
+   waitlist beside it.
+   Manipulate here: 0.7s = how fast the streak crosses on hover. */
+.testflight-card {
+  position: relative;
+  overflow: hidden;
+}
+.testflight-card::after {
+  content: "";
+  position: absolute;
+  inset: -40% auto -40% -55%;
+  width: 42%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.16), transparent);
+  transform: translateX(0) rotate(12deg);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .testflight-card:hover::after {
+    opacity: 1;
+    transform: translateX(340%) rotate(12deg);
+  }
+}
+
+/* "LIVE" chip: glass pill, mono type, and a dot that breathes so the beta
+   reads as open-right-now instead of another coming-soon promise.
+   Manipulate here: 1.8s = the dot's pulse speed; slower reads calmer. */
+.testflight-live-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(52, 211, 153, 0.45);
+  background: rgba(16, 185, 129, 0.12);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #86efac;
+}
+.testflight-live-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: #34d399;
+  box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.55);
+  animation: testflight-pulse 1.8s ease-out infinite;
+}
+@keyframes testflight-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.55); }
+  70% { box-shadow: 0 0 0 8px rgba(52, 211, 153, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+}
+
+/* The beta button never wraps its label under the Apple glyph on phones */
+.testflight-cta {
+  white-space: nowrap;
+}
+@media (max-width: 767px) {
+  .testflight-cta { width: 100%; }
+}
+
+/* The three taps as numbered chips. They wrap on phones instead of
+   squeezing, so each step stays tappable-sized and readable.
+   Manipulate here: 2rem = the number disc size — smaller and the digits crowd. */
+.testflight-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.testflight-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0.9rem 0.45rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+.testflight-step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--pal-cta-from), var(--pal-cta-to));
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .testflight-live-dot { animation: none; }
+  .testflight-card::after { display: none; }
+}
 
 a {
   color: inherit;

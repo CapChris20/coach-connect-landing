@@ -3,10 +3,13 @@
 // waitlist + footer. (The for-clients / for-trainers / why chapters are parked
 // further down this file — off the homepage, kept as seed content for the
 // /for-clients and /for-trainers pages.) The nav bar above them lives in
-// navbar/NavBar.jsx. The hero paints the sunset ocean shader behind its
-// columns (SunsetOceanBackground). Under the tagline, HeroLeftColumn adds
-// the support line, waitlist bar, audience pills, and proof chips.
-// Every chapter after the hero is wrapped in
+// navbar/NavBar.jsx. The hero plays the dumbbell-rack video behind its
+// columns (HeroVideoBackground; the liquid-twist, sunset, and
+// gym-interior shaders are parked in LiquidTwistBackground /
+// SunsetOceanBackground / GymSceneBackground, one import swap away
+// each). Under the tagline, HeroLeftColumn adds
+// the support line, a waitlist button (glides to the finale's real form),
+// audience pills, and proof chips. Every chapter after the hero is wrapped in
 // the mouse-glow section (MouseGridBackground). Reveals all go through FadeIn,
 // the rotating card through CardCycle, and anchor glides through scrollToHash.
 // Locked strings (trial wording, fees, beta link) are imported from
@@ -18,6 +21,8 @@ import { Link } from 'react-router-dom';
 import {
   Apple,
   ArrowRight,
+  ArrowUpRight,
+  Award,
   ChevronDown,
   Calendar,
   ClipboardList,
@@ -26,12 +31,12 @@ import {
   Search,
   TrendingUp,
   Users,
+  Wallet,
   Zap,
 } from 'lucide-react';
 import { FadeIn } from './FadeIn';
-import { WeightliftingAnimation } from './WeightliftingAnimation';
 import { HeroWatch } from './HeroWatch';
-import { SunsetOceanBackground } from './SunsetOceanBackground';
+import { HeroVideoBackground } from './HeroVideoBackground';
 import { LogoModel } from './LogoModel';
 import { HeroLeftColumn } from './HeroLeftColumn';
 import MouseGridBackground from './MouseGridBackground';
@@ -41,7 +46,7 @@ import { scrollToHash } from './scrollToHash';
 import { WaitlistForm } from '../waitlist/WaitlistForm';
 // Locked copy (trial wording, savings, fee disclosure, beta link) lives in one
 // config file so it can never drift between sections.
-import { ANNUAL_SAVINGS_COPY, FEE_COPY, TRIAL_COPY } from '../config/siteConfig';
+import { ANNUAL_SAVINGS_COPY, FEE_COPY, TESTFLIGHT_URL, TRIAL_COPY } from '../config/siteConfig';
 
 // ===== NAMED CONSTANTS =====
 
@@ -58,6 +63,15 @@ const MARQUEE_ITEMS = [
   'No per-client fees',
   'AI that asks first',
   'Plans · Nutrition · Payments',
+];
+
+// The three taps between "I want in" and the beta running on an iPhone,
+// shown as numbered chips inside the TestFlight shortcut in the finale.
+// Manipulate here: keep each step under ~6 words or the chips wrap into blobs.
+const TESTFLIGHT_STEPS = [
+  'Tap “Get the beta”',
+  'Install TestFlight — Apple’s free beta app',
+  'Open Coach Connect & sign in',
 ];
 
 // Manipulate here: the FAQ questions, in order. Starter set written from
@@ -92,6 +106,27 @@ const FAQ_ITEMS = [
       'The app is free for clients. You find your coach in the marketplace, follow your plan, log your nutrition, and pay your coach in the app.',
   },
   {
+    color: '#F97316',
+    gradientTo: '#C084FC',
+    question: 'How does Coach Connect match me with a trainer?',
+    answer:
+      'By expertise, experience, training style, and reviews — not by how big a trainer’s social following is. You discover trainers suited to your needs without spending hours comparing profiles across different platforms.',
+  },
+  {
+    color: '#10B981',
+    gradientTo: '#F97316',
+    question: 'How is a trainer’s rate set?',
+    answer:
+      'Trainers submit their preferred minimum and maximum earnings per client for monthly or yearly coaching. Coach Connect then sets the rate based on their expertise, experience, and what they’ve earned previously — keeping coaching within reach for clients while recognizing the value trainers bring.',
+  },
+  {
+    color: '#06B6D4',
+    gradientTo: '#10B981',
+    question: 'I’m a trainer — how do clients find me?',
+    answer:
+      'Your years of coaching, training specialties, and reviews help you get discovered. Coach Connect uses those details to match you with potential clients looking for what you offer, so you spend less time trying to get noticed and more time building coaching relationships.',
+  },
+  {
     color: '#10B981',
     gradientTo: '#06B6D4',
     question: 'What does the AI Coach do?',
@@ -113,7 +148,7 @@ const FAQ_ITEMS = [
 // Manipulate here: seven short rows. Adding a long body line makes the
 // chapter taller than one screen.
 const WHAT_IS_PIECES = [
-  { area: 'find', icon: Search, color: '#FF6B9D', gradientTo: '#F97316', title: 'Find a trainer', body: 'In the marketplace.' },
+  { area: 'find', icon: Search, color: '#FF6B9D', gradientTo: '#F97316', title: 'Find a trainer', body: 'Matched on expertise, not followers.' },
   { area: 'plans', icon: ClipboardList, color: '#06B6D4', gradientTo: '#C084FC', title: 'Workout plans', body: 'Follow the plan.' },
   { area: 'scan', icon: Apple, color: '#10B981', gradientTo: '#06B6D4', title: 'Log nutrition', body: 'Barcode scan.' },
   { area: 'message', icon: MessageCircle, color: '#F97316', gradientTo: '#FF6B9D', title: 'Messaging', body: 'Message your coach.' },
@@ -121,6 +156,29 @@ const WHAT_IS_PIECES = [
   { area: 'pay', icon: CreditCard, color: '#FF6B9D', gradientTo: '#F97316', title: 'Pay in the app', body: 'Pay your coach.' },
   { area: 'ai', icon: Zap, color: '#C084FC', gradientTo: '#06B6D4', title: 'AI Coach', body: 'Handles the day-to-day logging, and asks before it changes anything.' },
 ];
+
+// The rest of the partner's text, as two short cards beside the pieces
+// above — pricing for clients, discovery for trainers. These replaced
+// the Lottie lifter animation (the owner's call), so nothing from the
+// partner is left sitting off-page, and no new section was added for
+// it. A first pass rendered this as one tall text slab and the owner
+// rejected it on sight: keep these SHORT, stepped, and visual.
+// Manipulate here: keep the two titles verbatim — they are his headlines.
+const GOOD_COACHING_CARD_TITLE = 'Good coaching. Thoughtful pricing.';
+const GOOD_COACHING_CARD_INTRO =
+  'Everyone deserves the opportunity to become the best version of themselves. Cost shouldn’t put that opportunity out of reach.';
+// How a rate gets set, as steps instead of a paragraph: what trainers
+// submit, what Coach Connect weighs, and what the goal of it is.
+const RATE_SETTING_STEPS = [
+  'Trainers submit their preferred minimum and maximum earnings per client, for monthly or yearly coaching.',
+  'Coach Connect sets the rate from their expertise, experience, and what they’ve earned previously.',
+  'The goal is simple: keep coaching within reach for clients while recognizing the value trainers bring.',
+];
+const TRAINER_DISCOVERY_CARD_TITLE = 'You’ve built the experience. Let it bring you clients.';
+const TRAINER_DISCOVERY_CARD_BODY =
+  'Your years of coaching, training specialties, and reviews should help you get discovered. Coach Connect uses those details to match you with potential clients looking for what you offer.';
+const TRAINER_DISCOVERY_CARD_CLOSING =
+  'Spend less time trying to get noticed and more time building coaching relationships.';
 
 // Manipulate here: the three client feature cards (color → gradientTo =
 // the card's gradient pair, never a flat fill)
@@ -307,69 +365,156 @@ function WhatIsPiece({ piece }) {
   );
 }
 
+/**
+ * The partner text under the "what it helps with" pieces, as two SLIM
+ * HORIZONTAL dark-glass strips spanning the full chapter width: icon
+ * disc on the left, words in the middle, and the rate-setting steps in
+ * three columns on the right, split off by a vertical hairline. Earlier
+ * passes stacked these as tall cards in a half-width column and the
+ * owner rejected the tower twice — keep them wide and short. Quiet
+ * glass like the hero point cards; the loud .cc-card wash turned this
+ * into a brown slab, also rejected.
+ * Copy lives in the GOOD_COACHING / RATE_SETTING / TRAINER_DISCOVERY
+ * constants above. Paragraphs wear font-mono (same as FAQ answers):
+ * the site's default pixel face is too wide for sentences.
+ * @returns {JSX.Element}
+ */
+function PricingAndDiscoveryCards() {
+  return (
+    <div className="flex flex-col gap-3" data-testid="good-coaching-card">
+      {/* Clients: coaching stays within reach, and the rate steps show how. */}
+      <div
+        className="flex flex-col gap-5 rounded-3xl border border-white/10 bg-[#0a0a0f]/55 p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl lg:flex-row lg:items-center lg:gap-8"
+        style={{ '--card-accent': '#FF6B9D', '--grad-to': '#F97316' }}
+      >
+        <div className="flex min-w-0 gap-4 lg:max-w-md lg:flex-1">
+          <span className="cc-icon-disc h-11 w-11 shrink-0">
+            <Wallet size={20} strokeWidth={2.2} />
+          </span>
+          <div className="min-w-0">
+            <p className="font-mono text-[0.65rem] uppercase tracking-[0.22em] text-white/45">For clients</p>
+            <h3 className="mt-1.5 font-display text-lg font-semibold leading-snug text-white">{GOOD_COACHING_CARD_TITLE}</h3>
+            <p className="mt-1.5 font-mono text-[0.8rem] leading-relaxed text-white/60">{GOOD_COACHING_CARD_INTRO}</p>
+          </div>
+        </div>
+
+        {/* How the rate is set: the three steps side by side on the
+            right, each topped by its gradient number and a hairline. */}
+        <div className="min-w-0 flex-1 lg:border-l lg:border-white/[0.08] lg:pl-8">
+          <p className="font-display text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-white/85">
+            How your rate is set
+          </p>
+          <ol className="mt-2.5 grid list-none gap-3 p-0 sm:grid-cols-3">
+            {RATE_SETTING_STEPS.map((rateStep, stepIndex) => (
+              <li key={rateStep} className="border-t border-white/[0.08] pt-2">
+                <span
+                  className="cc-gradient-text font-display text-sm font-bold"
+                  style={{ '--grad-from': '#FF6B9D', '--grad-to': '#F97316' }}
+                >
+                  {String(stepIndex + 1).padStart(2, '0')}
+                </span>
+                <span className="mt-1 block font-mono text-[0.72rem] leading-relaxed text-white/60">{rateStep}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+
+      {/* Trainers: the experience they already have brings clients to them. */}
+      <div
+        className="flex flex-col gap-5 rounded-3xl border border-white/10 bg-[#0a0a0f]/55 p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl lg:flex-row lg:items-center lg:gap-8"
+        style={{ '--card-accent': '#C084FC', '--grad-to': '#06B6D4' }}
+      >
+        <div className="flex min-w-0 gap-4 lg:flex-1">
+          <span className="cc-icon-disc h-11 w-11 shrink-0">
+            <Award size={20} strokeWidth={2.2} />
+          </span>
+          <div className="min-w-0">
+            <p className="font-mono text-[0.65rem] uppercase tracking-[0.22em] text-white/45">For trainers</p>
+            <h3 className="mt-1.5 font-display text-lg font-semibold leading-snug text-white">{TRAINER_DISCOVERY_CARD_TITLE}</h3>
+            <p className="mt-1.5 font-mono text-[0.8rem] leading-relaxed text-white/60">{TRAINER_DISCOVERY_CARD_BODY}</p>
+          </div>
+        </div>
+        <p className="flex min-w-0 items-center gap-3 font-mono text-[0.8rem] font-medium leading-relaxed text-white/85 lg:max-w-xs lg:border-l lg:border-white/[0.08] lg:pl-8">
+          <span className="h-px w-5 shrink-0 bg-gradient-to-r from-purple to-cyan" aria-hidden="true" />
+          {TRAINER_DISCOVERY_CARD_CLOSING}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 // ===== MAIN FUNCTIONS (the sections, in page order) =====
 
 /**
- * The hero, two columns on desktop: the left column groups the stacked
- * wordmark, the "One Day or Day One." catchphrase tagline, then the support
- * line, waitlist, pills, and proof chips (ui/HeroLeftColumn.jsx), then the
- * bouncing logo; the right column is the Apple Watch-style card
- * (ui/HeroWatch.jsx) whose band runs the full hero height, up toward
- * the nav. On smaller screens it stacks: identity first, watch underneath.
- * The headline, pitch, and buttons that used to sit here were cleared by
- * the owner — this layout is his replacement. The sunset shader sits behind
- * both columns and does not take clicks. The two groups sit on opposite
- * edges of the screen so the sunset's sun stays visible between them.
+ * The hero. Top row: the one-line wordmark, centered across the full
+ * width. Under it, a three-zone middle row: the tagline pill, budget
+ * headline, and points on the left (ui/HeroLeftColumn.jsx); the 3D CC
+ * logo BIG in the middle — review feedback said the hero's center
+ * should sell the brand instead of leaving the sunset empty, so the
+ * logo moved out of the left column and grew; and the Apple
+ * Watch-style card (ui/HeroWatch.jsx) on the right, scaled down to
+ * fit its narrower third. On smaller screens it stacks: wordmark,
+ * words, logo, watch. The dumbbell video sits behind everything
+ * and does not take clicks.
  * @returns {JSX.Element}
  */
 export function TopSection() {
   return (
     <section id="act-arrival" className="landing-section relative isolate overflow-hidden">
-      <SunsetOceanBackground />
-      {/* Full width on purpose: a centered max-width box parked both groups
-          on top of the sun. min-h calc(100dvh - 6.6rem) = viewport minus this
-          section's own padding, so the watch band can run the whole hero.
-          Manipulate here: lg:px-6 = how far the watch sits from the right edge.
-          lg:pl-12 on the left group = extra nudge of the wordmark and
-          tagline toward the sun. Raise pl to push them further right.
-          The logo's upward nudge lives on .hero-logo-slot in index.css. */}
-      <div className="landing-section-body relative z-[1] grid min-h-[calc(100dvh-6.6rem)] w-full grid-cols-1 px-5 lg:grid-cols-2 lg:px-6" data-testid="hero">
-        {/* 1. Left column: wordmark, tagline, then the support line, waitlist,
-            pills, chips, and logo. The wordmark is stacked (COACH over CONNECT)
-            because the one-line version is too wide for a half-width column. */}
-        <div className="flex min-w-0 flex-col items-center justify-center py-8 text-center lg:items-start lg:justify-self-start lg:pl-12 lg:text-left">
-          <h1 data-testid="hero-wordmark">
-            <Wordmark stacked className="items-center lg:items-start" />
-          </h1>
+      <HeroVideoBackground />
+      {/* Full width on purpose. min-h calc(100dvh - 6.6rem) = viewport minus
+          this section's own padding, so the middle row can fill the hero.
+          Manipulate here: lg:px-6 = how far the outer zones sit from the
+          screen edges. */}
+      <div className="landing-section-body relative z-[1] flex min-h-[calc(100dvh-6.6rem)] w-full flex-col px-5 lg:px-6" data-testid="hero">
+        {/* 1. Top row: the wordmark on ONE centered line (not COACH over
+            CONNECT), spanning the full width so the bigger size never
+            has to fit inside a side column. */}
+        <h1 className="flex w-full justify-center pt-2" data-testid="hero-wordmark">
+          <Wordmark stacked={false} className="items-center" />
+        </h1>
 
-          {/* "Day One" wears the lit brand gradient (.wordmark-connect, same
-              as CONNECT). The extrusion sits on the wrapper so the shadow
-              follows the letters. "One Day or" stays flat so one phrase
-              isn't three effects. */}
-          <p className="mt-6 font-display text-xl font-bold leading-snug sm:text-2xl" data-testid="hero-tagline">
-            <span className="text-white">One Day </span>
-            <span className="text-white/60">or </span>
-            <span className="display-extrude inline-block">
-              <span className="wordmark-connect">Day One.</span>
-            </span>
-          </p>
+        {/* 2. The middle row: words left, logo center, watch right.
+            Items center vertically so the logo's middle is the hero's
+            middle. Text widths are capped in index.css so the copy
+            stays in its third and off the logo. */}
+        <div className="grid flex-1 grid-cols-1 items-center gap-8 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:gap-6">
+          {/* 2a. Left: the tagline pill, then the headline and points. */}
+          <div className="flex min-w-0 flex-col items-start justify-center py-3 text-left lg:justify-self-start lg:pl-6">
+            {/* The catchphrase in a pill (.hero-tagline-pill in index.css —
+                same dark glass as the point cards). "Day One." wears the lit
+                brand gradient (.wordmark-connect). The extrusion sits on the
+                wrapper so the shadow follows the letters. "One Day or" stays
+                flat so one phrase isn't three effects. */}
+            <p className="hero-tagline-pill font-display text-xl font-bold leading-snug sm:text-2xl" data-testid="hero-tagline">
+              <span className="text-white">One Day </span>
+              <span className="text-white/60">or </span>
+              <span className="display-extrude inline-block">
+                <span className="wordmark-connect">Day One.</span>
+              </span>
+            </p>
 
-          {/* Sentence, waitlist, pills, chips, then the logo. The model
-              itself is unchanged — only the slot around it moves. */}
-          <HeroLeftColumn>
+            <HeroLeftColumn />
+          </div>
+
+          {/* 2b. Center: the CC logo, big. Its enlarged stage lives in
+              index.css (.hero-center-logo). The dumbbell rack runs
+              behind it — the logo is the hero's centerpiece. */}
+          <div className="hero-center-logo justify-self-center" data-testid="hero-center-logo">
             <LogoModel />
-          </HeroLeftColumn>
-        </div>
+          </div>
 
-        {/* 2. Right column: the watch, pinned to the right edge. h-full
-            stretches the stage to the whole hero height so the band reaches
-            from under the nav down to the fold. */}
-        <FadeIn className="h-full w-full max-w-[560px] justify-self-center lg:justify-self-end">
-          <HeroWatch />
-        </FadeIn>
+          {/* 2c. Right: the watch in its narrower third. The
+              .hero-middle-watch rules in index.css scale the case down
+              and shorten its stage so the third never crops it. */}
+          <FadeIn className="hero-middle-watch h-full w-full max-w-[560px] justify-self-center lg:justify-self-end">
+            <HeroWatch />
+          </FadeIn>
+        </div>
       </div>
 
-      {/* Sits on top of the sun, centered, so it stays clickable over the shader. */}
+      {/* Sits centered over the video, so it stays clickable above the background. */}
       <HeroScrollHint />
     </section>
   );
@@ -398,8 +543,10 @@ export function ScrollingTextStrip() {
 
 /**
  * Chapter 01 — what is Coach Connect. The question is centered on the page.
- * Under it, the lifter sits left and a short two-column strip of pieces sits
- * right, short enough that the whole chapter fits on one screen.
+ * Under it, the pieces run the full width, and under them the partner
+ * text (PricingAndDiscoveryCards) lands as two slim horizontal strips
+ * where the Lottie lifter used to animate — wide and short, never a
+ * tall stack in a side column.
  * @returns {JSX.Element}
  */
 export function WhatIsSection() {
@@ -428,30 +575,31 @@ export function WhatIsSection() {
           </p>
         </FadeIn>
 
-        {/* 2. Lifter on the left, the pieces in a short grid on the right.
-            Two columns of compact rows, so nothing hangs below the fold. */}
-        <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)] lg:gap-10">
-          <WeightliftingAnimation />
-          <div>
-            <div className="what-is-pieces">
-              {WHAT_IS_PIECES.map((piece, pieceIndex) => (
-                <FadeIn key={piece.area} delay={pieceIndex * 0.04} className={piece.area === 'ai' ? 'what-is-piece-wide' : ''}>
-                  <WhatIsPiece piece={piece} />
-                </FadeIn>
-              ))}
-            </div>
-            <div className="mt-5 flex flex-wrap justify-center gap-3" data-testid="audience-pills">
-              <Link to="/for-trainers" className="cta-primary hero-action hero-action-primary" data-testid="pill-trainers">
-                For Trainers
-                <ArrowRight size={16} />
-              </Link>
-              <Link to="/for-clients" className="cta-ghost hero-action" data-testid="pill-clients">
-                For Clients
-                <ArrowRight size={16} />
-              </Link>
-            </div>
+        {/* 2. The pieces across the full width, audience pills under them,
+            then the partner text as two slim horizontal strips. Nothing
+            sits in a tall side column anymore. */}
+        <div>
+          <div className="what-is-pieces">
+            {WHAT_IS_PIECES.map((piece, pieceIndex) => (
+              <FadeIn key={piece.area} delay={pieceIndex * 0.04} className={piece.area === 'ai' ? 'what-is-piece-wide' : ''}>
+                <WhatIsPiece piece={piece} />
+              </FadeIn>
+            ))}
+          </div>
+          <div className="mt-5 flex flex-wrap justify-center gap-3" data-testid="audience-pills">
+            <Link to="/for-trainers" className="cta-primary hero-action hero-action-primary" data-testid="pill-trainers">
+              For Trainers
+              <ArrowRight size={16} />
+            </Link>
+            <Link to="/for-clients" className="cta-ghost hero-action" data-testid="pill-clients">
+              For Clients
+              <ArrowRight size={16} />
+            </Link>
           </div>
         </div>
+        <FadeIn className="mt-4">
+          <PricingAndDiscoveryCards />
+        </FadeIn>
       </div>
     </MouseGridBackground>
   );
@@ -714,6 +862,13 @@ export function BenefitsBento() {
                 Clients pay through Stripe right in the app. No payment links over DM, no separate
                 invoicing tool — payouts are part of the same system as the coaching.
               </p>
+              {/* The subscription-related slice of the partner text: how a
+                  trainer's coaching rate gets set from the range they submit. */}
+              <p className="mt-3 max-w-lg text-sm leading-relaxed text-white/55">
+                Trainers submit their preferred earnings range for monthly or yearly coaching, and
+                Coach Connect sets the rate from their expertise, experience, and previous
+                earnings — within reach for clients, and fair to the trainer.
+              </p>
             </div>
           </FadeIn>
 
@@ -741,8 +896,11 @@ export function BenefitsBento() {
 
 /**
  * Chapter 04 — the waitlist finale (Coming Soon), with the footer directly
- * under it. The catchphrase headline stays; under it, the email form is the
- * call to action. The form itself lives in src/waitlist/.
+ * under it. The catchphrase headline stays; under it, one horizontal row
+ * holds both paths: the waitlist form on the left and, directly beside it,
+ * the TestFlight shortcut for anyone who would rather run the live iOS
+ * beta today than wait for launch. The form itself lives in
+ * src/waitlist/; the beta link is TESTFLIGHT_URL in config.
  * @returns {JSX.Element}
  */
 export function JoinNowFooter() {
@@ -750,7 +908,7 @@ export function JoinNowFooter() {
     <>
       <MouseGridBackground id="act-finale" className="landing-section-alt">
         <div className="mx-auto flex w-full max-w-6xl flex-col items-center px-5 text-center" data-testid="finale">
-          <FadeIn className="flex w-full max-w-3xl flex-col items-center">
+          <FadeIn className="flex w-full max-w-6xl flex-col items-center">
             {/* 1. Where in the story we are, and when the doors open */}
             <p className="mb-4 font-pixel text-[0.6rem] uppercase leading-relaxed text-pink" data-testid="finale-eyebrow">
               04 · Waitlist
@@ -764,7 +922,7 @@ export function JoinNowFooter() {
             </span>
 
             {/* 2. The catchphrase, then what joining gets you */}
-            <h2 className="display-extrude mt-6 font-display text-4xl font-extrabold leading-tight sm:text-5xl md:text-6xl" data-testid="finale-headline">
+            <h2 className="display-extrude mt-6 max-w-3xl font-display text-4xl font-extrabold leading-tight sm:text-5xl md:text-6xl" data-testid="finale-headline">
               <span className="display-face">One Day </span>
               <span className="headline-grad">or</span>
               <span className="display-face"> Day One!</span>
@@ -774,15 +932,79 @@ export function JoinNowFooter() {
               trainers and their clients are first in.
             </p>
 
-            {/* 3. The signup itself, in the signature glass panel */}
-            <div className="what-is-panel mt-9 w-full max-w-xl rounded-[2rem] p-6 sm:p-8" data-testid="waitlist-card">
-              <WaitlistForm />
-              <p className="mt-4 text-xs leading-relaxed text-white/40">
-                Creates your Coach Connect login in the same account system as the app. The app is free for clients; coaches start with a {TRIAL_COPY}.
-              </p>
+            {/* 3. One horizontal row, two paths: the waitlist form on the
+                left, the TestFlight beta directly beside it on the right —
+                the beta does NOT get its own standalone card underneath
+                (the owner's call). On phones the row stacks, waitlist first.
+                Both halves stretch to the same height. */}
+            <div className="mt-6 grid w-full items-stretch gap-4 lg:grid-cols-2">
+              {/* 3a. The signup itself, in the signature glass panel */}
+              <div className="what-is-panel h-full w-full rounded-[2rem] p-5 sm:px-8 sm:py-6" data-testid="waitlist-card">
+                <WaitlistForm />
+                <p className="waitlist-aside mt-4 text-xs leading-relaxed text-white/40">
+                  Creates your Coach Connect login in the same account system as the app. The app is free for clients; coaches start with a {TRIAL_COPY}.
+                </p>
+              </div>
+
+              {/* 3b. The shortcut, as a slim dark-glass card in the same row:
+                  the waitlist is Day One, but the beta is TODAY. TestFlight
+                  is Apple's own beta-delivery app — tapping the button leaves
+                  the site for Apple's invite, installs the beta through
+                  TestFlight, and the login made in the form beside it signs
+                  into it.
+                  vocab: target="_blank" + rel="noreferrer" = open in a new tab
+                  without handing the new page a handle back to this one. */}
+              <div
+                className="testflight-card flex h-full flex-col rounded-3xl border border-white/10 bg-[#0a0a0f]/55 p-6 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl sm:p-7"
+                data-testid="finale-testflight"
+              >
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="testflight-live-chip">
+                    <span className="testflight-live-dot" aria-hidden="true" />
+                    Live · iOS Beta
+                  </span>
+                  <span className="font-mono text-xs text-white/40">iPhone only · free</span>
+                </div>
+
+                <h3 className="mt-4 font-display text-2xl font-extrabold leading-tight text-white">
+                  Can’t wait ’til late 2026? <span className="headline-grad">Good — don’t.</span>
+                </h3>
+                <p className="mt-3 font-mono text-sm leading-relaxed text-white/60">
+                  Coach Connect is already on iPhones through TestFlight. Grab the beta now,
+                  sign in with the login you just made beside this card, and make today Day One —
+                  rough edges, early features, and all.
+                </p>
+
+                {/* Manipulate here: this is THE beta button — its href is the
+                    locked TESTFLIGHT_URL from config, never a pasted link here. */}
+                <a
+                  href={TESTFLIGHT_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="cta-primary hero-action hero-action-primary testflight-cta mt-5 self-start"
+                  data-testid="finale-testflight-cta"
+                >
+                  <Apple size={18} aria-hidden="true" />
+                  Get the beta
+                  <ArrowUpRight size={16} aria-hidden="true" />
+                </a>
+
+                {/* The three taps, so “beta” never reads as homework */}
+                <ol className="testflight-steps">
+                  {TESTFLIGHT_STEPS.map((testflightStep, stepIndex) => (
+                    <li key={testflightStep} className="testflight-step">
+                      <span className="testflight-step-number" aria-hidden="true">{stepIndex + 1}</span>
+                      {testflightStep}
+                    </li>
+                  ))}
+                </ol>
+                <p className="mt-auto pt-4 font-mono text-xs leading-relaxed text-white/35">
+                  Opens in Apple TestFlight · about 2 minutes · no waitlist spot needed
+                </p>
+              </div>
             </div>
 
-            {/* 4. The quiet exit for anyone not ready to sign up */}
+            {/* 4. The quiet exit for anyone not ready to sign up or beta-test */}
             <a href="#act-connection" onClick={(e) => scrollToHash(e, '#act-connection')} className="cta-ghost hero-action mt-7" data-testid="finale-cta-ghost">
               See how it works
             </a>

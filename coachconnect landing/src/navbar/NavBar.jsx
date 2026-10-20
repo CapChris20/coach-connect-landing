@@ -60,13 +60,17 @@ export function NavBar() {
     >
       {/* Three zones with air between them: logo left, links centered, CTA right.
           The links only appear at lg and up — below that they crowd the bar,
-          and the page is one scroll so nothing is lost by hiding them. */}
+          and the page is one scroll so nothing is lost by hiding them.
+          Links wear font-mono (Space Mono): they used to inherit the pixel
+          face from the body default, and that top-row font got flagged in
+          review as unreadable — mono is the clean swap until a brand font
+          is picked. */}
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-4">
         <a href="/#act-arrival" onClick={(e) => handleSectionLinkClick(e, '#act-arrival')} data-testid="nav-logo">
           <Wordmark size="nav" stacked={false} />
         </a>
 
-        <div className="hidden items-center gap-9 text-[13px] tracking-wide text-white/65 lg:flex">
+        <div className="hidden items-center gap-9 font-mono text-[13px] tracking-wide text-white/65 lg:flex">
           {NAV_BAR_LINKS.map((navLink) =>
             navLink.routePath ? (
               <Link

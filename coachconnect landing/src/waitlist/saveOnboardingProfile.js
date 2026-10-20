@@ -45,6 +45,36 @@ function buildInviteCode() {
   return `${letters.slice(0, 3)}-${letters.slice(3)}`;
 }
 
+/**
+ * Look up a trainer from the code a client typed. Blank means they skipped it.
+ * @param {string} code
+ * @returns {Promise<string>} the trainer's user id
+ */
+export async function lookupTrainerId(code) {
+  const { auth } = readCoachConnectFirebase();
+  const signedInUser = auth.currentUser;
+  if (!signedInUser) {
+    throw new Error('Sign-in ended before that trainer code could be checked.');
+  }
+  const idToken = await signedInUser.getIdToken();
+  const response = await fetch(`${ONBOARDING_API_BASE}/api/onboarding/validate-trainer-code`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${idToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ code }),
+  });
+  if (!response.ok) {
+    throw new Error('Could not check that trainer code. Leave it blank to skip, or try again.');
+  }
+  const body = await response.json();
+  if (!body.valid || !body.trainerId) {
+    throw new Error('That trainer code was not found. Leave it blank to skip.');
+  }
+  return body.trainerId;
+}
+
 // ===== MAIN FUNCTION =====
 
 /**
@@ -60,11 +90,17 @@ export async function saveOnboardingProfile(profile) {
     throw new Error('The login session ended before setup finished. Open the app and sign in to finish onboarding there.');
   }
 
-  const inviteCode = profile.role === 'trainer' ? buildInviteCode() : undefined;
+  // Keep a code the last trainer step already showed. Otherwise make one now.
+  const shownInviteCode = profile.answers.inviteCode;
+  const inviteCode = profile.role !== 'trainer'
+    ? undefined
+    : (typeof shownInviteCode === 'string' && shownInviteCode ? shownInviteCode : buildInviteCode());
   const weight = profile.answers.weight;
   const onboardingData = dropUndefinedFields({
     ...profile.answers,
-    name: profile.fullName,
+    name: (typeof profile.answers.name === 'string' && profile.answers.name.trim())
+      ? profile.answers.name.trim()
+      : profile.fullName,
     inviteCode,
     source: 'landing_waitlist',
     startingWeight: weight != null && weight !== '' ? weight : undefined,

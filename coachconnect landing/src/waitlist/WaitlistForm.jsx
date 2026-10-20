@@ -1,14 +1,15 @@
 // WaitlistForm — signup that becomes a real Coach Connect login, then onboarding.
 // Flow: name + email + password + role → create the Auth user in anatrox-auth →
-// a few setup questions → save the same profile the app reads → confirmation.
+// the same onboarding pages as the app (9 for a client, 7 for a trainer) →
+// save the profile the app reads → confirmation.
 // After that, signing into the phone app with this email and password opens
 // the app. The in-app onboarding is already done.
 // Used by: ui/Sections.jsx (JoinNowFooter).
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowRight, Check } from 'lucide-react';
 import { createWaitlistAccount, explainAuthError } from './createWaitlistAccount';
-import { saveOnboardingProfile } from './saveOnboardingProfile';
+import { lookupTrainerId, saveOnboardingProfile } from './saveOnboardingProfile';
 
 // ===== NAMED CONSTANTS =====
 
@@ -26,9 +27,12 @@ const MAX_SITUATION_LENGTH = 1000;
 
 const INPUT_CLASS = 'w-full rounded-full border border-white/15 bg-white/5 px-5 py-3.5 font-mono text-sm text-white placeholder-white/35 outline-none transition-colors focus:border-pink/60 focus:ring-2 focus:ring-pink/30';
 
+// Same page order and titles as OnboardingScreen in the Coach Connect app.
+// vocab: optional = the app lets this page through even if it is left blank
+// Manipulate here: add or remove a page only if the phone app's step list changes too
 const CLIENT_STEPS = [
   {
-    title: 'About you',
+    title: 'Tell us about yourself',
     fields: [
       { key: 'weight', kind: 'number', label: 'Weight (lbs)', placeholder: '165' },
       { key: 'age', kind: 'number', label: 'Age', placeholder: '28' },
@@ -47,7 +51,7 @@ const CLIENT_STEPS = [
     ],
   },
   {
-    title: 'How you train',
+    title: "What's your fitness experience?",
     fields: [
       {
         key: 'fitnessLevel',
@@ -59,6 +63,11 @@ const CLIENT_STEPS = [
           { value: 'advanced', label: 'Advanced' },
         ],
       },
+    ],
+  },
+  {
+    title: "What's your main goal?",
+    fields: [
       {
         key: 'goals',
         kind: 'many',
@@ -67,10 +76,16 @@ const CLIENT_STEPS = [
           { value: 'lose_fat', label: 'Lose fat' },
           { value: 'build_muscle', label: 'Build muscle' },
           { value: 'maintain_health', label: 'Stay healthy' },
-          { value: 'athletic_performance', label: 'Performance' },
+          { value: 'athletic_performance', label: 'Athletic performance' },
+          { value: 'improve_mental_health', label: 'Mental health' },
           { value: 'build_habits', label: 'Build habits' },
         ],
       },
+    ],
+  },
+  {
+    title: 'What equipment do you have access to?',
+    fields: [
       {
         key: 'equipmentAccess',
         kind: 'many',
@@ -84,27 +99,142 @@ const CLIENT_STEPS = [
         ],
       },
       {
-        key: 'daysPerWeek',
+        key: 'trainingEnvironment',
         kind: 'one',
-        label: 'Days per week',
+        label: 'Where do you train?',
+        optional: true,
         choices: [
-          { value: 3, label: '3' },
-          { value: 4, label: '4' },
-          { value: 5, label: '5' },
-          { value: 6, label: '6' },
+          { value: 'home', label: 'Home' },
+          { value: 'gym', label: 'Gym' },
+          { value: 'both', label: 'Both' },
         ],
       },
     ],
   },
   {
-    title: 'Your situation',
+    title: 'How many days per week can you train?',
     fields: [
+      {
+        key: 'daysPerWeek',
+        kind: 'one',
+        label: 'Days per week',
+        choices: [
+          { value: 1, label: '1' },
+          { value: 2, label: '2' },
+          { value: 3, label: '3' },
+          { value: 4, label: '4' },
+          { value: 5, label: '5' },
+          { value: 6, label: '6' },
+          { value: 7, label: '7' },
+        ],
+      },
+      {
+        key: 'preferredWorkoutTime',
+        kind: 'one',
+        label: 'Preferred time',
+        optional: true,
+        choices: [
+          { value: 'morning', label: 'Morning' },
+          { value: 'afternoon', label: 'Afternoon' },
+          { value: 'evening', label: 'Evening' },
+          { value: 'no_preference', label: 'No preference' },
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Any injuries or limitations?',
+    note: 'Optional. Skip anything that does not apply.',
+    fields: [
+      {
+        key: 'injuries',
+        kind: 'longtext',
+        label: 'Injuries or limitations',
+        optional: true,
+        placeholder: 'Lower back, knees, a recent strain…',
+      },
+      {
+        key: 'exercisesDislike',
+        kind: 'longtext',
+        label: 'Exercises you dislike',
+        optional: true,
+        placeholder: 'Burpees, running, leg press…',
+      },
+      {
+        key: 'supplementsCurrentlyTaking',
+        kind: 'text',
+        label: 'Supplements',
+        optional: true,
+        placeholder: 'Creatine, protein…',
+      },
+    ],
+  },
+  {
+    title: 'Do you have a trainer?',
+    note: 'Optional. Paste their invite code, or leave this blank.',
+    fields: [
+      { key: 'trainerCode', kind: 'text', label: 'Trainer code', optional: true, placeholder: 'ABC-DEF' },
+    ],
+  },
+  {
+    title: 'Describe Your Situation',
+    note: 'The chips are optional. The story at the bottom is required.',
+    fields: [
+      {
+        key: 'currentStressLevel',
+        kind: 'one',
+        label: 'Stress',
+        optional: true,
+        choices: [
+          { value: 'low', label: 'Low' },
+          { value: 'moderate', label: 'Moderate' },
+          { value: 'high', label: 'High' },
+        ],
+      },
+      {
+        key: 'sleepQuality',
+        kind: 'one',
+        label: 'Sleep',
+        optional: true,
+        choices: [
+          { value: 'poor', label: 'Poor' },
+          { value: 'fair', label: 'Fair' },
+          { value: 'good', label: 'Good' },
+        ],
+      },
+      {
+        key: 'energyLevels',
+        kind: 'one',
+        label: 'Energy',
+        optional: true,
+        choices: [
+          { value: 'low', label: 'Low' },
+          { value: 'moderate', label: 'Moderate' },
+          { value: 'high', label: 'High' },
+        ],
+      },
+      {
+        key: 'hydrationHabits',
+        kind: 'one',
+        label: 'Water',
+        optional: true,
+        choices: [
+          { value: 'less_than_4', label: 'Under 4 cups' },
+          { value: '4_8', label: '4–8 cups' },
+          { value: 'more_than_8', label: '8+ cups' },
+        ],
+      },
       {
         key: 'situationDescription',
         kind: 'longtext',
-        label: 'What do you want coaching to change?',
-        placeholder: 'A few sentences — at least 50 characters. The app stores this on your profile.',
+        label: 'Your situation',
+        placeholder: 'At least 50 characters. Routine, what you want to change, and anything a coach should know.',
       },
+    ],
+  },
+  {
+    title: 'AI-Powered Features',
+    fields: [
       {
         key: 'aiEnabled',
         kind: 'one',
@@ -120,7 +250,7 @@ const CLIENT_STEPS = [
 
 const TRAINER_STEPS = [
   {
-    title: 'Your credentials',
+    title: 'What certifications do you have?',
     fields: [
       {
         key: 'certifications',
@@ -132,9 +262,15 @@ const TRAINER_STEPS = [
           { value: 'ISSA', label: 'ISSA' },
           { value: 'ACSM', label: 'ACSM' },
           { value: 'NSCA-CPT', label: 'NSCA-CPT' },
+          { value: 'Other', label: 'Other' },
           { value: 'None', label: 'None yet' },
         ],
       },
+    ],
+  },
+  {
+    title: 'How long have you been training clients?',
+    fields: [
       {
         key: 'yearsExperience',
         kind: 'one',
@@ -150,7 +286,7 @@ const TRAINER_STEPS = [
     ],
   },
   {
-    title: 'What you coach',
+    title: 'What are your specialties?',
     fields: [
       {
         key: 'specialties',
@@ -161,21 +297,29 @@ const TRAINER_STEPS = [
           { value: 'weight_loss', label: 'Weight loss' },
           { value: 'bodybuilding', label: 'Bodybuilding' },
           { value: 'athletic', label: 'Athletic' },
+          { value: 'rehabilitation', label: 'Rehab' },
           { value: 'powerlifting', label: 'Powerlifting' },
           { value: 'hiit', label: 'HIIT' },
           { value: 'nutrition', label: 'Nutrition' },
         ],
       },
+    ],
+  },
+  {
+    title: 'Describe your training philosophy',
+    note: 'Optional.',
+    fields: [
       {
         key: 'trainingPhilosophy',
         kind: 'longtext',
-        label: 'Training philosophy (optional)',
+        label: 'Philosophy',
+        optional: true,
         placeholder: 'How you coach, in a sentence or two.',
       },
     ],
   },
   {
-    title: 'How clients book you',
+    title: 'Availability & session format',
     fields: [
       {
         key: 'trainerAvailabilityStatus',
@@ -196,7 +340,27 @@ const TRAINER_STEPS = [
           { value: 'Both', label: 'Both' },
         ],
       },
+    ],
+  },
+  {
+    title: 'Almost done!',
+    fields: [
+      { key: 'name', kind: 'text', label: 'Name clients will see', placeholder: 'Your name' },
       { key: 'location', kind: 'text', label: 'City, state', placeholder: 'Detroit, MI' },
+      {
+        key: 'trainerProfileBio',
+        kind: 'longtext',
+        label: 'Short bio',
+        optional: true,
+        placeholder: 'One or two sentences for your marketplace card.',
+      },
+    ],
+  },
+  {
+    title: 'Your client invite code',
+    note: 'Share this so clients can find you. It is saved when you finish.',
+    fields: [
+      { key: 'inviteCode', kind: 'code', label: 'Invite code' },
     ],
   },
 ];
@@ -254,13 +418,13 @@ function stepProblem(step, answers) {
 
 /**
  * A required field the visitor has not answered yet.
- * Philosophy is the one optional long text.
- * @param {{ key: string, kind: string }} field
+ * optional and the invite-code display never block Continue.
+ * @param {{ key: string, kind: string, optional?: boolean }} field
  * @param {Record<string, unknown>} answers
  * @returns {boolean}
  */
 function fieldIsEmpty(field, answers) {
-  if (field.key === 'trainingPhilosophy') return false;
+  if (field.optional || field.kind === 'code') return false;
   if (field.kind === 'height') {
     const height = answers.height;
     return !height || !height.feet || height.inches === '' || height.inches == null;
@@ -276,6 +440,21 @@ function fieldIsEmpty(field, answers) {
 }
 
 /**
+ * Trainer invite code in the app's XXX-XXX shape.
+ * Same alphabet as saveOnboardingProfile so the last page can show it first.
+ * @returns {string}
+ */
+function makeInviteCode() {
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let letters = '';
+  for (let index = 0; index < 6; index += 1) {
+    const pick = Math.floor(Math.random() * alphabet.length);
+    letters += alphabet.charAt(pick);
+  }
+  return `${letters.slice(0, 3)}-${letters.slice(3)}`;
+}
+
+/**
  * Toggle one value inside a multi-select list.
  * @param {unknown[]} current
  * @param {unknown} value
@@ -288,32 +467,97 @@ function toggleListValue(current, value) {
 }
 
 /**
- * Pill button used for role, single choice, and multi choice.
- * @param {{ label: string, selected: boolean, onChoose: () => void }} props
+ * One answer the visitor can tap. Days are circles; everything else is a card.
+ * @param {{ label: string, selected: boolean, onChoose: () => void, shape?: 'card' | 'day' }} props
  * @returns {JSX.Element}
  */
-function ChoicePill({ label, selected, onChoose }) {
-  const selectedClass = selected
-    ? 'border-pink/70 bg-pink/20 text-white'
-    : 'border-white/15 bg-white/5 text-white/70 hover:border-white/30';
+function ChoicePill({ label, selected, onChoose, shape = 'card' }) {
+  const selectedClass = selected ? ' is-selected' : '';
+  const shapeClass = shape === 'day' ? 'setup-day' : 'setup-choice';
   return (
-    <button type="button" onClick={onChoose} className={`rounded-full border px-4 py-2 text-left text-sm transition-colors ${selectedClass}`}>
+    <button type="button" onClick={onChoose} aria-pressed={selected} className={`${shapeClass}${selectedClass}`}>
       {label}
     </button>
   );
 }
 
 /**
- * One onboarding question.
- * @param {{ field: Record<string, unknown>, answers: Record<string, unknown>, onChange: (key: string, value: unknown) => void }} props
+ * The filled part of the step track. One segment per page.
+ * @param {{ stepIndex: number, stepCount: number }} props
  * @returns {JSX.Element}
  */
-function QuestionField({ field, answers, onChange }) {
+function SetupProgress({ stepIndex, stepCount }) {
+  const segments = [];
+  for (let segmentIndex = 0; segmentIndex < stepCount; segmentIndex += 1) {
+    let segmentClass = 'setup-seg';
+    if (segmentIndex < stepIndex) segmentClass += ' is-done';
+    if (segmentIndex === stepIndex) segmentClass += ' is-current';
+    segments.push(<span key={segmentIndex} className={segmentClass} />);
+  }
+  return <div className="setup-progress" aria-hidden="true">{segments}</div>;
+}
+
+/**
+ * The small heading above a field. Hidden when the page title already asks it.
+ * @param {{ field: { label: string, optional?: boolean }, showLabel: boolean }} props
+ * @returns {JSX.Element | null}
+ */
+function FieldLabel({ field, showLabel }) {
+  if (!showLabel) return null;
+  return (
+    <p className="setup-label">
+      {field.label}
+      {field.optional ? <span className="setup-optional">Optional</span> : null}
+    </p>
+  );
+}
+
+/**
+ * How many columns this answer list should use once the card is wide.
+ * @param {{ kind: string, choices?: Array<{ value: unknown }> }} field
+ * @returns {string}
+ */
+function choiceRowClass(field) {
+  const everyChoiceIsNumber = field.choices.every((choice) => typeof choice.value === 'number');
+  if (everyChoiceIsNumber) return 'setup-days';
+  if (field.choices.length <= 3) return 'setup-choices is-trio';
+  if (field.choices.length === 4) return 'setup-choices is-quad';
+  return 'setup-choices';
+}
+
+/**
+ * Which grid track a field sits on. Short inputs share a row; big questions take the width.
+ * @param {{ kind: string, choices?: Array<{ value: unknown }> }} field
+ * @param {Array<{ kind: string }>} fieldsOnStep
+ * @returns {string}
+ */
+function fieldFrameClass(field, fieldsOnStep) {
+  if (field.kind === 'height') return 'setup-span-2';
+  if (field.kind === 'number') return '';
+  const longTextCount = fieldsOnStep.filter((item) => item.kind === 'longtext').length;
+  if (field.kind === 'longtext' && longTextCount === 3) return '';
+  if (field.kind === 'longtext' && longTextCount > 1) return 'setup-span-2';
+  const chipGroupCount = fieldsOnStep.filter((item) => item.kind === 'one' || item.kind === 'many').length;
+  const isDayPicker = field.choices && field.choices.every((choice) => typeof choice.value === 'number');
+  if ((field.kind === 'one' || field.kind === 'many') && chipGroupCount >= 3 && !isDayPicker) {
+    return 'setup-span-2';
+  }
+  return 'setup-span-all';
+}
+
+/**
+ * One onboarding question.
+ * @param {{ field: Record<string, unknown>, answers: Record<string, unknown>, onChange: (key: string, value: unknown) => void, showLabel: boolean, frameClass: string }} props
+ * @returns {JSX.Element}
+ */
+function QuestionField({ field, answers, onChange, showLabel, frameClass }) {
   if (field.kind === 'one' || field.kind === 'many') {
+    const isDayPicker = field.choices.every((choice) => typeof choice.value === 'number');
     return (
-      <fieldset className="text-left">
-        <legend className="mb-2 text-xs uppercase tracking-wide text-white/45">{field.label}</legend>
-        <div className="flex flex-wrap gap-2">
+      <fieldset className={frameClass}>
+        <legend className="sr-only">{field.label}</legend>
+        <FieldLabel field={field} showLabel={showLabel} />
+        <div className={choiceRowClass(field)}>
           {field.choices.map((choice) => {
             const current = answers[field.key];
             const selected = field.kind === 'many'
@@ -326,7 +570,15 @@ function QuestionField({ field, answers, onChange }) {
               }
               onChange(field.key, choice.value);
             };
-            return <ChoicePill key={String(choice.value)} label={choice.label} selected={selected} onChoose={choose} />;
+            return (
+              <ChoicePill
+                key={String(choice.value)}
+                label={choice.label}
+                selected={selected}
+                onChoose={choose}
+                shape={isDayPicker ? 'day' : 'card'}
+              />
+            );
           })}
         </div>
       </fieldset>
@@ -336,53 +588,72 @@ function QuestionField({ field, answers, onChange }) {
   if (field.kind === 'height') {
     const height = answers.height || { feet: '', inches: '' };
     return (
-      <div className="text-left">
-        <p className="mb-2 text-xs uppercase tracking-wide text-white/45">{field.label}</p>
-        <div className="grid grid-cols-2 gap-3">
+      <div className={frameClass}>
+        <FieldLabel field={field} showLabel={showLabel} />
+        <div className="setup-pair">
           <input
             inputMode="numeric"
             placeholder="Feet"
+            aria-label="Height in feet"
             value={height.feet}
             onChange={(changeEvent) => onChange('height', { ...height, feet: changeEvent.target.value.replace(/[^0-9]/g, '') })}
-            className={INPUT_CLASS}
+            className="setup-input"
           />
           <input
             inputMode="numeric"
             placeholder="Inches"
+            aria-label="Height in inches"
             value={height.inches}
             onChange={(changeEvent) => onChange('height', { ...height, inches: changeEvent.target.value.replace(/[^0-9]/g, '') })}
-            className={INPUT_CLASS}
+            className="setup-input"
           />
         </div>
       </div>
     );
   }
 
-  if (field.kind === 'longtext') {
+  if (field.kind === 'code') {
+    const shownCode = answers.inviteCode || '······';
     return (
-      <label className="block text-left text-xs uppercase tracking-wide text-white/45">
-        {field.label}
+      <p className={`setup-code ${frameClass}`} data-testid="waitlist-invite-code">
+        {shownCode}
+      </p>
+    );
+  }
+
+  if (field.kind === 'longtext') {
+    const writtenText = String(answers[field.key] || '');
+    const situationCount = writtenText.trim().length;
+    const asksForCount = field.key === 'situationDescription';
+    return (
+      <label className={frameClass || 'block'}>
+        <FieldLabel field={field} showLabel />
         <textarea
           rows={4}
           placeholder={field.placeholder}
-          value={answers[field.key] || ''}
+          value={writtenText}
           onChange={(changeEvent) => onChange(field.key, changeEvent.target.value)}
-          className="mt-2 w-full rounded-3xl border border-white/15 bg-white/5 px-5 py-3.5 font-mono text-sm normal-case tracking-normal text-white placeholder-white/35 outline-none transition-colors focus:border-pink/60 focus:ring-2 focus:ring-pink/30"
+          className="setup-area"
         />
+        {asksForCount ? (
+          <p className={situationCount >= MIN_SITUATION_LENGTH ? 'setup-meter is-met' : 'setup-meter'}>
+            {situationCount} / {MIN_SITUATION_LENGTH} characters
+          </p>
+        ) : null}
       </label>
     );
   }
 
   const inputValue = answers[field.key] ?? '';
   return (
-    <label className="block text-left text-xs uppercase tracking-wide text-white/45">
-      {field.label}
+    <label className={frameClass || 'block'}>
+      <FieldLabel field={field} showLabel />
       <input
         type={field.kind === 'number' ? 'number' : 'text'}
         placeholder={field.placeholder}
         value={inputValue}
         onChange={(changeEvent) => onChange(field.key, changeEvent.target.value)}
-        className={`${INPUT_CLASS} mt-2 normal-case tracking-normal`}
+        className="setup-input"
       />
     </label>
   );
@@ -394,25 +665,32 @@ function QuestionField({ field, answers, onChange }) {
  * @returns {Record<string, unknown>}
  */
 function answersForFirestore(answers) {
+  const shapedAnswers = { ...answers };
+  // The typed code is only for the lookup. The API links on trainerId.
+  delete shapedAnswers.trainerCode;
+
   const height = answers.height;
   const feet = height && height.feet !== '' ? Number(height.feet) : null;
   const inches = height && height.inches !== '' ? Number(height.inches) : null;
-  const goals = Array.isArray(answers.goals) ? answers.goals : [];
-  const weight = answers.weight === '' || answers.weight == null ? null : Number(answers.weight);
-  const age = answers.age === '' || answers.age == null ? null : Number(answers.age);
-  const daysPerWeek = answers.daysPerWeek == null ? null : Number(answers.daysPerWeek);
+  if (feet) shapedAnswers.height = { feet, inches: inches || 0 };
+  else delete shapedAnswers.height;
 
-  return {
-    ...answers,
-    weight,
-    age,
-    daysPerWeek,
-    height: feet ? { feet, inches: inches || 0 } : null,
-    goals,
-    primaryGoal: goals[0] || null,
-    trainingEnvironment: answers.trainingEnvironment || null,
-    injuries: answers.injuries || '',
-  };
+  if (answers.weight === '' || answers.weight == null) delete shapedAnswers.weight;
+  else shapedAnswers.weight = Number(answers.weight);
+
+  if (answers.age === '' || answers.age == null) delete shapedAnswers.age;
+  else shapedAnswers.age = Number(answers.age);
+
+  if (answers.daysPerWeek == null || answers.daysPerWeek === '') delete shapedAnswers.daysPerWeek;
+  else shapedAnswers.daysPerWeek = Number(answers.daysPerWeek);
+
+  const goals = Array.isArray(answers.goals) ? answers.goals : [];
+  if (goals.length > 0) {
+    shapedAnswers.goals = goals;
+    shapedAnswers.primaryGoal = goals[0];
+  }
+
+  return shapedAnswers;
 }
 
 // ===== MAIN FUNCTION =====
@@ -435,6 +713,17 @@ export function WaitlistForm() {
 
   const steps = stepsForRole(role);
   const currentStep = steps[stepIndex];
+
+  // The last trainer page displays a code. Make it once, then save that same string.
+  useEffect(() => {
+    if (phase !== PHASE_ONBOARDING || role !== ROLE_TRAINER) return;
+    const showingInvite = currentStep?.fields.some((field) => field.kind === 'code');
+    if (!showingInvite) return;
+    setAnswers((previous) => {
+      if (previous.inviteCode) return previous;
+      return { ...previous, inviteCode: makeInviteCode() };
+    });
+  }, [phase, role, currentStep]);
 
   /**
    * Write one onboarding answer without losing the others.
@@ -472,6 +761,7 @@ export function WaitlistForm() {
         password,
         role,
       });
+      setAnswers({ name: fullName.trim() });
       setStepIndex(0);
       setPhase(PHASE_ONBOARDING);
     } catch (authError) {
@@ -494,7 +784,32 @@ export function WaitlistForm() {
       return;
     }
 
-    // 2. More questions left — just show the next one.
+    // 2. A typed trainer code must resolve to a trainer id before we move on.
+    //    Blank is allowed — that client simply has no trainer yet.
+    const asksForTrainerCode = currentStep.fields.some((field) => field.key === 'trainerCode');
+    const typedCode = String(answers.trainerCode || '').trim();
+    if (asksForTrainerCode && typedCode) {
+      setIsSending(true);
+      setErrorMessage('');
+      try {
+        const trainerId = await lookupTrainerId(typedCode);
+        setAnswers((previous) => ({ ...previous, trainerId }));
+      } catch (lookupError) {
+        setErrorMessage(lookupError.message || 'Could not check that trainer code.');
+        setIsSending(false);
+        return;
+      }
+      setIsSending(false);
+    }
+    if (asksForTrainerCode && !typedCode && answers.trainerId) {
+      setAnswers((previous) => {
+        const cleared = { ...previous };
+        delete cleared.trainerId;
+        return cleared;
+      });
+    }
+
+    // 3. More questions left — just show the next one.
     const isLastStep = stepIndex >= steps.length - 1;
     if (!isLastStep) {
       setErrorMessage('');
@@ -502,7 +817,7 @@ export function WaitlistForm() {
       return;
     }
 
-    // 3. Last step: write the profile the app reads, then show the confirmation.
+    // 4. Last step: write the profile the app reads, then show the confirmation.
     setIsSending(true);
     setErrorMessage('');
     try {
@@ -546,23 +861,34 @@ export function WaitlistForm() {
   if (phase === PHASE_ONBOARDING) {
     return (
       <div className="text-left" data-testid="waitlist-onboarding">
-        <p className="font-pixel text-[0.55rem] uppercase text-pink">
-          Setup {stepIndex + 1} of {steps.length}
-        </p>
-        <h3 className="mt-2 font-display text-2xl font-semibold text-white">{currentStep.title}</h3>
-        <div className="mt-5 flex flex-col gap-5">
-          {currentStep.fields.map((field) => (
-            <QuestionField key={field.key} field={field} answers={answers} onChange={changeAnswer} />
-          ))}
+        <SetupProgress stepIndex={stepIndex} stepCount={steps.length} />
+        <p className="setup-count">Step {stepIndex + 1} of {steps.length}</p>
+        <h3 className="setup-title">{currentStep.title}</h3>
+        {currentStep.note ? <p className="setup-note">{currentStep.note}</p> : null}
+        <div className={currentStep.fields.every((field) => field.kind === 'longtext') ? 'setup-fields is-thirds' : 'setup-fields'}>
+          {currentStep.fields.map((field) => {
+            const titleAlreadyAsks = currentStep.fields.length === 1
+              && (field.kind === 'one' || field.kind === 'many' || field.kind === 'code');
+            return (
+              <QuestionField
+                key={field.key}
+                field={field}
+                answers={answers}
+                onChange={changeAnswer}
+                showLabel={!titleAlreadyAsks}
+                frameClass={fieldFrameClass(field, currentStep.fields)}
+              />
+            );
+          })}
         </div>
         {errorMessage ? (
-          <p className="mt-4 text-sm text-pink" role="alert" data-testid="waitlist-error">{errorMessage}</p>
+          <p className="setup-error" role="alert" data-testid="waitlist-error">{errorMessage}</p>
         ) : null}
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-between">
-          <button type="button" onClick={handleOnboardingBack} disabled={stepIndex === 0 || isSending} className="cta-ghost hero-action disabled:opacity-40">
+        <div className="setup-actions">
+          <button type="button" onClick={handleOnboardingBack} disabled={stepIndex === 0 || isSending} className="setup-back">
             Back
           </button>
-          <button type="button" onClick={handleOnboardingNext} disabled={isSending} className="cta-primary hero-action hero-action-primary disabled:cursor-wait disabled:opacity-70" data-testid="waitlist-onboarding-next">
+          <button type="button" onClick={handleOnboardingNext} disabled={isSending} className="cta-primary hero-action hero-action-primary setup-next disabled:cursor-wait disabled:opacity-70" data-testid="waitlist-onboarding-next">
             {isSending ? 'Saving…' : stepIndex >= steps.length - 1 ? 'Finish setup' : 'Continue'}
             {!isSending && <ArrowRight size={16} />}
           </button>
@@ -576,7 +902,7 @@ export function WaitlistForm() {
       <p className="mb-4 text-sm leading-relaxed text-white/60">
         This is your Coach Connect login. After a short setup you can sign into the app with the same email and password.
       </p>
-      <div className="flex flex-col gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <label className="sr-only" htmlFor="waitlist-name">Full name</label>
         <input id="waitlist-name" autoComplete="name" placeholder="Your name" value={fullName} onChange={(changeEvent) => setFullName(changeEvent.target.value)} className={INPUT_CLASS} data-testid="waitlist-name" />
         <label className="sr-only" htmlFor="waitlist-email">Email address</label>
@@ -588,8 +914,8 @@ export function WaitlistForm() {
       </div>
 
       <fieldset className="mt-4">
-        <legend className="mb-2 text-xs uppercase tracking-wide text-white/45">I am joining as</legend>
-        <div className="flex flex-wrap gap-2">
+        <legend className="setup-label">I am joining as</legend>
+        <div className="setup-choices is-pair">
           <ChoicePill label="A client" selected={role === ROLE_CLIENT} onChoose={() => setRole(ROLE_CLIENT)} />
           <ChoicePill label="A trainer" selected={role === ROLE_TRAINER} onChoose={() => setRole(ROLE_TRAINER)} />
         </div>

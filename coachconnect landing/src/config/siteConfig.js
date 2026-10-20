@@ -4,8 +4,11 @@
 // was verified against the app code by the owner — do not "improve" the wording solo.
 
 // Public TestFlight invite for the iOS beta ("Try the beta" links point here).
-// TODO(owner): confirm this invite link is still active before driving waitlist traffic to it.
-export const TESTFLIGHT_URL = 'https://testflight.apple.com/join/rArzZF5v';
+// Confirmed by the owner Oct 2026 — this is the link-in-bio invite, so the
+// utm_* tags stay: they tell Apple/IG this traffic came from that invite.
+// Manipulate here: if Apple ever rotates the join code, swap the whole URL here
+// and every TestFlight button on the site follows (never hardcode it in a section).
+export const TESTFLIGHT_URL = 'https://testflight.apple.com/join/rArzZF5v?utm_source=ig&utm_medium=social&utm_content=link_in_bio';
 
 // Trial wording — matches the App Store product exactly.
 // Manipulate here: do not change without the owner (App Store product is the source of truth).

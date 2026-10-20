@@ -1,39 +1,32 @@
-// LogoModel — the CC logo as a real 3D model, sitting on the left under the hero title.
-// Flow: load the logo GLB → turn it 8° over 7 seconds so the side lights
-// slide across the letters → stop drawing once it has settled.
-// Used by: ui/Sections.jsx, inside HeroLeftColumn. The hop that used to live
-// in .logo-bounce is gone; this turn happens inside the canvas.
+// LogoModel — the CC logo as a real 3D model, standing big in the middle
+// of the hero (TopSection wraps it in .hero-center-logo for the size).
+// Flow: load the logo GLB → rock it left and right so the side lights keep
+// sliding across the letters. The rock loops. Reduced motion leaves it still.
+// Used by: ui/Sections.jsx (TopSection).
 
 import { Suspense, useEffect, useRef, useState } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { Center, Environment, Lightformer, useGLTF } from '@react-three/drei';
 
 // ===== NAMED CONSTANTS =====
 
 const LOGO_MODEL_URL = '/models/cc_logo.glb';
 
-// The file is about 6.4 x 4 units; this scale lands it near 3.9 units wide.
-// Manipulate here: bigger logo = bigger number
-const LOGO_SCALE = 0.62;
+// The file is about 6.4 x 4 units; this scale lands it near 5.4 units wide,
+// filling most of the stage instead of floating in empty canvas.
+// Manipulate here: bigger logo = bigger number (past ~0.85 the CC's edges
+// start to leave the frame)
+const LOGO_SCALE = 0.84;
 
-// Manipulate here: bigger number = the mark turns farther before it rests
-const TILT_DEGREES = 8;
+// Manipulate here: bigger number = a wider rock, left and right of center
+const SWAY_DEGREES = 16;
 
-// Manipulate here: seconds from straight-on to the resting tilt
-const TILT_SECONDS = 7;
+// Manipulate here: seconds for one full left-to-right-to-left rock
+const SWAY_SECONDS = 8;
 
-const TILT_RADIANS = (TILT_DEGREES * Math.PI) / 180;
+const SWAY_RADIANS = (SWAY_DEGREES * Math.PI) / 180;
 
 // ===== HELPER FUNCTIONS =====
-
-/**
- * Ease-out so the turn starts clearly and eases into the resting angle.
- * @param {number} progress - 0 at the start, 1 when the tilt is done
- * @returns {number}
- */
-function easeOutCubic(progress) {
-  return 1 - Math.pow(1 - progress, 3);
-}
 
 /**
  * True when the OS asks the page not to animate.
@@ -44,28 +37,16 @@ function systemWantsReducedMotion() {
 }
 
 /**
- * The logo mesh, turned on its vertical axis. With reduced motion it stays
- * facing the camera. Otherwise it eases to TILT_DEGREES and then stops
- * asking for frames, so the canvas can sleep.
+ * The logo mesh, rocking on its vertical axis. With reduced motion it stays
+ * facing the camera. Otherwise it sways forever so the side lights keep moving.
  * @param {{ motionIsReduced: boolean }} props
  * @returns {JSX.Element}
  */
 function TiltingLogo({ motionIsReduced }) {
   const logoGroup = useRef(null);
-  const startedAtSeconds = useRef(null);
-  // vocab: invalidate = "please draw one more frame." frameloop "demand"
-  // draws nothing until something calls this.
-  const { invalidate } = useThree();
   const { scene } = useGLTF(LOGO_MODEL_URL);
 
-  // A fresh start whenever the motion setting changes. One request paints
-  // the first pose; the loop below asks for the rest.
-  useEffect(() => {
-    startedAtSeconds.current = null;
-    invalidate();
-  }, [invalidate, motionIsReduced]);
-
-  useFrame(({ clock, invalidate: requestAnotherFrame }) => {
+  useFrame(({ clock }) => {
     const group = logoGroup.current;
     if (!group) return;
 
@@ -74,19 +55,10 @@ function TiltingLogo({ motionIsReduced }) {
       return;
     }
 
-    if (startedAtSeconds.current === null) {
-      startedAtSeconds.current = clock.elapsedTime;
-    }
-
-    const elapsedSeconds = clock.elapsedTime - startedAtSeconds.current;
-    const progress = Math.min(elapsedSeconds / TILT_SECONDS, 1);
     // vocab: rotation.y = turn around the vertical axis, in radians.
-    // Positive brings the right edge forward into the blue side light.
-    group.rotation.y = easeOutCubic(progress) * TILT_RADIANS;
-
-    if (progress < 1) {
-      requestAnotherFrame();
-    }
+    // sin goes -1 → 1 → -1, so the mark rocks left, then right, then back.
+    const cycle = (clock.elapsedTime / SWAY_SECONDS) * Math.PI * 2;
+    group.rotation.y = Math.sin(cycle) * SWAY_RADIANS;
   });
 
   return (
@@ -101,8 +73,8 @@ function TiltingLogo({ motionIsReduced }) {
 // ===== MAIN FUNCTION =====
 
 /**
- * A small stage with the 3D logo on it. The mark turns 8° over 7 seconds
- * and then rests. Reduced motion leaves it facing forward.
+ * A small stage with the 3D logo on it. The mark rocks left and right
+ * and keeps going. Reduced motion leaves it facing forward.
  * @returns {JSX.Element}
  */
 export function LogoModel() {
@@ -117,11 +89,14 @@ export function LogoModel() {
   }, []);
 
   // 2. Stage the model. The turn itself lives in TiltingLogo.
+  // The stage box lives in index.css (.logo-model-stage): its height is
+  // tied to the viewport height there, so on a short screen the stage
+  // shrinks instead of pushing the mark off the first screen.
   return (
-    <div className="h-[300px] w-[380px] max-w-full sm:h-[360px] sm:w-[500px]" data-testid="logo-model">
-      {/* vocab: frameloop="demand" = draw only when TiltingLogo asks.
-          After the 7 seconds it stops asking, so the canvas idles. */}
-      <Canvas dpr={[1, 1.5]} camera={{ position: [0, 0.2, 5.6], fov: 40 }} gl={{ antialias: true, alpha: true }} frameloop="demand">
+    <div className="logo-model-stage" data-testid="logo-model">
+      {/* vocab: frameloop "always" = redraw every screen refresh, which the
+          rock needs. "demand" draws one still frame when motion is reduced. */}
+      <Canvas dpr={[1, 1.5]} camera={{ position: [0, 0.2, 5.6], fov: 40 }} gl={{ antialias: true, alpha: true }} frameloop={motionIsReduced ? 'demand' : 'always'}>
         <ambientLight intensity={0.6} />
         <directionalLight position={[4, 6, 6]} intensity={1.8} />
         <Suspense fallback={null}>
