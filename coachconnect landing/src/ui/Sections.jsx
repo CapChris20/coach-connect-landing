@@ -21,25 +21,19 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Apple,
-  ArrowRight,
   ArrowUpRight,
-  Award,
   ChevronDown,
-  Calendar,
   ClipboardList,
-  CreditCard,
-  MessageCircle,
   Plus,
   Search,
-  Wallet,
   Zap,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { usePrefersReducedMotion } from '../hooks/useLanding';
 import { FadeIn } from './FadeIn';
 import { HeroWatch } from './HeroWatch';
+import { HeroPhone } from './HeroPhone';
 import { LogoModel } from './LogoModel';
-import { HeroLeftColumn } from './HeroLeftColumn';
 import MouseGridBackground from './MouseGridBackground';
 import { CardCycle } from './CardCycle';
 import { Wordmark } from './Wordmark';
@@ -60,7 +54,7 @@ const HERO_SCROLL_TARGET = '#act-connection';
 // the logo, and the watch, each a beat after the last.
 // Manipulate here: raise the delays and the entrance feels slower and
 // grander; the gaps between them are the stagger.
-const HERO_ENTRANCE_DELAYS_SECONDS = { wordmark: 0.9, words: 1.02, logo: 1.14, watch: 1.26 };
+const HERO_ENTRANCE_DELAYS_SECONDS = { wordmark: 0.9, phone: 1.04, logo: 1.16, watch: 1.28 };
 // The signature settle the whole site rises with (same curve as FadeIn).
 const HERO_ENTRANCE_EASE = [0.16, 1, 0.3, 1];
 
@@ -145,29 +139,101 @@ const FAQ_ITEMS = [
   },
 ];
 
-// The old "What is Coach Connect" paragraph, broken into pieces. Same facts,
-// no new claims. area names the slot in .what-is-pieces (index.css).
-// color → gradientTo is each disc's gradient pair — never a flat fill.
-// Manipulate here: seven short rows. Adding a long body line makes the
-// chapter taller than one screen.
+// The seven things Coach Connect does, one card each. Everything
+// below is grounded in the real app (the Coach Connect repo,
+// 7th-Project--Coach-Connect, checked 2026-10-20/21): the marketplace
+// really filters by specialty / experience / price / session type,
+// nutrition really has a barcode scanner and coach-visible macros,
+// workout plans really export as PDFs, and the AI Coach really pops
+// a confirmation before it logs or edits anything (its voice input
+// was removed from the app — do not claim it). Keep every line this
+// specific; no invented features. description = what the thing IS,
+// has = what it HAS, four short items at most — the owner wants very
+// little text per card.
 const WHAT_IS_PIECES = [
-  { area: 'find', icon: Search, color: '#FF6B9D', gradientTo: '#F97316', title: 'Find a trainer', body: 'Matched on expertise, not followers.' },
-  { area: 'plans', icon: ClipboardList, color: '#06B6D4', gradientTo: '#C084FC', title: 'Workout plans', body: 'Follow the plan.' },
-  { area: 'scan', icon: Apple, color: '#10B981', gradientTo: '#06B6D4', title: 'Log nutrition', body: 'Barcode scan.' },
-  { area: 'message', icon: MessageCircle, color: '#F97316', gradientTo: '#FF6B9D', title: 'Messaging', body: 'Message your coach.' },
-  { area: 'book', icon: Calendar, color: '#C084FC', gradientTo: '#FF6B9D', title: 'Book sessions', body: 'Schedule in the app.' },
-  { area: 'pay', icon: CreditCard, color: '#FF6B9D', gradientTo: '#F97316', title: 'Pay in the app', body: 'Pay your coach.' },
-  { area: 'ai', icon: Zap, color: '#C084FC', gradientTo: '#06B6D4', title: 'AI Coach', body: 'Handles the day-to-day logging, and asks before it changes anything.' },
+  {
+    title: 'Find a trainer',
+    description: 'The marketplace where clients find the right coach.',
+    has: ['Specialty, experience & price filters', 'Remote, in-person, or both', 'Certs, reviews & rates on profiles', 'Send a request — trainer accepts'],
+  },
+  {
+    title: 'Workout plans',
+    description: 'Your training program, delivered and tracked in one place.',
+    has: ['Built by your coach, for you', 'Searchable video exercise library', 'Log workouts as you go', 'Export your plan as a PDF'],
+  },
+  {
+    title: 'Log nutrition',
+    description: 'Everything you eat, logged against your targets.',
+    has: ['Barcode scanner', 'Food search & quick add', 'Macro targets & daily totals', 'Your coach sees your logs'],
+  },
+  {
+    title: 'Messaging',
+    description: 'One direct line between client and coach.',
+    has: ['Real-time 1:1 chat', 'Unread badges', 'Push notifications', 'Private — just you two'],
+  },
+  {
+    title: 'Book sessions',
+    description: 'Coaching sessions, scheduled without the back-and-forth.',
+    has: ['Your coach books the session', 'Accept or decline invites', 'Reminder cards on your dashboard', 'Calendar view in the app'],
+  },
+  {
+    title: 'Pay in the app',
+    description: 'Coaching payments without the DM payment links.',
+    has: ['Card payments through Stripe', 'No invoicing tools needed', '10% platform fee per payment', 'Coaches get paid in one system'],
+  },
+  {
+    title: 'AI Coach',
+    description: 'A built-in assistant for the day-to-day logging.',
+    has: ['Logs meals, water, sleep & steps', 'Edits workouts & books sessions', 'Asks to confirm before any change', 'Private — not shared with your trainer'],
+  },
 ];
 
-// The rest of the partner's text, as two short cards beside the pieces
-// above — pricing for clients, discovery for trainers. These replaced
-// the Lottie lifter animation (the owner's call), so nothing from the
-// partner is left sitting off-page, and no new section was added for
-// it. A first pass rendered this as one tall text slab and the owner
-// rejected it on sight: keep these SHORT, stepped, and visual.
+// How wide each feature card runs in the chapter's 12-column bento
+// grid on desktop: the marketplace and the AI Coach get the wide
+// slots, the everyday tools get even thirds between them. Same
+// order as WHAT_IS_PIECES. On phones every card is full width.
+// Manipulate here: the col-span numbers are the rhythm — 7+5, then
+// 4+4+4, then 5+7. Change one and its row mate must still total 12.
+const WHAT_IS_CARD_SPANS = [
+  'lg:col-span-7',
+  'lg:col-span-5',
+  'lg:col-span-4',
+  'lg:col-span-4',
+  'lg:col-span-4',
+  'lg:col-span-5',
+  'lg:col-span-7',
+];
+
+// Each card's gradient pair, cycling the brand palette. Color on
+// these cards is LIGHT, never a flat fill (the owner's call): the
+// pair paints the index number and the list markers as gradient
+// text, and glows faintly from the card's top corner. Same order
+// as WHAT_IS_PIECES.
+// Manipulate here: first stop = where the glow sits strongest;
+// keep pairs inside pink/orange, purple/pink, cyan/purple.
+const WHAT_IS_CARD_GRADIENTS = [
+  ['#FF6B9D', '#F97316'],
+  ['#06B6D4', '#C084FC'],
+  ['#C084FC', '#FF6B9D'],
+  ['#F97316', '#FF6B9D'],
+  ['#06B6D4', '#FF6B9D'],
+  ['#C084FC', '#06B6D4'],
+  ['#FF6B9D', '#F97316'],
+];
+
+// The rest of the partner's text, under the pieces above — pricing for
+// clients, discovery for trainers. These replaced the Lottie lifter
+// animation (the owner's call), so nothing from the partner is left
+// sitting off-page, and no new section was added for it. They render
+// as two staggered blocks (see AudienceBlocks below) — a first pass
+// rendered this as one tall text slab and the owner rejected it on
+// sight, and the plainer passes after it went the same way.
 // Manipulate here: keep the two titles verbatim — they are his headlines.
-const GOOD_COACHING_CARD_TITLE = 'Good coaching. Thoughtful pricing.';
+// The client headline in two pieces — lead in white, accent in the
+// pink-to-orange gradient. Joined with a space they are the verbatim
+// headline: "Good coaching. Thoughtful pricing."
+const GOOD_COACHING_CARD_TITLE_LEAD = 'Good coaching.';
+const GOOD_COACHING_CARD_TITLE_ACCENT = 'Thoughtful pricing.';
 const GOOD_COACHING_CARD_INTRO =
   'Everyone deserves the opportunity to become the best version of themselves. Cost shouldn’t put that opportunity out of reach.';
 // How a rate gets set, as steps instead of a paragraph: what trainers
@@ -177,7 +243,11 @@ const RATE_SETTING_STEPS = [
   'Coach Connect sets the rate from their expertise, experience, and what they’ve earned previously.',
   'The goal is simple: keep coaching within reach for clients while recognizing the value trainers bring.',
 ];
-const TRAINER_DISCOVERY_CARD_TITLE = 'You’ve built the experience. Let it bring you clients.';
+// Same treatment for the trainer headline — lead in white, accent in
+// the purple-to-cyan gradient. Joined with a space they are the
+// verbatim headline: "You’ve built the experience. Let it bring you clients."
+const TRAINER_DISCOVERY_CARD_TITLE_LEAD = 'You’ve built the experience. Let it';
+const TRAINER_DISCOVERY_CARD_TITLE_ACCENT = 'bring you clients.';
 const TRAINER_DISCOVERY_CARD_BODY =
   'Your years of coaching, training specialties, and reviews should help you get discovered. Coach Connect uses those details to match you with potential clients looking for what you offer.';
 const TRAINER_DISCOVERY_CARD_CLOSING =
@@ -267,13 +337,25 @@ const PRICING_BENEFITS = [
 function MarqueeRow({ hidden = false }) {
   return (
     <div className="flex shrink-0 items-center" aria-hidden={hidden || undefined}>
-      {MARQUEE_ITEMS.map((marqueeItem) => (
+      {/* Format borrowed from sponsor ribbons: big, heavy, all-caps
+          phrases alternating solid white and outline-only, with a
+          small pink spark between them. Even slots wear the solid
+          face, odd slots the outline (.marquee-item-outline in
+          index.css) — the alternation is the whole look, so the row
+          of items should stay even in feel: short phrases of similar
+          length. Manipulate here: the gap-8 / pr-8 pair is the
+          breathing room around each spark. */}
+      {MARQUEE_ITEMS.map((marqueeItem, marqueeItemIndex) => (
         <span
           key={marqueeItem}
-          className="flex items-center gap-6 pr-6 font-display text-[0.8rem] font-semibold uppercase tracking-[0.18em] text-white/55"
+          className={`flex items-center gap-8 pr-8 font-display text-xl font-extrabold uppercase leading-none tracking-normal sm:text-2xl lg:text-[1.75rem] ${
+            marqueeItemIndex % 2 === 1 ? 'marquee-item-outline' : 'text-white'
+          }`}
         >
           {marqueeItem}
-          <span className="h-1.5 w-1.5 rounded-full bg-gradient-to-r from-pink to-orange" />
+          <span className="marquee-spark" aria-hidden="true">
+            ✦
+          </span>
         </span>
       ))}
     </div>
@@ -334,107 +416,318 @@ function HeroScrollHint() {
   );
 }
 
+// ===== CHAPTER 01 MOTION =====
+// Sharp springs, never soft fades. Reduced motion turns all of it
+// off at the call sites.
+// vocab: variants = named poses (hidden / show) that framer-motion
+// tweens between; the spring's stiffness is how hard it snaps,
+// damping is how quickly it settles.
+
 /**
- * One piece of the broken-apart "what it helps with" cluster. Quiet dark
- * glass like the hero point cards — the owner called the old loud
- * gradient wash on these cards; only the small icon disc keeps color.
+ * One feature card's entrance: a springy rise, staggered by the
+ * card's slot so the bento grid deals itself in left to right.
+ * @param {number} pieceIndex - the card's slot in WHAT_IS_PIECES
+ * @returns {Object} framer-motion variants
+ */
+function featureCardReveal(pieceIndex) {
+  return {
+    hidden: { opacity: 0, y: 56 },
+    show: {
+      opacity: 1,
+      y: 0,
+      transition: { type: 'spring', stiffness: 80, damping: 16, delay: pieceIndex * 0.06 },
+    },
+  };
+}
+
+/**
+ * The audience blocks' entrance: a heavy rise with a sharper spring
+ * than the feature rows, so the blocks land like slabs being set down.
+ * @param {number} delaySeconds - stagger between the two blocks
+ * @returns {Object} framer-motion variants
+ */
+function audienceBlockReveal(delaySeconds = 0) {
+  return {
+    hidden: { opacity: 0, y: 80 },
+    show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 70, damping: 16, delay: delaySeconds } },
+  };
+}
+
+// The giant backdrop words behind the audience blocks are
+// outline-only: transparent fill, a 1px stroke around each letter,
+// faint enough to run huge without shouting.
+// vocab: WebkitTextStroke = that letter outline.
+const GIANT_WORD_OUTLINE_STYLE = { WebkitTextStroke: '1px rgba(255,255,255,0.07)' };
+
+/**
+ * One feature card in the chapter's bento grid — the premium pass.
+ * Near-black slab, hairline border, faint diagonal sheen; the color
+ * is gradient LIGHT, never flat fills or solid accents (the owner's
+ * call): each card's pair (WHAT_IS_CARD_GRADIENTS) paints its index
+ * number and list markers as gradient text and glows softly from
+ * the top corner. Title, one sentence on what the thing is, then
+ * what it has as a numbered mono list. Hover lifts the card into a
+ * soft colored shadow — a glow, not the old hard offset block.
  * @param {Object} props
- * @param {{ area: string, icon: React.ElementType, color: string, gradientTo: string, title: string, body: string }} props.piece
+ * @param {{ title: string, description: string, has: string[] }} props.piece - one entry from WHAT_IS_PIECES
+ * @param {number} props.pieceIndex - its slot, for span, number, and gradient
+ * @param {boolean} props.userPrefersReducedMotion - true = render finished, animate nothing
  * @returns {JSX.Element}
  */
-function WhatIsPiece({ piece }) {
-  const PieceIcon = piece.icon;
+function WhatIsFeatureCard({ piece, pieceIndex, userPrefersReducedMotion }) {
+  // 1. This card's number and gradient pair.
+  const pieceNumber = String(pieceIndex + 1).padStart(2, '0');
+  const gradientPair = WHAT_IS_CARD_GRADIENTS[pieceIndex];
+  const gradientTextStyle = {
+    backgroundImage: `linear-gradient(120deg, ${gradientPair[0]}, ${gradientPair[1]})`,
+    WebkitBackgroundClip: 'text',
+    backgroundClip: 'text',
+    color: 'transparent',
+  };
 
   return (
-    <div
-      className="flex h-full items-center gap-4 rounded-2xl border border-white/10 bg-[#0a0a0f]/55 px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl"
-      style={{ '--card-accent': piece.color, '--grad-to': piece.gradientTo }}
+    <motion.article
+      variants={featureCardReveal(pieceIndex)}
+      initial={userPrefersReducedMotion ? false : 'hidden'}
+      whileInView={userPrefersReducedMotion ? undefined : 'show'}
+      whileHover={userPrefersReducedMotion ? undefined : { y: -5 }}
+      viewport={{ once: true, margin: '-8%' }}
+      className={`group relative flex flex-col overflow-hidden border border-white/[0.08] bg-[linear-gradient(165deg,rgba(255,255,255,0.05),rgba(255,255,255,0.012)_55%)] p-7 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] transition-[border-color,box-shadow] duration-300 hover:border-white/20 hover:shadow-[0_24px_60px_-16px_var(--card-glow)] sm:col-span-1 ${WHAT_IS_CARD_SPANS[pieceIndex]}`}
+      style={{ '--card-glow': `${gradientPair[0]}38` }}
     >
-      <span className="cc-icon-disc h-12 w-12">
-        <PieceIcon size={22} strokeWidth={2.2} />
+      {/* 2. The colored glow in the top corner — light through
+          frosted glass, kept faint so the card stays near-black. */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background: `radial-gradient(430px circle at 88% -12%, ${gradientPair[0]}24, transparent 62%)`,
+        }}
+      />
+
+      {/* 3. The index number in the card's gradient. */}
+      <span className="display-extrude relative font-display text-[2.6rem] font-black leading-none" aria-hidden="true">
+        <span style={gradientTextStyle}>{pieceNumber}</span>
       </span>
-      <div className="min-w-0">
-        <h3 className="font-display text-base font-semibold leading-snug text-white">{piece.title}</h3>
-        <p className="mt-0.5 font-mono text-sm leading-snug text-white/85">{piece.body}</p>
-      </div>
-    </div>
+
+      {/* 4. What it is: the title and one sentence. */}
+      <h3 className="relative mt-8 font-display text-xl font-bold leading-snug text-white sm:text-2xl">{piece.title}</h3>
+      <p className="relative mt-2.5 font-mono text-sm leading-relaxed text-white/55">{piece.description}</p>
+
+      {/* 5. What it has: gradient-numbered items, hairline between
+          each, pushed to the card's foot so lists align in a row. */}
+      <ul className="relative mt-auto list-none p-0 pt-7">
+        {piece.has.map((featureItem, featureItemIndex) => (
+          <li
+            key={featureItem}
+            className="flex items-baseline gap-3.5 border-t border-white/[0.06] py-2.5 font-mono text-[0.8rem] leading-snug text-white/70"
+          >
+            <span className="font-mono text-[0.68rem] font-bold" style={gradientTextStyle}>
+              {String(featureItemIndex + 1).padStart(2, '0')}
+            </span>
+            {featureItem}
+          </li>
+        ))}
+      </ul>
+    </motion.article>
   );
 }
 
 /**
- * The partner text under the "what it helps with" pieces, as two SLIM
- * HORIZONTAL dark-glass strips spanning the full chapter width: icon
- * disc on the left, words in the middle, and the rate-setting steps in
- * three columns on the right, split off by a vertical hairline. Earlier
- * passes stacked these as tall cards in a half-width column and the
- * owner rejected the tower twice — keep them wide and short. Quiet
- * glass like the hero point cards; the loud .cc-card wash turned this
- * into a brown slab, also rejected.
- * Copy lives in the GOOD_COACHING / RATE_SETTING / TRAINER_DISCOVERY
- * constants above. Paragraphs wear font-mono (same as FAQ answers):
- * the site's default pixel face is too wide for sentences.
+ * The partner text under the feature grid: two audience blocks in
+ * an architectural split (design from Emergent, ported 2026-10-21).
+ * Giant outline CLIENTS / TRAINERS words sit behind them. The client
+ * block is a wide pink-to-orange gradient-shell slab sitting high,
+ * with the rate steps as a blueprint numbered list; the trainer
+ * block is a narrower purple-to-cyan slab dropped low beside it.
+ * Each ends in a hard-edged text link, never a pill. Copy lives in
+ * the GOOD_COACHING / RATE_SETTING / TRAINER_DISCOVERY constants
+ * above; paragraphs wear font-mono (the pixel face is too wide for
+ * sentences).
+ * @param {Object} props
+ * @param {boolean} props.userPrefersReducedMotion - true = render finished, animate nothing
  * @returns {JSX.Element}
  */
-function PricingAndDiscoveryCards() {
+function AudienceBlocks({ userPrefersReducedMotion }) {
   return (
-    <div className="flex flex-col gap-3" data-testid="good-coaching-card">
-      {/* Clients: coaching stays within reach, and the rate steps show how. */}
-      <div
-        className="flex flex-col gap-5 rounded-3xl border border-white/10 bg-[#0a0a0f]/55 p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl lg:flex-row lg:items-center lg:gap-8"
-        style={{ '--card-accent': '#FF6B9D', '--grad-to': '#F97316' }}
+    <div className="relative" data-testid="good-coaching-card">
+      {/* The giant outline words behind the blocks — the same
+          outline-letter language as the marquee strip up-page. */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute -left-4 -top-20 z-0 select-none whitespace-nowrap font-display text-[22vw] font-black leading-none text-transparent lg:-top-36 lg:text-[13rem]"
+        style={GIANT_WORD_OUTLINE_STYLE}
       >
-        <div className="flex min-w-0 gap-4 lg:max-w-md lg:flex-1">
-          <span className="cc-icon-disc h-11 w-11 shrink-0">
-            <Wallet size={20} strokeWidth={2.2} />
-          </span>
-          <div className="min-w-0">
-            <p className="font-mono text-[0.65rem] uppercase tracking-[0.22em] text-white/45">For clients</p>
-            <h3 className="mt-1.5 font-display text-lg font-semibold leading-snug text-white">{GOOD_COACHING_CARD_TITLE}</h3>
-            <p className="mt-1.5 font-mono text-[0.8rem] leading-relaxed text-white/60">{GOOD_COACHING_CARD_INTRO}</p>
-          </div>
-        </div>
+        CLIENTS
+      </span>
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-20 -right-4 z-0 select-none whitespace-nowrap font-display text-[22vw] font-black leading-none text-transparent lg:-bottom-36 lg:text-[13rem]"
+        style={GIANT_WORD_OUTLINE_STYLE}
+      >
+        TRAINERS
+      </span>
 
-        {/* How the rate is set: the three steps side by side on the
-            right, each topped by its gradient number and a hairline. */}
-        <div className="min-w-0 flex-1 lg:border-l lg:border-white/[0.08] lg:pl-8">
-          <p className="font-display text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-white/85">
-            How your rate is set
-          </p>
-          <ol className="mt-2.5 grid list-none gap-3 p-0 sm:grid-cols-3">
-            {RATE_SETTING_STEPS.map((rateStep, stepIndex) => (
-              <li key={rateStep} className="border-t border-white/[0.08] pt-2">
-                <span
-                  className="cc-gradient-text font-display text-sm font-bold"
-                  style={{ '--grad-from': '#FF6B9D', '--grad-to': '#F97316' }}
-                >
-                  {String(stepIndex + 1).padStart(2, '0')}
+      <div className="relative z-10 grid grid-cols-1 gap-y-16 lg:grid-cols-12 lg:gap-y-0">
+        {/* Clients: the wide slab, sitting high. One pixel of gradient
+            shell around a near-black interior with soft aurora glows. */}
+        <motion.article
+          variants={audienceBlockReveal(0)}
+          initial={userPrefersReducedMotion ? false : 'hidden'}
+          whileInView={userPrefersReducedMotion ? undefined : 'show'}
+          viewport={{ once: true, margin: '-10%' }}
+          className="relative p-px lg:col-span-7 lg:col-start-1"
+          style={{
+            backgroundImage:
+              'linear-gradient(135deg, #FF6B9D 0%, rgba(255,107,157,0.10) 40%, rgba(249,115,22,0.10) 60%, #F97316 100%)',
+          }}
+          aria-labelledby="clients-heading"
+        >
+          <div className="relative h-full overflow-hidden bg-[#0C0C13] p-8 sm:p-12 lg:p-16">
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full opacity-25 blur-[80px]"
+              style={{ background: 'radial-gradient(closest-side, #FF6B9D, transparent)' }}
+            />
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute -bottom-28 -left-20 h-72 w-72 rounded-full opacity-20 blur-[80px]"
+              style={{ background: 'radial-gradient(closest-side, #F97316, transparent)' }}
+            />
+            {/* Gradient registration bar along the top edge. */}
+            <span
+              aria-hidden="true"
+              className="absolute left-0 top-0 h-1 w-28"
+              style={{ backgroundImage: 'linear-gradient(90deg,#FF6B9D,#F97316)' }}
+            />
+            <div className="relative">
+              <p className="font-mono text-xs uppercase tracking-[0.35em] text-pink">For clients</p>
+              <h3 id="clients-heading" className="mt-6 font-display text-2xl font-bold leading-snug text-white sm:text-3xl lg:text-4xl">
+                {GOOD_COACHING_CARD_TITLE_LEAD}{' '}
+                <span className="bg-gradient-to-r from-pink to-orange bg-clip-text text-transparent">
+                  {GOOD_COACHING_CARD_TITLE_ACCENT}
                 </span>
-                <span className="mt-1 block font-mono text-[0.72rem] leading-relaxed text-white/60">{rateStep}</span>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </div>
+              </h3>
+              <p className="mt-6 max-w-xl font-mono text-sm leading-relaxed text-white/60">{GOOD_COACHING_CARD_INTRO}</p>
 
-      {/* Trainers: the experience they already have brings clients to them. */}
-      <div
-        className="flex flex-col gap-5 rounded-3xl border border-white/10 bg-[#0a0a0f]/55 p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl lg:flex-row lg:items-center lg:gap-8"
-        style={{ '--card-accent': '#C084FC', '--grad-to': '#06B6D4' }}
-      >
-        <div className="flex min-w-0 gap-4 lg:flex-1">
-          <span className="cc-icon-disc h-11 w-11 shrink-0">
-            <Award size={20} strokeWidth={2.2} />
-          </span>
-          <div className="min-w-0">
-            <p className="font-mono text-[0.65rem] uppercase tracking-[0.22em] text-white/45">For trainers</p>
-            <h3 className="mt-1.5 font-display text-lg font-semibold leading-snug text-white">{TRAINER_DISCOVERY_CARD_TITLE}</h3>
-            <p className="mt-1.5 font-mono text-[0.8rem] leading-relaxed text-white/60">{TRAINER_DISCOVERY_CARD_BODY}</p>
+              {/* How the rate is set: blueprint steps — giant gradient
+                  numbers beside mono paragraphs, hairline under each. */}
+              <h4 className="mt-14 border-t border-white/10 pt-8 font-mono text-xs uppercase tracking-[0.35em] text-white/40">
+                How your rate is set
+              </h4>
+              <ol className="mt-2 list-none p-0">
+                {RATE_SETTING_STEPS.map((rateStep, stepIndex) => (
+                  <li
+                    key={rateStep}
+                    className="grid grid-cols-[3.5rem_1fr] items-start gap-x-4 border-b border-white/10 py-7 last:border-b-0 lg:grid-cols-[5rem_1fr] lg:gap-x-8"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="bg-gradient-to-r from-pink to-orange bg-clip-text font-display text-2xl font-extrabold leading-none text-transparent lg:text-4xl"
+                    >
+                      {String(stepIndex + 1).padStart(2, '0')}
+                    </span>
+                    <p className="font-mono text-sm leading-relaxed text-white/60">{rateStep}</p>
+                  </li>
+                ))}
+              </ol>
+
+              {/* Hard-edged text link with a sliding arrow — the
+                  gradient lives in a 2px underline only. */}
+              <Link
+                to="/for-clients"
+                data-testid="pill-clients"
+                className="group/link mt-12 inline-flex items-center gap-3 font-display text-sm font-bold uppercase tracking-widest text-white lg:text-base"
+              >
+                <span
+                  className="pb-1 transition-colors duration-200 group-hover/link:text-pink"
+                  style={{
+                    backgroundImage: 'linear-gradient(90deg,#FF6B9D,#F97316)',
+                    backgroundSize: '100% 2px',
+                    backgroundPosition: '0 100%',
+                    backgroundRepeat: 'no-repeat',
+                  }}
+                >
+                  For Clients
+                </span>
+                <ArrowUpRight
+                  aria-hidden="true"
+                  className="h-5 w-5 text-pink transition-transform duration-300 group-hover/link:-translate-y-1 group-hover/link:translate-x-1"
+                />
+              </Link>
+            </div>
           </div>
-        </div>
-        <p className="flex min-w-0 items-center gap-3 font-mono text-[0.8rem] font-medium leading-relaxed text-white/85 lg:max-w-xs lg:border-l lg:border-white/[0.08] lg:pl-8">
-          <span className="h-px w-5 shrink-0 bg-gradient-to-r from-purple to-cyan" aria-hidden="true" />
-          {TRAINER_DISCOVERY_CARD_CLOSING}
-        </p>
+        </motion.article>
+
+        {/* Trainers: the narrow black slab, dropped low for the
+            stagger, in the purple-to-cyan shell. */}
+        <motion.article
+          variants={audienceBlockReveal(0.15)}
+          initial={userPrefersReducedMotion ? false : 'hidden'}
+          whileInView={userPrefersReducedMotion ? undefined : 'show'}
+          viewport={{ once: true, margin: '-10%' }}
+          className="relative self-start p-px lg:col-span-4 lg:col-start-9 lg:mt-48"
+          style={{
+            backgroundImage:
+              'linear-gradient(135deg, #C084FC 0%, rgba(192,132,252,0.10) 40%, rgba(6,182,212,0.10) 60%, #06B6D4 100%)',
+          }}
+          aria-labelledby="trainers-heading"
+        >
+          <div className="relative h-full overflow-hidden bg-black p-8 sm:p-12">
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute -left-20 -top-24 h-72 w-72 rounded-full opacity-25 blur-[80px]"
+              style={{ background: 'radial-gradient(closest-side, #C084FC, transparent)' }}
+            />
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute -bottom-24 -right-16 h-72 w-72 rounded-full opacity-20 blur-[80px]"
+              style={{ background: 'radial-gradient(closest-side, #06B6D4, transparent)' }}
+            />
+            <span
+              aria-hidden="true"
+              className="absolute left-0 top-0 h-1 w-20"
+              style={{ backgroundImage: 'linear-gradient(90deg,#C084FC,#06B6D4)' }}
+            />
+            <div className="relative">
+              <p className="font-mono text-xs uppercase tracking-[0.35em] text-purple">For trainers</p>
+              <h3 id="trainers-heading" className="mt-6 font-display text-2xl font-bold leading-snug text-white lg:text-3xl">
+                {TRAINER_DISCOVERY_CARD_TITLE_LEAD}{' '}
+                <span className="bg-gradient-to-r from-purple to-cyan bg-clip-text text-transparent">
+                  {TRAINER_DISCOVERY_CARD_TITLE_ACCENT}
+                </span>
+              </h3>
+              <p className="mt-6 font-mono text-sm leading-relaxed text-white/60">{TRAINER_DISCOVERY_CARD_BODY}</p>
+
+              {/* The closing line set as a large gradient statement. */}
+              <p className="mt-12 border-t border-white/10 bg-gradient-to-r from-purple to-cyan bg-clip-text pt-10 font-display text-lg font-bold leading-snug text-transparent lg:text-xl">
+                {TRAINER_DISCOVERY_CARD_CLOSING}
+              </p>
+
+              <Link
+                to="/for-trainers"
+                data-testid="pill-trainers"
+                className="group/link mt-12 inline-flex items-center gap-3 font-display text-sm font-bold uppercase tracking-widest text-white lg:text-base"
+              >
+                <span
+                  className="pb-1 transition-colors duration-200 group-hover/link:text-purple"
+                  style={{
+                    backgroundImage: 'linear-gradient(90deg,#C084FC,#06B6D4)',
+                    backgroundSize: '100% 2px',
+                    backgroundPosition: '0 100%',
+                    backgroundRepeat: 'no-repeat',
+                  }}
+                >
+                  For Trainers
+                </span>
+                <ArrowUpRight
+                  aria-hidden="true"
+                  className="h-5 w-5 text-purple transition-transform duration-300 group-hover/link:-translate-y-1 group-hover/link:translate-x-1"
+                />
+              </Link>
+            </div>
+          </div>
+        </motion.article>
       </div>
     </div>
   );
@@ -443,18 +736,20 @@ function PricingAndDiscoveryCards() {
 // ===== MAIN FUNCTIONS (the sections, in page order) =====
 
 /**
- * The hero. Top row: the one-line wordmark, centered across the full
- * width. Under it, a three-zone middle row: the tagline pill, budget
- * headline, and points on the left (ui/HeroLeftColumn.jsx); the 3D CC
- * logo BIG in the middle — review feedback said the hero's center
- * should sell the brand instead of leaving the sunset empty, so the
- * logo moved out of the left column and grew; and the Apple
- * Watch-style card (ui/HeroWatch.jsx) on the right, in the widest of
- * the three columns so the case can run near full size. On smaller screens it stacks: wordmark,
- * words, logo, watch. The mouse-follow grid sits behind everything
- * and does not take clicks. On load, the pieces rise in staggered
- * behind the startup curtain (ui/StartupIntro.jsx) — wordmark, words,
- * logo, watch — unless the visitor prefers reduced motion.
+ * The hero. Top row: the one-line wordmark and the app line
+ * compacted into a single centered header card (.hero-title-card in
+ * index.css) — compact at the owner's call, so the phone below gets
+ * the room. Under it, a three-zone
+ * middle row with no copy in it (the owner's call): the iPhone
+ * playing the app on the left (ui/HeroPhone.jsx); the 3D CC logo BIG
+ * in the middle — the hero's centerpiece; and the Apple Watch-style
+ * card (ui/HeroWatch.jsx) on the right, in the widest of the three
+ * columns so the case can run near full size. On smaller screens it
+ * stacks: wordmark, phone, logo, watch. The mouse-follow grid sits
+ * behind everything and does not take clicks. On load, the pieces
+ * rise in staggered behind the startup curtain (ui/StartupIntro.jsx)
+ * — wordmark, app line, phone, logo, watch — unless the visitor
+ * prefers reduced motion.
  * @returns {JSX.Element}
  */
 export function TopSection() {
@@ -466,8 +761,8 @@ export function TopSection() {
   // vocab: filter blur = the piece starts softly out of focus and
   // sharpens as it lands — the fashionable part of the entrance.
   const wordmarkStart = userPrefersReducedMotion ? false : { opacity: 0, y: 28, filter: 'blur(10px)' };
-  const wordsStart = userPrefersReducedMotion ? false : { opacity: 0, y: 34, filter: 'blur(6px)' };
   const logoStart = userPrefersReducedMotion ? false : { opacity: 0, y: 24, scale: 0.92 };
+  const phoneStart = userPrefersReducedMotion ? false : { opacity: 0, x: -48 };
   const watchStart = userPrefersReducedMotion ? false : { opacity: 0, x: 48 };
 
   return (
@@ -477,52 +772,69 @@ export function TopSection() {
           Manipulate here: lg:px-6 = how far the outer zones sit from the
           screen edges. */}
       <div className="landing-section-body relative z-[1] flex min-h-[calc(100dvh-6.6rem)] w-full flex-col px-5 lg:px-6" data-testid="hero">
-        {/* 1. Top row: the wordmark on ONE centered line (not COACH over
-            CONNECT), spanning the full width so the bigger size never
-            has to fit inside a side column. */}
-        <motion.h1
-          className="flex w-full justify-center pt-2"
-          data-testid="hero-wordmark"
+        {/* 1. Top row: the name and its one-liner, compacted into a
+            single header card (the owner's call) — the wordmark on ONE
+            line over the app line, in a small dark-glass slab centered
+            on the page. Keeping the pair in one short card is what
+            frees the vertical room for the phone to run full-size
+            under it. The card's skin lives in index.css
+            (.hero-title-card); it rises as one piece on load.
+            Manipulate here: the card's padding in index.css is how
+            tall this whole zone is; every pixel saved there is a
+            pixel the phone gets. */}
+        <motion.div
+          className="hero-title-card relative z-[2] mx-auto w-fit"
           initial={wordmarkStart}
           animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
           transition={{ duration: 0.9, delay: HERO_ENTRANCE_DELAYS_SECONDS.wordmark, ease: HERO_ENTRANCE_EASE }}
         >
-          <Wordmark stacked={false} className="items-center" />
-        </motion.h1>
-
-        {/* 2. The middle row: words left, logo center, watch right.
-            Items center vertically so the logo's middle is the hero's
-            middle. Text widths are capped in index.css so the copy
-            stays in its third and off the logo. */}
-        <div className="grid flex-1 grid-cols-1 items-center gap-8 lg:grid-cols-[minmax(0,0.85fr)_auto_minmax(0,1.15fr)] lg:gap-6">
-          {/* 2a. Left: the tagline pill, then the headline and points. */}
-          <motion.div
-            className="flex min-w-0 flex-col items-start justify-center py-3 text-left lg:justify-self-start lg:pl-6"
-            initial={wordsStart}
-            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-            transition={{ duration: 0.9, delay: HERO_ENTRANCE_DELAYS_SECONDS.words, ease: HERO_ENTRANCE_EASE }}
+          <h1 className="flex justify-center" data-testid="hero-wordmark">
+            <Wordmark stacked={false} className="items-center" />
+          </h1>
+          {/* The one line that says what this site is: the home of the
+              mobile app, right under the name so nobody mistakes the
+              page for the product itself. Pure typography: a
+              letterspaced all-caps masthead line in the display font,
+              white, with only the brand name in the gradient. */}
+          <p
+            className="mt-2 text-center font-display text-[0.58rem] font-bold uppercase leading-relaxed tracking-[0.24em] text-white/85 sm:text-[0.66rem]"
+            data-testid="hero-app-line"
           >
-            {/* The catchphrase in a pill (.hero-tagline-pill in index.css —
-                same dark glass as the point cards). "Day One." wears the lit
-                brand gradient (.wordmark-connect). The extrusion sits on the
-                wrapper so the shadow follows the letters. "One Day or" stays
-                flat so one phrase isn't three effects. */}
-            <p className="hero-tagline-pill font-display text-lg font-bold leading-snug sm:text-xl xl:text-2xl" data-testid="hero-tagline">
-              <span className="text-white">One Day </span>
-              <span className="text-white/60">or </span>
-              <span className="display-extrude inline-block">
-                <span className="wordmark-connect">Day One.</span>
-              </span>
-            </p>
+            The official website for the <span className="wordmark-connect">Coach Connect</span> mobile app.
+          </p>
+        </motion.div>
 
-            <HeroLeftColumn />
+        {/* 2. The middle row: phone left, logo center, watch right.
+            No copy in this row at the owner's call — the wordmark and
+            app line above say the name, the devices show the product.
+            (The old left-column copy lives on in ui/HeroLeftColumn.jsx,
+            parked.) Items center vertically so the row's middle is the
+            hero's middle; stacked screens keep the same left-to-right
+            order: phone, logo, watch.
+            The two side columns are equal (minmax(0,1fr) each around
+            the auto center — the minmax(0,...) matters: without it the
+            watch's rigid 500px case inflates its track and shoves the
+            logo off-center), which is what puts the logo on the page's
+            true center instead of wherever the unequal zones left it.
+            Manipulate here: the phone's fixed 300px lives in index.css
+            (.ccp-wrap); the watch hugs the right edge of its column. */}
+        <div className="grid flex-1 grid-cols-1 items-center gap-8 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:gap-6">
+          {/* 2a. Left: the iPhone, playing the app (ui/HeroPhone.jsx). */}
+          <motion.div
+            className="justify-self-center lg:justify-self-start lg:self-start min-[1400px]:-mt-[5.25rem]"
+            data-testid="hero-phone-slot"
+            initial={phoneStart}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, delay: HERO_ENTRANCE_DELAYS_SECONDS.phone, ease: HERO_ENTRANCE_EASE }}
+          >
+            <HeroPhone />
           </motion.div>
 
-          {/* 2b. Center: the CC logo, big. Its enlarged stage lives in
-              index.css (.hero-center-logo). The grid runs behind it —
-              the logo is the hero's centerpiece. */}
+          {/* 2b. Center: the CC logo, big — the hero's centerpiece
+              again. Its enlarged stage lives in index.css
+              (.hero-center-logo). */}
           <motion.div
-            className="hero-center-logo justify-self-center"
+            className="hero-center-logo justify-self-center lg:mr-10"
             data-testid="hero-center-logo"
             initial={logoStart}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -535,7 +847,7 @@ export function TopSection() {
               .hero-middle-watch rules in index.css set the case scale
               and stage height so the column never crops it. */}
           <motion.div
-            className="hero-middle-watch h-full w-full max-w-[560px] justify-self-center lg:justify-self-end"
+            className="hero-middle-watch order-3 h-full w-full max-w-[560px] justify-self-center lg:justify-self-start"
             initial={watchStart}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 1, delay: HERO_ENTRANCE_DELAYS_SECONDS.watch, ease: HERO_ENTRANCE_EASE }}
@@ -573,63 +885,66 @@ export function ScrollingTextStrip() {
 }
 
 /**
- * Chapter 01 — what is Coach Connect. The question is centered on the page.
- * Under it, the pieces run the full width, and under them the partner
- * text (PricingAndDiscoveryCards) lands as two slim horizontal strips
- * where the Lottie lifter used to animate — wide and short, never a
- * tall stack in a side column.
+ * Chapter 01 — what is Coach Connect. The header is the owner's
+ * approved block (mono kicker, the big question with the brand name
+ * in the pink-to-orange gradient, the lead). Under it, one card per
+ * feature in a bento grid (WhatIsFeatureCard): what the thing is in
+ * one sentence, what it has in four short items, all grounded in the
+ * real app repo. The partner copy lands after as two staggered
+ * gradient-shell blocks (AudienceBlocks). The backdrop words behind
+ * those blocks bleed sideways on purpose, so the section clips x.
  * @returns {JSX.Element}
  */
 export function WhatIsSection() {
+  const userPrefersReducedMotion = usePrefersReducedMotion();
+
   return (
-    <MouseGridBackground id="act-connection" className="landing-section">
+    <MouseGridBackground id="act-connection" className="landing-section overflow-x-clip">
       <div className="mx-auto flex w-full max-w-6xl flex-col px-5" data-testid="caption-connection">
-        {/* 1. The question, centered. Glass pill for the chapter number,
-            brand gradient on the name, a short gradient rule, then the lead.
-            The old stack was a flat purple pixel label, a white title, and
-            a gray mono line — that is the block that looked unfinished. */}
-        <FadeIn className="chapter-intro mx-auto max-w-3xl">
-          <p className="chapter-kicker" data-testid="caption-connection-eyebrow">
-            <span className="chapter-kicker-index">
-              <span className="headline-grad">01</span>
-            </span>
+        {/* 1. The header, left-aligned: mono kicker, big question,
+            lead. Locked — the owner approved this block as-is. */}
+        <FadeIn>
+          <p
+            className="font-mono text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-white/40"
+            data-testid="caption-connection-eyebrow"
+          >
+            <span className="text-orange">01</span>
+            <span aria-hidden="true"> / </span>
             What Is Coach Connect
           </p>
-          <h2 className="display-extrude chapter-title font-display" data-testid="caption-connection-title">
-            <span className="display-face">What is Coach Connect?</span>
+          <h2
+            className="display-extrude mt-4 font-display text-4xl font-extrabold leading-[1.05] sm:text-5xl lg:text-6xl"
+            data-testid="caption-connection-title"
+          >
+            <span className="display-face">What is </span>
+            <span className="wordmark-connect">Coach Connect?</span>
           </h2>
-          <span className="chapter-rule" aria-hidden="true" />
-          <p className="chapter-lead" data-testid="what-is-body">
-            The all-in-one app for coaching. Trainers run their whole business from it — and
-            clients get their coach, their plan, and their progress in one place.
+          <p className="mt-5 max-w-2xl font-mono text-sm leading-relaxed text-white/60 sm:text-base" data-testid="what-is-body">
+            The all-in-one app for coaching. Trainers run their whole business from it — and clients get their coach,
+            their plan, and their progress in one place.
           </p>
         </FadeIn>
 
-        {/* 2. The pieces across the full width, audience pills under them,
-            then the partner text as two slim horizontal strips. Nothing
-            sits in a tall side column anymore. */}
-        <div>
-          <div className="what-is-pieces">
-            {WHAT_IS_PIECES.map((piece, pieceIndex) => (
-              <FadeIn key={piece.area} delay={pieceIndex * 0.04} className={piece.area === 'ai' ? 'what-is-piece-wide' : ''}>
-                <WhatIsPiece piece={piece} />
-              </FadeIn>
-            ))}
-          </div>
-          <div className="mt-5 flex flex-wrap justify-center gap-3" data-testid="audience-pills">
-            <Link to="/for-trainers" className="cta-primary hero-action hero-action-primary" data-testid="pill-trainers">
-              For Trainers
-              <ArrowRight size={16} />
-            </Link>
-            <Link to="/for-clients" className="cta-ghost hero-action" data-testid="pill-clients">
-              For Clients
-              <ArrowRight size={16} />
-            </Link>
-          </div>
+        {/* 2. One card per feature in the bento grid. Phones stack
+            them full-width, small tablets pair them, and the 12-column
+            rhythm (wide, narrow, thirds, wide) only exists on lg. */}
+        <div className="mt-14 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-12" data-testid="what-is-index">
+          {WHAT_IS_PIECES.map((piece, pieceIndex) => (
+            <WhatIsFeatureCard
+              key={piece.title}
+              piece={piece}
+              pieceIndex={pieceIndex}
+              userPrefersReducedMotion={userPrefersReducedMotion}
+            />
+          ))}
         </div>
-        <FadeIn className="mt-4">
-          <PricingAndDiscoveryCards />
-        </FadeIn>
+
+        {/* 3. The partner copy as the two staggered audience blocks,
+            sitting well under the grid so the backdrop words behind
+            them have room to bleed. */}
+        <div className="mt-24 lg:mt-40">
+          <AudienceBlocks userPrefersReducedMotion={userPrefersReducedMotion} />
+        </div>
       </div>
     </MouseGridBackground>
   );

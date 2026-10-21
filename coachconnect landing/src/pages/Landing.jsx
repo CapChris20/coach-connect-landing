@@ -7,6 +7,9 @@
 // (the FAQ component still lives in ui/Sections.jsx; /faqs renders it).
 // Also handled here: arriving from another page with a hash in the URL
 // ("/#act-finale" from the nav) glides to that section once the page renders.
+// Without a hash, the page always starts at the top: browsers restore the
+// last scroll spot on reload, and React Router keeps it on route changes,
+// which used to drop returning visitors at the waitlist form.
 // The 3D scene and its scroll-driven camera were removed earlier at the
 // owner's request; the old scene code still sits in src/scene/, unused.
 // Used by: App.js at "/".
@@ -74,6 +77,26 @@ export default function Landing() {
       window.smoothScroller = undefined;
     };
   }, [userPrefersReducedMotion]);
+
+  // Start at the hero on any plain visit. Runs after the Lenis effect
+  // above, so the smooth scroller exists and can be snapped too.
+  //vocab: scrollRestoration "manual" = the browser stops restoring the
+  // last scroll spot on reload; this page decides where loads land.
+  useEffect(() => {
+    // 1. A hash in the URL means a section was asked for — the glide
+    // effect below owns that visit; stay out of its way.
+    if (currentLocation.hash) return;
+
+    // 2. Take scroll restoration away from the browser, then snap
+    // both the window and the smooth scroller to the very top (no
+    // glide: "immediate" lands at the hero before the visitor sees
+    // anything else).
+    window.history.scrollRestoration = 'manual';
+    window.scrollTo(0, 0);
+    window.smoothScroller?.scrollTo(0, { immediate: true });
+    // Run once on mount only — location changes are the hash effect's job.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Arriving with a hash in the URL (the nav sends people here from the
   // /for-trainers and /for-clients pages): wait a beat for the chapters to

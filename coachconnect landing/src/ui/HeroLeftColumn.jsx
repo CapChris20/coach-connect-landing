@@ -1,12 +1,13 @@
-// Hero left column — the copy under the hero tagline, all left-aligned.
+// Hero copy — PARKED. The budget headline and three matching points
+// that used to fill the hero's left column; the owner replaced that
+// column with the iPhone (ui/HeroPhone.jsx) and put the logo back in
+// the center, so nothing renders this today. Kept intact — copy,
+// points, and styling — for the day it is wanted again.
 // Flow: budget headline → the three matching points. That is all:
 // no promise paragraph, no trainer/client pills, nothing waitlist-related
 // in the hero. The headline carries the hook and the three points carry
-// the how (matching factors, budget, less searching). The 3D logo used
-// to sit under these points; it now stands big in the middle of the
-// hero (TopSection renders it there) after review feedback that the
-// hero's center should sell the brand, not just the sunset.
-// Used by: ui/Sections.jsx (TopSection), in the hero's left column.
+// the how (matching factors, budget, less searching).
+// Used by: nothing currently (formerly TopSection's hero column).
 
 import { Award, Compass, Wallet } from 'lucide-react';
 
@@ -96,8 +97,7 @@ export function HeroLeftColumn() {
         </span>
       </p>
 
-      {/* The three points. The logo is not here anymore — it stands in
-          the middle of the hero now (see TopSection). */}
+      {/* The three points, under the headline above. */}
       <ul className="hero-points" data-testid="hero-matching-points">
         {HERO_MATCHING_POINTS.map((point) => (
           <MatchingPoint key={point.title} point={point} />

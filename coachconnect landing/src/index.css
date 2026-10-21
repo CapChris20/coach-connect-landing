@@ -17,6 +17,9 @@
    resolves to the same dark tokens (brand rule: the void is the brand).
    ════════════════════════════════════════════════════════════════════ */
 html {
+  /* Stop iOS Safari inflating text in landscape — sizes stay as authored.
+     vocab: -webkit-text-size-adjust = Safari's auto-shrink/grow switch. */
+  -webkit-text-size-adjust: 100%;
   /* font roles */
   --font-display: 'Unbounded', sans-serif;
   --font-mono: 'Space Mono', monospace;
@@ -106,6 +109,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  /* No gray flash box when a button or card is tapped on touch screens */
+  -webkit-tap-highlight-color: transparent;
 }
 
 ::selection {
@@ -140,23 +145,6 @@ body {
   .what-is-lottie svg {
     width: 100%;
     height: 100%;
-  }
-
-  /* Two columns of full-size pieces. AI Coach takes the whole last row
-     so the grid doesn't end on an empty hole.
-     Manipulate here: 0.75rem gap. A bigger gap pushes the chapter past one screen. */
-  .what-is-pieces {
-    display: grid;
-    gap: 0.75rem;
-    grid-template-columns: 1fr;
-  }
-  @media (min-width: 640px) {
-    .what-is-pieces {
-      grid-template-columns: 1fr 1fr;
-    }
-    .what-is-piece-wide {
-      grid-column: 1 / -1;
-    }
   }
 
   .what-is-panel {
@@ -334,10 +322,10 @@ body {
     .cc-faq-answer { transition: none; }
   }
 
-  /* What-is pieces used to wear a loud animated gradient wash here;
-     the owner called it, so the pieces are now quiet dark glass styled
-     inline where they render (ui/Sections.jsx, WhatIsPiece) and only
-     the layout grid (.what-is-pieces above) remains in CSS. */
+  /* Chapter 01 needs no CSS of its own anymore: after a loud gradient
+     wash, dark-glass cards, and slim glass strips were all rejected,
+     the chapter is plain Tailwind-styled type and hairline rows where
+     it renders (ui/Sections.jsx, WhatIsSection). */
 
   /* Lit display type — hero wordmark, "Day One", and the big headers.
      The face is a vertical gradient: a highlight along the top of each
@@ -355,24 +343,6 @@ body {
       #ffd4e6 0%,
       #ff6b9d 46%,
       #f97316 100%
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-
-  /* CONNECT in the wordmark wears ORANGE, not the pink above — the
-     owner's call. Same lit-face construction (light on top, deeper
-     shade underneath), just the orange family end to end.
-     Manipulate here: first stop = the highlight, last stop = the
-     shaded underside. Keep every stop in the orange family. */
-  .wordmark-orange {
-    background: linear-gradient(
-      180deg,
-      #ffe7c2 0%,
-      #ffb25e 38%,
-      #f97316 72%,
-      #ea580c 100%
     );
     -webkit-background-clip: text;
     background-clip: text;
@@ -403,106 +373,6 @@ body {
     filter:
       drop-shadow(0 1px 0 rgba(0, 0, 0, 0.65))
       drop-shadow(0 6px 8px rgba(0, 0, 0, 0.28));
-  }
-
-  /* Chapter opener for "What is Coach Connect?": a glass pill, a two-tone
-     title, a short gradient rule, then the lead. The pill is glass (a
-     gradient rim, a clear fill) — the number is gradient text, not a
-     flat purple label.
-     Manipulate here: the pill padding is the height of the eyebrow. */
-  .chapter-intro {
-    margin-bottom: 1.35rem;
-    text-align: center;
-  }
-  .chapter-kicker {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.55rem;
-    margin: 0 auto 0.85rem;
-    padding: 0.28rem 0.85rem 0.28rem 0.28rem;
-    border-radius: 999px;
-    border: none;
-    /* A light color wash, not a painted capsule. The rainbow stays on
-       the rim (::before), or the clear middle shows the rainbow through
-       and the pill looks like a solid gradient. */
-    background: linear-gradient(100deg, rgba(255, 107, 157, 0.2), rgba(192, 132, 252, 0.12) 50%, rgba(6, 182, 212, 0.16));
-    backdrop-filter: blur(16px) saturate(1.4);
-    -webkit-backdrop-filter: blur(16px) saturate(1.4);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
-    font-family: var(--font-pixel);
-    font-size: 0.55rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.88);
-  }
-  .chapter-kicker::before,
-  .chapter-kicker-index::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    padding: 1px;
-    background: linear-gradient(120deg, #ff6b9d, #f97316, #c084fc, #06b6d4);
-    background-size: 220% 220%;
-    animation: kicker-rim 8s ease-in-out infinite;
-    -webkit-mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    mask-composite: exclude;
-    pointer-events: none;
-  }
-  .chapter-kicker-index {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 1.85rem;
-    height: 1.85rem;
-    border-radius: 999px;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04));
-  }
-  .chapter-kicker-index::before {
-    background: linear-gradient(135deg, #ff6b9d, #f97316);
-    animation: none;
-  }
-  .chapter-title {
-    margin: 0;
-    font-size: 1.9rem;
-    font-weight: 600;
-    line-height: 1.12;
-    letter-spacing: -0.03em;
-  }
-  @media (min-width: 640px) {
-    .chapter-title { font-size: 2.7rem; }
-  }
-  .chapter-rule {
-    display: block;
-    width: 5.5rem;
-    height: 2px;
-    margin: 0.8rem auto 0;
-    border-radius: 999px;
-    background: linear-gradient(90deg, transparent, #ff6b9d, #f97316, #06b6d4, transparent);
-  }
-  .chapter-lead {
-    margin: 0.7rem auto 0;
-    max-width: 38rem;
-    font-family: var(--font-display);
-    font-weight: 500;
-    font-size: 1.02rem;
-    line-height: 1.55;
-    color: rgba(255, 255, 255, 0.74);
-  }
-  @keyframes kicker-rim {
-    0%, 100% { background-position: 0 0, 0% 50%; }
-    50% { background-position: 0 0, 100% 50%; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .chapter-kicker::before { animation: none; }
   }
 
   .cta-primary {
@@ -688,6 +558,22 @@ body {
     padding-bottom: 1.35rem;
   }
   .landing-section-body { width: 100%; }
+  /* The hero alone starts higher: the wordmark is the page's title
+     and the phone + caption under it need the room more than the
+     chapters do. Its body's min-height is rebalanced to match
+     (100dvh minus this section's own 5 + 1.35rem of padding), so
+     the hero still lands exactly one screen tall.
+     Manipulate here: 5rem = the hero's top air — it sets how far
+     under the fixed nav the title card sits; the nav is ~69px
+     tall, so this leaves the card a small breathing gap below it.
+     (The phone's pull-up in Sections.jsx is sized to match, so
+     moving the card down does not move the phone down with it.) */
+  #act-arrival {
+    padding-top: 5rem;
+  }
+  #act-arrival .landing-section-body {
+    min-height: calc(100dvh - 6.35rem);
+  }
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -745,6 +631,29 @@ body {
   display: flex;
   width: max-content;
   animation: marquee 46s linear infinite;
+}
+
+/* The alternating faces of the ribbon's phrases. Solid phrases are
+   plain white (in Sections.jsx); every other phrase wears only an
+   outline — transparent fill with a white stroke around each letter.
+   vocab: -webkit-text-stroke = the letter's outline; setting color
+   to transparent empties the inside so only the outline shows.
+   Manipulate here: 1.5px = outline thickness; / 0.9 = its brightness.
+   Thicker past ~2px and the insides of tight letters (e, a) fill in. */
+.marquee-item-outline {
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgb(255 255 255 / 0.9);
+}
+
+/* The little four-point spark between phrases — always solid brand
+   pink, even inside an outlined phrase (the stroke and transparent
+   fill above would otherwise hollow it out too).
+   Manipulate here: 0.85rem = spark size against the 1.75rem phrases. */
+.marquee-spark {
+  color: #ff6b9d;
+  -webkit-text-fill-color: #ff6b9d;
+  -webkit-text-stroke: 0;
+  font-size: 0.85rem;
 }
 .marquee-track:hover { animation-play-state: paused; }
 @keyframes marquee {
@@ -818,6 +727,36 @@ body {
 }
 @media (prefers-reduced-motion: reduce) {
   .hero-scroll-hint-chevron { animation: none; opacity: 1; }
+}
+
+/* The hero's header card: the one-line wordmark over the app line,
+   compacted into one short dark-glass slab (owner's call) so the
+   phone below gets the vertical room. Same near-black glass family
+   as the rest of the page — hairline border, lit top edge, deep
+   soft shadow — never a colored fill.
+   Manipulate here: the vertical padding is the zone's height;
+   every pixel saved here is a pixel the phone below gains. */
+.hero-title-card {
+  padding: 0.7rem 2rem 0.6rem;
+  border-radius: 1.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(10, 10, 15, 0.58);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 24px 60px -24px rgba(0, 0, 0, 0.7);
+  text-align: center;
+}
+/* The name runs smaller inside the card than it did spanning the
+   hero — the card is a nameplate, not a billboard.
+   Manipulate here: 2.75rem = the desktop ceiling; raise it and the
+   card (and the whole header zone) grows with it. */
+.hero-title-card [data-testid="wordmark"] {
+  font-size: clamp(1.55rem, 4.4vw, 2.75rem);
+}
+@media (max-width: 480px) {
+  .hero-title-card { padding: 0.8rem 1.15rem 0.7rem; }
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -956,8 +895,8 @@ body {
    and the mark's sides start leaving the frame as it sways. */
 @media (min-width: 1024px) {
   .hero-center-logo .logo-model-stage {
-    width: min(520px, 38vw);
-    height: min(400px, 44vh);
+    width: min(460px, 34vw);
+    height: min(345px, 38vh);
   }
 }
 
@@ -970,6 +909,19 @@ body {
    Manipulate here: 0.82 / 0.95 = case scale at lg / wide screens.
    Push past them and the case edges start disappearing into the crop. */
 @media (min-width: 1024px) {
+  /* The watch column stretches past its row so the band runs the full
+     hero: the negative top margin pulls the stage up to just under the
+     fixed nav (over the wordmark row — the wordmark wears z-index so
+     its tail stays on top of the band), and the added height runs it
+     down through the section's bottom padding to the fold.
+     Manipulate here: -5.375rem ≈ nav height (73px) measured from the
+     stage's old top; 6.75rem = that same 86px plus the section's
+     1.35rem bottom padding, added to the stage height. */
+  .hero-middle-watch {
+    align-self: start;
+    height: calc(100% + 6.75rem);
+    margin-top: -5.375rem;
+  }
   .hero-middle-watch .ccw-wrap {
     min-height: 540px;
   }
@@ -979,9 +931,31 @@ body {
 }
 @media (min-width: 1440px) {
   .hero-middle-watch .ccw-watch {
-    transform: scale(0.95);
+    transform: scale(0.86);
   }
 }
+/* Wide laptops (1280–1439px): the bigger logo stage narrows the
+   watch's track; 0.74 keeps the whole case inside it.
+   Manipulate here: raise past ~0.76 and the case's left bezel
+   starts cropping again at these widths. */
+@media (min-width: 1280px) and (max-width: 1439px) {
+  .hero-middle-watch .ccw-watch {
+    transform: scale(0.74);
+  }
+}
+/* Laptop widths (1024–1279px): the hero's three zones (phone,
+   centered logo, watch) only fit if the case runs smaller — the
+   stage crop eats bezel, never screen, at this scale.
+   Manipulate here: 0.56 = case scale in this band only. */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .hero-middle-watch .ccw-watch {
+    transform: scale(0.56);
+  }
+}
+/* The watch case sits centered in its column at lg and up, whole:
+   the column is sized (via the smaller logo stage above) so the
+   case's scaled width fits inside it — no side crop. The stage
+   still crops the band top and bottom, as a product shot should. */
 
 /* The 3D logo's stage (ui/LogoModel.jsx). Height follows the VIEWPORT
    height: on a short screen the stage shrinks so wordmark, headline,
@@ -1038,12 +1012,12 @@ body {
    component was 310×375 (real-watch proportions); the owner stretched it
    to 500 wide so the screen fits two columns of feature rows — widen or
    narrow here and the case, screen, and rows all follow.
-   --ccw-screen-bg #FFFDF4 = the light screen — swap to #0A0A0F for a
-   dark screen (and flip --ccw-text/--ccw-dim) */
+   --ccw-screen-bg #000 = true OLED black, like a real watch face at
+   rest (the light cream screen this replaced read as a phone menu) */
 .ccw-watch {
-  --ccw-screen-bg: #fffdf4;
-  --ccw-text: #1c1c1e;
-  --ccw-dim: rgba(28, 28, 30, 0.52);
+  --ccw-screen-bg: #000;
+  --ccw-text: #fff;
+  --ccw-dim: rgba(255, 255, 255, 0.55);
   position: relative;
   width: 500px;
   height: 375px;
@@ -1069,6 +1043,20 @@ body {
 }
 .ccw-strap-top { top: -970px; background: linear-gradient(to top, #e2e4e9, #f3f4f6); }
 .ccw-strap-bottom { bottom: -970px; background: linear-gradient(to bottom, #e2e4e9, #f3f4f6); }
+/* The cropped ends of the band dissolve into the page instead of
+   ending in a hard white edge wherever the stage cuts them (the
+   top end used to read as a blank white slab floating over the
+   hero). The fade is a mask on the STAGE (.ccw-wrap), not on the
+   straps: the straps are 1000px long, so their own ends are never
+   the part on screen — the stage's crop is. Only the stage's top
+   and bottom 90px fade, well clear of the case in the middle.
+   vocab: mask-image = a stencil — black keeps, transparent
+   erases, the gradient between is the dissolve.
+   Manipulate here: 90px = how long each dissolve runs. */
+.hero-middle-watch .ccw-wrap {
+  -webkit-mask-image: linear-gradient(to bottom, transparent, black 90px, black calc(100% - 70px), transparent);
+  mask-image: linear-gradient(to bottom, transparent, black 90px, black calc(100% - 70px), transparent);
+}
 
 /* Band details — what makes it read as a band and not a gray rectangle.
    Like a real sport band: the top strap carries the metal pin stud, the
@@ -1133,24 +1121,83 @@ body {
   background-repeat: repeat-y;
 }
 
+/* The case metal, ported from Cult UI's Apple Watch Ultra frame
+   (the best-regarded watch exterior in React component libraries,
+   researched 2026-10-20): layered warm-titanium stops instead of
+   flat silver, light caught on every edge at once, and a three-step
+   drop shadow so the case sits IN the page, not on it. The ::before
+   is the machined bevel ring just inside the rim.
+   Manipulate here: the gradient stops are the metal — push them
+   lighter and it reads aluminum, darker and it reads space black. */
 .ccw-case {
   position: relative;
   width: 100%;
   height: 100%;
-  background: linear-gradient(145deg, #f9fafb, #d1d5db, #9ca3af);
+  background: linear-gradient(145deg, #d8d4cd 0%, #c9c5bf 15%, #a39e96 38%, #918c84 58%, #7d7870 78%, #696560 100%);
   border-radius: 68px;
   z-index: 10;
   box-shadow:
-    0 60px 100px rgba(0, 0, 0, 0.45),
-    inset 0 1px 1px rgba(255, 255, 255, 0.9),
-    inset 0 -3px 10px rgba(0, 0, 0, 0.1);
+    0 4px 8px rgba(0, 0, 0, 0.5),
+    0 18px 36px rgba(0, 0, 0, 0.42),
+    0 42px 80px rgba(0, 0, 0, 0.38),
+    inset 0 2px 0 rgba(255, 255, 255, 0.35),
+    inset -2px 0 0 rgba(0, 0, 0, 0.1),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.18),
+    inset 2px 0 0 rgba(255, 255, 255, 0.16);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 10px;
   box-sizing: border-box;
-  border: 1px solid #c2c6cc;
+  border: 1px solid #8a857d;
 }
+.ccw-case::before {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border-radius: 64px;
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.28),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.18);
+  pointer-events: none;
+  z-index: 40;
+}
+
+/* The band lugs: titanium connector blocks where the straps meet
+   the case, each with the dark groove the band pin sits in — the
+   detail that sells "real watch" at thumbnail size. */
+.ccw-lug {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 128px;
+  height: 20px;
+  z-index: 9;
+}
+.ccw-lug::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 84px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.3);
+}
+.ccw-lug-top {
+  top: -8px;
+  border-radius: 10px 10px 0 0;
+  background: linear-gradient(180deg, #b5b0a8 0%, #a39e96 50%, #918c84 100%);
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+.ccw-lug-top::after { bottom: 3px; }
+.ccw-lug-bottom {
+  bottom: -8px;
+  border-radius: 0 0 10px 10px;
+  background: linear-gradient(0deg, #b5b0a8 0%, #a39e96 50%, #918c84 100%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.18);
+}
+.ccw-lug-bottom::after { top: 3px; }
 
 /* The hardware bumps: each button sits in a darker "well" carved into the
    case edge. The crown (right, ridged dial) is the wide one with the
@@ -1173,11 +1220,16 @@ body {
   top: 75px;
   width: 20px;
   height: 50px;
-  background: linear-gradient(to right, #d1d5db, #f3f4f6, #9ca3af);
+  background: linear-gradient(90deg, #858078 0%, #97928a 30%, #a9a49c 50%, #97928a 70%, #858078 100%);
   border-radius: 6px;
   z-index: 20;
-  box-shadow: 4px 2px 10px rgba(0, 0, 0, 0.15);
+  box-shadow:
+    3px 0 6px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
 }
+/* The crown's face carries the Ultra's orange ring — the one loud
+   detail on the whole exterior, matched to the action button. */
 .ccw-crown::before {
   content: "";
   position: absolute;
@@ -1186,9 +1238,9 @@ body {
   transform: translate(-50%, -50%);
   width: 12px;
   height: 12px;
-  background: radial-gradient(circle, #f3f4f6 30%, #9ca3af 100%);
+  background: radial-gradient(circle, #d8d4cd 30%, #918c84 100%);
   border-radius: 50%;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 2px solid rgba(249, 115, 22, 0.9);
   z-index: 21;
 }
 .ccw-crown::after {
@@ -1221,10 +1273,10 @@ body {
   top: 162px;
   width: 9px;
   height: 50px;
-  background: linear-gradient(to right, #9ca3af, #d1d5db);
+  background: linear-gradient(90deg, #7d7870 0%, #a39e96 55%, #918c84 100%);
   border-radius: 4px;
   z-index: 15;
-  border: 1px solid #8e939c;
+  border: 1px solid #6e6a63;
   box-shadow:
     inset 0 1px 1px rgba(255, 255, 255, 0.6),
     1px 1px 3px rgba(0, 0, 0, 0.1);
@@ -1246,7 +1298,7 @@ body {
   top: 135px;
   width: 9px;
   height: 70px;
-  background: linear-gradient(to left, #f97316, #fb923c);
+  background: radial-gradient(circle at 35% 35%, #ff8c42 0%, #ff6d0a 45%, #e55d00 100%);
   border-radius: 4px;
   z-index: 15;
   border: 1px solid #c2410c;
@@ -1276,10 +1328,10 @@ body {
   height: 150%;
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.4) 0%,
+    rgba(255, 255, 255, 0.16) 0%,
     transparent 35%,
     transparent 65%,
-    rgba(255, 255, 255, 0.1) 100%
+    rgba(255, 255, 255, 0.05) 100%
   );
   z-index: 100;
   pointer-events: none;
@@ -1287,24 +1339,113 @@ body {
 }
 .ccw-case:hover .ccw-display::after { transform: translate(20px, 20px); }
 
-/* Screen content: title, the four pillar rows, and the mini wordmark
-   pinned to the bottom by margin-top: auto. */
+/* The watch face (ui/HeroWatch.jsx): a real watchOS-style face on
+   the black screen. Top band: live time and date on the left, the
+   activity rings with a compact legend on the right. Under it, the
+   title and the eight features in TWO columns — the full screen
+   width, so no row is crushed — with the mini wordmark centered at
+   the foot. Sized for a glance: one big number (the time), small
+   labels, hairlines, air between rows.
+   Manipulate here: row padding in .ccw-face-row is the breathing
+   room; past 9px the eighth row falls off the screen. */
 .ccw-screen {
   position: relative;
   height: 100%;
   box-sizing: border-box;
-  padding: 36px 30px 22px;
+  padding: 20px 30px 12px;
   display: flex;
   flex-direction: column;
   color: var(--ccw-text);
   font-family: var(--font-mono);
 }
-.ccw-title {
+.ccw-face-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+.ccw-face-date {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: #ff6b9d;
+}
+/* The one number that owns the face. Unbounded at 800 is the site's
+   display voice; tabular figures keep the time from jittering as
+   the minutes change. */
+.ccw-face-time {
+  margin: 3px 0 0;
   font-family: var(--font-display);
-  font-size: 15px;
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+/* The rings draw themselves on load (stroke-dashoffset slides in
+   HeroWatch.jsx); 1.4s is slow enough to read as a sweep. */
+.ccw-face-rings {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.ccw-rings {
+  width: 70px;
+  height: 70px;
+  flex-shrink: 0;
+}
+.ccw-rings-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.ccw-ring-bar {
+  transition: stroke-dashoffset 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ccw-ring-legend {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ccw-ring-legend-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 8.5px;
+  white-space: nowrap;
+}
+.ccw-ring-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  align-self: center;
+}
+.ccw-ring-legend-label {
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.ccw-ring-legend-value {
+  color: var(--ccw-dim);
+}
+/* Title and feature list. Two columns of four: each feature wears
+   a hand-drawn white glyph in a gradient app tile (squircle, lit
+   top edge, soft glow in its own color — the watchOS app look),
+   bold label, dim proof under it, with room to breathe.
+   Manipulate here: --tile-glow is set per row in HeroWatch.jsx;
+   tile size below is capped so the eighth row stays on screen. */
+.ccw-face-title {
+  margin: 8px 0 0;
+  font-family: var(--font-display);
+  font-size: 16px;
   font-weight: 800;
   letter-spacing: -0.01em;
-  margin: 0;
 }
 .ccw-title-gradient {
   background: linear-gradient(90deg, #ff6b9d, #f97316);
@@ -1312,55 +1453,62 @@ body {
   background-clip: text;
   color: transparent;
 }
-/* Two columns of four rows — the reason the case is stretched wide.
-   grid-auto-flow: row (the default) fills left column then right, per row. */
-.ccw-rows {
-  margin: 20px 0 0;
+.ccw-face-list {
+  margin: 6px 0 0;
   padding: 0;
   list-style: none;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  column-gap: 18px;
-  row-gap: 15px;
+  column-gap: 22px;
 }
-.ccw-row {
+.ccw-face-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  padding: 5.5px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  min-width: 0;
 }
-/* Gradient accent disc with a white glyph — the original's activity-row
-   look, recolored: the gradient itself is set inline per row (never flat) */
-.ccw-row-icon {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* vocab: squircle = the rounded-square tile shape watchOS apps use;
+   the inset light on top plus the dark falloff at the bottom is what
+   makes the flat gradient read as a glossy app icon, not a sticker. */
+.ccw-app-tile {
+  width: 29px;
+  height: 29px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
   color: #fff;
   flex-shrink: 0;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    inset 0 -8px 14px rgba(0, 0, 0, 0.22),
+    0 5px 14px -5px var(--tile-glow, rgba(255, 107, 157, 0.35));
 }
-.ccw-row-label {
+.ccw-app-tile svg {
+  width: 17px;
+  height: 17px;
   display: block;
-  font-size: 13px;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.25));
+}
+.ccw-face-row-label {
+  display: block;
+  font-size: 12px;
   font-weight: 700;
-  line-height: 1.25;
+  line-height: 1.2;
 }
-.ccw-row-sub {
+.ccw-face-row-sub {
   display: block;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 600;
   color: var(--ccw-dim);
   margin-top: 2px;
-}
-.ccw-footer {
-  margin-top: auto;
-  padding-top: 12px;
-  border-top: 1px solid rgba(0, 0, 0, 0.07);
-  text-align: center;
+  line-height: 1.25;
 }
 .ccw-footer-wordmark {
+  margin: auto 0 0;
+  padding-top: 8px;
+  text-align: center;
   font-family: var(--font-display);
   font-size: 9px;
   font-weight: 800;
@@ -1370,17 +1518,147 @@ body {
   background-clip: text;
   color: transparent;
 }
+@media (prefers-reduced-motion: reduce) {
+  .ccw-ring-bar { transition: none; }
+}
 
 /* Small phones: shrink the whole watch rather than letting it crowd out
    the logo stacked above it */
 /* Manipulate here: 0.66 = watch scale under 480px viewport width (the
    wide 500px case needs a smaller scale than a real-width watch would) */
 @media (max-width: 480px) {
-  .ccw-wrap { min-height: 540px; }
+  /* 470px of stage is plenty: the scaled case is ~250px tall and the
+     straps are drawn 1000px long, so the band still fills the stage
+     top to bottom — the old 540px just added empty hero on phones. */
+  .ccw-wrap { min-height: 470px; }
   .ccw-watch { transform: scale(0.66); }
 }
 @media (prefers-reduced-motion: reduce) {
   .ccw-display::after { transition: none; }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   HERO PHONE (.ccp-*) — the iPhone on the hero's left (ui/HeroPhone.jsx).
+   Titanium rails, a black bezel, and a glass sheen over the screen,
+   floating gently on its stage. The screen plays the owner's app
+   recordings edge to edge; the caption under the phone names the side
+   currently playing. Everything metal lives here.
+   Manipulate here: 330px wide (capped by viewport height at lg —
+   see the .ccp-phone rule) matched to the app recordings' own ratio
+   so the video fills the screen uncropped; widen it and the hero's
+   left column crowds the center.
+   ════════════════════════════════════════════════════════════════════ */
+.ccp-wrap {
+  position: relative;
+  width: fit-content;
+  margin-inline: auto;
+  animation: ccp-float 7s ease-in-out infinite;
+  filter: drop-shadow(0 44px 44px rgba(0, 0, 0, 0.55));
+}
+/* The float: a slow 6px rise and settle, like the phone is hovering
+   for its product shot. Manipulate here: 6px = travel; 7s = one cycle. */
+@keyframes ccp-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.ccp-phone {
+  position: relative;
+  width: min(380px, 92vw);
+  aspect-ratio: 300 / 585;
+  height: auto;
+  border-radius: 56px;
+  padding: 11px;
+  background: linear-gradient(160deg, #43434b 0%, #131316 28%, #2b2b31 55%, #0a0a0c 100%);
+  box-shadow:
+    inset 0 0 0 1.5px rgba(255, 255, 255, 0.22),
+    inset 0 0 0 4px #000,
+    0 24px 60px -18px rgba(0, 0, 0, 0.8);
+}
+/* Side hardware: thin metal tabs on the rails, silent switch shortest */
+.ccp-btn {
+  position: absolute;
+  width: 3px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #55555e, #26262b);
+}
+.ccp-btn-silent { left: -2.5px; top: 118px; height: 26px; }
+.ccp-btn-volume-up { left: -2.5px; top: 156px; height: 44px; }
+.ccp-btn-volume-down { left: -2.5px; top: 208px; height: 44px; }
+.ccp-btn-power { right: -2.5px; top: 172px; height: 64px; }
+.ccp-screen {
+  position: relative;
+  height: 100%;
+  border-radius: 45px;
+  overflow: hidden;
+  background: #000;
+  color: #fff;
+}
+/* The app recording itself, edge to edge inside the bezel */
+.ccp-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* The glass sheen: one soft diagonal of light across the screen,
+   clipped by the screen's own corners (overflow: hidden above) */
+.ccp-screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.07) 0%, transparent 32%);
+  pointer-events: none;
+}
+/* The caption above the phone (in HeroPhone.jsx): segments, the
+   "currently playing" line, the side's name. Width matches the phone
+   so the block reads as the phone's own nameplate.
+   Manipulate here: the 1.15rem bottom margin is the gap over the case. */
+.ccp-caption-wrap {
+  width: min(380px, 100%);
+  margin: 0 auto 0.9rem;
+  text-align: center;
+}
+/* Desktop: the phone (and its caption nameplate, same width) shrink
+   with the viewport HEIGHT, so caption + phone always fit between
+   the app line and the fold — no scrolling to see the whole device.
+   vocab: vh = percent of the viewport's height; at 900px tall the
+   phone runs ~360px wide instead of its full 380px.
+   Manipulate here: 40vh = the width cap; raise it and short screens
+   push the phone's foot under the fold again. */
+@media (min-width: 1024px) {
+  .ccp-phone { width: min(380px, 40vh); }
+  .ccp-caption-wrap { width: min(380px, 40vh); }
+}
+/* Short desktop windows: drop the caption's descriptive line so the
+   name of the side and the phone still fit above the fold together.
+   Manipulate here: 940px = the window height where the sub goes. */
+@media (min-width: 1024px) and (max-height: 940px) {
+  .ccp-caption-sub { display: none; }
+}
+/* Each switch re-mounts the caption (key change in HeroPhone.jsx),
+   replaying this rise — the text equivalent of a lower-third graphic.
+   Manipulate here: 0.45s = how fast the new side's name settles. */
+.ccp-caption {
+  margin-top: 0.55rem;
+  animation: ccp-caption-in 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes ccp-caption-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* The breathing dot beside "currently playing" — pink, on-air style */
+.ccp-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #ff6b9d;
+  box-shadow: 0 0 0 0 rgba(255, 107, 157, 0.55);
+  animation: testflight-pulse 1.8s ease-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ccp-wrap { animation: none; }
+  .ccp-caption { animation: none; }
+  .ccp-live-dot { animation: none; }
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -1780,6 +2058,141 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .testflight-live-dot { animation: none; }
   .testflight-card::after { display: none; }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   NAV BAR (navbar/NavBar.jsx) — the fixed top bar.
+   The bar itself is Tailwind in the component; what lives here is the
+   behavior CSS can't say inline: the gradient underline that slides
+   under a link on hover, the deeper scrolled state, and the brand
+   hairline along the bar's bottom edge.
+   ════════════════════════════════════════════════════════════════════ */
+/* vocab: ::after = a phantom element hung under the link — the
+   underline is drawn there so it can grow from the left on hover
+   without moving the word itself.
+   Manipulate here: scaleX(0 → 1) is the slide; 0.25s is its speed. */
+.nav-link {
+  position: relative;
+  padding: 0.35rem 0;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ff6b9d, #f97316);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.nav-link:hover::after,
+.nav-link:focus-visible::after {
+  transform: scaleX(1);
+}
+/* Once the page scrolls, the bar trades its over-the-hero translucency
+   for a near-solid, lifted slab so links stay readable over chapters.
+   Manipulate here: 0.88 alpha = how solid; the shadow is the lift. */
+.nav-bar-scrolled {
+  background-color: rgba(7, 6, 10, 0.88);
+  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.5);
+}
+/* The one-pixel brand signature along the bottom edge, dim at rest */
+.nav-gradient-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 107, 157, 0.65) 30%, rgba(249, 115, 22, 0.65) 70%, transparent);
+  pointer-events: none;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   RESPONSIVE PASS — phones and tablets, tuned by device class.
+   The sections above were authored desktop-first with phone stacking;
+   this block fixes what stacking alone gets wrong on real hardware.
+   It sits LAST in the file on purpose: these are plain unlayered rules,
+   so they win over the Tailwind utilities (which live in @layer) and
+   over the older one-off queries above — no !important needed.
+   vocab: env(safe-area-inset-*) = the notch / home-bar depth iOS
+   reports; it is 0 on hardware without a notch, so desktop is untouched.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* Notch clearance: the fixed nav pads down past the status bar, the
+   footer and the hero's scroll pill lift past the home bar.
+   Manipulate here: the rem values are the pre-notch spacing — the
+   env() part is added on top only on notched phones. */
+[data-testid="nav"] {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+[data-testid="footer"] {
+  padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
+}
+.hero-scroll-hint {
+  bottom: calc(1.35rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* Small iPhones (≤480px): the one-line hero wordmark's clamp floors at
+   1.9rem in Wordmark.jsx, which measures 334px wide — wider than the
+   padded content column under ~375px, so the hero's overflow crop was
+   eating the C and the final T. Shrink it fluidly in this range only;
+   at 480px the cap hands back the exact size it has today.
+   Manipulate here: 7.2vw = growth per viewport width; raise it and
+   the smallest phones clip again, lower it and the name looks lost. */
+@media (max-width: 480px) {
+  [data-testid="hero-wordmark"] [data-testid="wordmark"] {
+    font-size: clamp(1.35rem, 7.2vw, 1.9rem);
+  }
+  /* Chapters breathe a little less so a phone screen holds more story */
+  .landing-section,
+  .landing-section-alt {
+    padding-top: 3.75rem;
+  }
+}
+
+/* Big phones and small tablets in portrait (481–767px): the watch case
+   is 500px wide but only shrinks under 480px, so in this band the stage
+   was cropping its sides. Scale it to fit, and shorten the stage —
+   the straps are drawn long enough to still span it.
+   Manipulate here: 0.82 = case scale; at 481px wide that is a 410px
+   case inside a 441px column. */
+@media (min-width: 481px) and (max-width: 767px) {
+  .ccw-watch { transform: scale(0.82); }
+  .ccw-wrap { min-height: 500px; }
+}
+
+/* Tablets in portrait (768–1023px): the hero stacks (words, logo,
+   watch), and at full size that stack measured ~1,400px tall — two
+   screens of hero before the marquee. A slightly smaller watch and a
+   shorter stage pull it back toward one tall, calm screen without
+   touching the phone or desktop layouts.
+   Manipulate here: 0.88 = case scale at iPad widths. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .ccw-watch { transform: scale(0.88); }
+  .ccw-wrap { min-height: 500px; }
+}
+
+/* Touch comfort on everything under desktop (<1024px):
+   - Form fields render at 16px. iOS Safari auto-zooms the whole page
+     when a focused field is smaller than that, and the zoom never
+     zooms back — 16px is the line where it leaves the page alone.
+   - Footer and card-corner links get real tap height (they were
+     16–24px tall; fingers need ~40px+).
+   Manipulate here: 16px is not a style choice, it is the iOS zoom
+   threshold — do not lower it. */
+@media (max-width: 1023px) {
+  .setup-input,
+  .setup-area,
+  .what-is-panel input {
+    font-size: 16px;
+  }
+  [data-testid="footer"] a {
+    display: inline-block;
+    padding: 0.55rem 0.2rem;
+  }
 }
 
 a {

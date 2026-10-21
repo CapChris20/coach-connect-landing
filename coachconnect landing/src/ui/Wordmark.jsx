@@ -1,6 +1,6 @@
 // Wordmark — the COACH CONNECT logo lockup, shared by the nav bar, hero, and footer.
-// Flow: render two lines (stacked or side by side); CONNECT gets the orange
-// gradient from the .wordmark-orange class in index.css.
+// Flow: render two lines (stacked or side by side); CONNECT gets the
+// pink-to-orange gradient from the .wordmark-connect class in index.css.
 // Used by: navbar/NavBar.jsx and ui/Sections.jsx.
 
 // ===== MAIN FUNCTION =====
@@ -47,7 +47,7 @@ export function Wordmark({ className = '', stacked = true, size = 'hero' }) {
     >
       {/* whitespace-nowrap: never wrap mid-word; the clamp above guarantees it fits */}
       <span className={`whitespace-nowrap ${coachFaceClass}`}>COACH</span>
-      <span className="wordmark-orange whitespace-nowrap">CONNECT</span>
+      <span className="wordmark-connect whitespace-nowrap">CONNECT</span>
     </div>
   );
 }
