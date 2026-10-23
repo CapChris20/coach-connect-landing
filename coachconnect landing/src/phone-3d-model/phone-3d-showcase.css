@@ -1,0 +1,42 @@
+/* phone-3d-showcase.css
+   Clean, regular CSS for the interactive 3D phone model showcase.
+*/
+
+.phone-showcase-section {
+  position: relative;
+  z-index: 10;
+  padding: 3.5rem 1.25rem;
+}
+
+.phone-showcase-inner {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 56rem;
+  text-align: center;
+}
+
+.phone-showcase-eyebrow {
+  font-family: var(--font-pixel, monospace);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  line-height: 1.625;
+  color: #ff6b9d;
+  letter-spacing: 0.1em;
+}
+
+.phone-showcase-stage {
+  margin-top: 1rem;
+  height: 430px;
+}
+
+@media (min-width: 640px) {
+  .phone-showcase-stage {
+    height: 540px;
+  }
+}
+
+.phone-showcase-caption {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.45);
+}

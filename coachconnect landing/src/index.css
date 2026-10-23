@@ -307,19 +307,8 @@ body {
       inset 0 1px 0 rgba(255, 255, 255, 0.1);
   }
 
-  /* FAQ answer reveal: grid-rows 0fr → 1fr animates height smoothly
-     without measuring anything in JS. The inner div clips the overflow. */
-  .cc-faq-answer {
-    display: grid;
-    grid-template-rows: 0fr;
-    transition: grid-template-rows 0.38s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .cc-faq-answer[data-open="true"] { grid-template-rows: 1fr; }
-  .cc-faq-answer > div { overflow: hidden; }
-
   @media (prefers-reduced-motion: reduce) {
     .cc-card { transition: none; }
-    .cc-faq-answer { transition: none; }
   }
 
   /* Chapter 01 needs no CSS of its own anymore: after a loud gradient
@@ -1018,10 +1007,78 @@ body {
   --ccw-screen-bg: #000;
   --ccw-text: #fff;
   --ccw-dim: rgba(255, 255, 255, 0.55);
+  /* The exterior's paint box. data-band and data-case (set by the
+     picker in HeroWatch.jsx) rewrite these variables, and every strap,
+     keeper, lug, crown, and case rule below reads them — so one picker
+     tap repaints the whole outside and never reaches the screen.
+     vocab: a CSS variable is a named value slots can read; changing it
+     on .ccw-watch repaints every slot under it at once.
+     Manipulate here: hi = the band's lit end, lo = its shaded end,
+     loop = the keeper loop's pair, mark = the printed name's ink. */
+  --ccw-band-hi: #f3f4f6;
+  --ccw-band-lo: #e2e4e9;
+  --ccw-band-loop-hi: #dfe3e9;
+  --ccw-band-loop-lo: #ccd1d9;
+  --ccw-band-mark: rgba(15, 23, 42, 0.2);
+  --ccw-band-stripe: linear-gradient(to bottom, #ff6b9d, #f97316);
+  --ccw-case-bg: linear-gradient(145deg, #d8d4cd 0%, #c9c5bf 15%, #a39e96 38%, #918c84 58%, #7d7870 78%, #696560 100%);
+  --ccw-case-border: #8a857d;
+  --ccw-lug-bg-top: linear-gradient(180deg, #b5b0a8 0%, #a39e96 50%, #918c84 100%);
+  --ccw-lug-bg-bottom: linear-gradient(0deg, #b5b0a8 0%, #a39e96 50%, #918c84 100%);
+  --ccw-crown-bg: linear-gradient(90deg, #858078 0%, #97928a 30%, #a9a49c 50%, #97928a 70%, #858078 100%);
   position: relative;
   width: 500px;
   height: 375px;
   flex-shrink: 0;
+}
+
+/* The bands. Smooth sport silicone in four colors, then the woven
+   Alpine loop, whose crossed repeating threads are layered over the
+   same hi/lo pair so it still shades like the others. */
+.ccw-watch[data-band="midnight"] {
+  --ccw-band-hi: #2b2b31;
+  --ccw-band-lo: #0c0c10;
+  --ccw-band-loop-hi: #34343c;
+  --ccw-band-loop-lo: #17171c;
+  --ccw-band-mark: rgba(255, 255, 255, 0.26);
+}
+.ccw-watch[data-band="ocean"] {
+  --ccw-band-hi: #38bdf8;
+  --ccw-band-lo: #1d4ed8;
+  --ccw-band-loop-hi: #2563eb;
+  --ccw-band-loop-lo: #172554;
+  --ccw-band-mark: rgba(255, 255, 255, 0.3);
+}
+.ccw-watch[data-band="sunset"] {
+  --ccw-band-hi: #fb7185;
+  --ccw-band-lo: #ea580c;
+  --ccw-band-loop-hi: #f43f5e;
+  --ccw-band-loop-lo: #9a3412;
+  --ccw-band-mark: rgba(255, 255, 255, 0.32);
+}
+.ccw-watch[data-band="alpine"] {
+  --ccw-band-hi: #f97316;
+  --ccw-band-lo: #7c2d12;
+  --ccw-band-loop-hi: #c2410c;
+  --ccw-band-loop-lo: #431407;
+  --ccw-band-mark: rgba(255, 255, 255, 0.34);
+}
+
+/* The case metals: natural titanium is the default above; gold warms
+   every metal slot, slate darkens them, crown and lugs included. */
+.ccw-watch[data-case="gold"] {
+  --ccw-case-bg: linear-gradient(145deg, #f0d9a8 0%, #dec084 15%, #c39a4a 38%, #a87b2d 58%, #8a6420 78%, #6d4e16 100%);
+  --ccw-case-border: #8a6420;
+  --ccw-lug-bg-top: linear-gradient(180deg, #e3c98f 0%, #c39a4a 50%, #a87b2d 100%);
+  --ccw-lug-bg-bottom: linear-gradient(0deg, #e3c98f 0%, #c39a4a 50%, #a87b2d 100%);
+  --ccw-crown-bg: linear-gradient(90deg, #a87b2d 0%, #c39a4a 30%, #dec084 50%, #c39a4a 70%, #a87b2d 100%);
+}
+.ccw-watch[data-case="slate"] {
+  --ccw-case-bg: linear-gradient(145deg, #55565c 0%, #434449 15%, #34353b 38%, #26272d 58%, #1a1b20 78%, #101116 100%);
+  --ccw-case-border: #060608;
+  --ccw-lug-bg-top: linear-gradient(180deg, #434449 0%, #34353b 50%, #26272d 100%);
+  --ccw-lug-bg-bottom: linear-gradient(0deg, #434449 0%, #34353b 50%, #26272d 100%);
+  --ccw-crown-bg: linear-gradient(90deg, #26272d 0%, #34353b 30%, #434449 50%, #34353b 70%, #26272d 100%);
 }
 
 /* The band: 1000px long each way with 970px sticking out past the case
@@ -1041,8 +1098,66 @@ body {
   z-index: 1;
   box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.08);
 }
-.ccw-strap-top { top: -970px; background: linear-gradient(to top, #e2e4e9, #f3f4f6); }
-.ccw-strap-bottom { bottom: -970px; background: linear-gradient(to bottom, #e2e4e9, #f3f4f6); }
+.ccw-strap-top { top: -970px; background: linear-gradient(to top, var(--ccw-band-lo), var(--ccw-band-hi)); }
+.ccw-strap-bottom { bottom: -970px; background: linear-gradient(to bottom, var(--ccw-band-lo), var(--ccw-band-hi)); }
+
+/* The woven Alpine band: two crossed thread layers over the hi/lo
+   shading, so the weave catches light without losing the band's form. */
+.ccw-watch[data-band="alpine"] .ccw-strap-top {
+  background:
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.09) 0 4px, transparent 4px 8px),
+    repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.16) 0 4px, transparent 4px 8px),
+    linear-gradient(to top, var(--ccw-band-lo), var(--ccw-band-hi));
+}
+.ccw-watch[data-band="alpine"] .ccw-strap-bottom {
+  background:
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.09) 0 4px, transparent 4px 8px),
+    repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.16) 0 4px, transparent 4px 8px),
+    linear-gradient(to bottom, var(--ccw-band-lo), var(--ccw-band-hi));
+}
+/* A woven loop fastens with a hook, not a pin through holes — so the
+   sport band's pin stud and adjustment holes leave with the sport
+   bands. The keeper loop stays: a loop band still threads through it. */
+.ccw-watch[data-band="alpine"] .ccw-strap-top::after,
+.ccw-watch[data-band="alpine"] .ccw-strap-bottom::after {
+  opacity: 0;
+}
+
+/* The brand stripe riding the band's left edge, pink melting into
+   orange — the one place the site's gradient lives on the hardware.
+   It is a child element because both strap pseudos already carry
+   hardware (pin above, keeper and holes below). */
+/* Manipulate here: left 16px = how far in from the band's edge the
+   stripe sits; past ~24px it starts fighting the center holes. */
+.ccw-strap-stripe {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 16px;
+  width: 3px;
+  background: var(--ccw-band-stripe);
+  opacity: 0.85;
+}
+
+/* The name printed down the top strap, the way a band is debossed —
+   quiet ink, read by turning the watch, never shouted.
+   vocab: writing-mode vertical-rl = the text runs top to bottom
+   instead of left to right.
+   Manipulate here: bottom 150px keeps the name just above the pin
+   (bottom 105px below) so the stage crop can never cut it in half. */
+.ccw-strap-brand {
+  position: absolute;
+  left: 50%;
+  bottom: 150px;
+  transform: translateX(-50%);
+  writing-mode: vertical-rl;
+  font-family: var(--font-display);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.38em;
+  white-space: nowrap;
+  color: var(--ccw-band-mark);
+}
 /* The cropped ends of the band dissolve into the page instead of
    ending in a hard white edge wherever the stage cuts them (the
    top end used to read as a blank white slab floating over the
@@ -1092,7 +1207,7 @@ body {
   right: 0;
   top: 44px;
   height: 30px;
-  background: linear-gradient(to bottom, #dfe3e9, #ccd1d9);
+  background: linear-gradient(to bottom, var(--ccw-band-loop-hi), var(--ccw-band-loop-lo));
   border-radius: 4px;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.7),
@@ -1133,7 +1248,7 @@ body {
   position: relative;
   width: 100%;
   height: 100%;
-  background: linear-gradient(145deg, #d8d4cd 0%, #c9c5bf 15%, #a39e96 38%, #918c84 58%, #7d7870 78%, #696560 100%);
+  background: var(--ccw-case-bg);
   border-radius: 68px;
   z-index: 10;
   box-shadow:
@@ -1149,7 +1264,22 @@ body {
   justify-content: center;
   padding: 10px;
   box-sizing: border-box;
-  border: 1px solid #8a857d;
+  border: 1px solid var(--ccw-case-border);
+}
+/* The brushed grain of the titanium: two hairline thread layers at
+   right angles, faint enough to feel rather than see. It sits at
+   z-index 1, under the display (z-index 2 below), so the grain only
+   ever shows on the metal rim, never across the glass. */
+.ccw-case::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 68px;
+  background:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.025) 0 1px, transparent 1px 3px);
+  pointer-events: none;
+  z-index: 1;
 }
 .ccw-case::before {
   content: "";
@@ -1184,17 +1314,34 @@ body {
   border-radius: 999px;
   background: rgba(0, 0, 0, 0.3);
 }
+/* The lug screws: one machined head near each end of the connector,
+   the second thrown across as a plain shadow copy of the first.
+   Manipulate here: 76px in the box-shadow = the screw spacing; it
+   must stay inside the 128px lug or a screw floats off the metal. */
+.ccw-lug::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  transform: translateY(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffffff, #77716a 60%, #3f3c37);
+  box-shadow: 76px 0 0 #6b675f;
+  z-index: 1;
+}
 .ccw-lug-top {
   top: -8px;
   border-radius: 10px 10px 0 0;
-  background: linear-gradient(180deg, #b5b0a8 0%, #a39e96 50%, #918c84 100%);
+  background: var(--ccw-lug-bg-top);
   box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 .ccw-lug-top::after { bottom: 3px; }
 .ccw-lug-bottom {
   bottom: -8px;
   border-radius: 0 0 10px 10px;
-  background: linear-gradient(0deg, #b5b0a8 0%, #a39e96 50%, #918c84 100%);
+  background: var(--ccw-lug-bg-bottom);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.18);
 }
 .ccw-lug-bottom::after { top: 3px; }
@@ -1220,7 +1367,7 @@ body {
   top: 75px;
   width: 20px;
   height: 50px;
-  background: linear-gradient(90deg, #858078 0%, #97928a 30%, #a9a49c 50%, #97928a 70%, #858078 100%);
+  background: var(--ccw-crown-bg);
   border-radius: 6px;
   z-index: 20;
   box-shadow:
@@ -1273,7 +1420,7 @@ body {
   top: 162px;
   width: 9px;
   height: 50px;
-  background: linear-gradient(90deg, #7d7870 0%, #a39e96 55%, #918c84 100%);
+  background: var(--ccw-crown-bg);
   border-radius: 4px;
   z-index: 15;
   border: 1px solid #6e6a63;
@@ -1307,6 +1454,45 @@ body {
     -1px 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+/* The crown guards: the two raised shoulders the Ultra case wraps
+   around its crown, so the dial reads as protected machinery instead
+   of a knob glued to the case edge. They wear the crown's own metal,
+   so a case picker change re-metals them for free. */
+/* Manipulate here: the guards sit 15px clear of the crown (top 75px,
+   height 50px) — closer and they swallow the dial, further and they
+   read as stray bumps. */
+.ccw-crown-guard {
+  position: absolute;
+  right: -5px;
+  width: 16px;
+  height: 18px;
+  background: var(--ccw-crown-bg);
+  border-radius: 5px;
+  z-index: 9;
+  box-shadow:
+    2px 0 4px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+.ccw-crown-guard-top { top: 60px; }
+.ccw-crown-guard-bottom { top: 128px; }
+
+/* The speaker slots cut into the left case edge under the action
+   button: dark cuts tiled down a metal strip, the strip itself in
+   the crown's metal so it follows the case picker. */
+.ccw-speaker {
+  position: absolute;
+  left: -4px;
+  top: 232px;
+  width: 7px;
+  height: 58px;
+  border-radius: 999px;
+  background:
+    repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.55) 0 4px, transparent 4px 9px),
+    var(--ccw-crown-bg);
+  z-index: 12;
+  box-shadow: -1px 1px 3px rgba(0, 0, 0, 0.2);
+}
+
 /* The screen. The ::after sheen is a light streak that drifts when the
    case is hovered — the one piece of motion kept from the original. */
 .ccw-display {
@@ -1316,8 +1502,25 @@ body {
   border-radius: 58px;
   overflow: hidden;
   position: relative;
+  z-index: 2;
   box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.02);
   border: 5px solid #000;
+}
+/* The glass edge: a bright hairline where the cover glass curves
+   into the case, lit from above and falling dark at the foot — the
+   rim that tells the eye the screen sits UNDER glass. It rings the
+   edge only (inset shadows), so the face inside is never tinted. */
+.ccw-display::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.09),
+    inset 0 2px 5px rgba(255, 255, 255, 0.1),
+    inset 0 -10px 18px rgba(0, 0, 0, 0.5);
+  z-index: 99;
+  pointer-events: none;
 }
 .ccw-display::after {
   content: "";
@@ -1518,6 +1721,78 @@ body {
   background-clip: text;
   color: transparent;
 }
+/* The exterior picker (WatchExteriorPicker in ui/HeroWatch.jsx): a
+   dark pill floating over the lower strap, bands left, case metals
+   right. It sits at bottom 92px because the stage's own fade mask
+   (see .hero-middle-watch .ccw-wrap above) dissolves the bottom
+   70px — any lower and the picker would melt with the strap ends.
+   Manipulate here: bottom 92px is that clearance, not a style
+   choice; move the mask's 70px and this must move with it. */
+.ccw-customizer {
+  position: absolute;
+  left: 50%;
+  bottom: 92px;
+  transform: translateX(-50%);
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(8, 8, 12, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 14px 34px rgba(0, 0, 0, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.ccw-customizer-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ccw-customizer-label {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+.ccw-customizer-divider {
+  width: 1px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.12);
+}
+/* vocab: aria-pressed = the picker's on/off state, set in
+   HeroWatch.jsx; the orange ring below reads it, so the selected
+   dot needs no extra class from React. */
+.ccw-swatch {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.18s ease;
+}
+.ccw-swatch:hover { transform: scale(1.15); }
+.ccw-swatch:active { transform: scale(0.92); }
+.ccw-swatch[aria-pressed="true"] {
+  box-shadow:
+    0 0 0 2px #050508,
+    0 0 0 3.5px #f97316;
+}
+.ccw-swatch:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ccw-swatch { transition: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ccw-ring-bar { transition: none; }
 }
@@ -1532,6 +1807,10 @@ body {
      top to bottom — the old 540px just added empty hero on phones. */
   .ccw-wrap { min-height: 470px; }
   .ccw-watch { transform: scale(0.66); }
+  /* The picker shrinks with the watch: labels drop, dots stay thumb-
+     sized, and it rides a little lower over the strap. */
+  .ccw-customizer { bottom: 78px; gap: 8px; padding: 7px 10px; }
+  .ccw-customizer-label { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .ccw-display::after { transition: none; }
@@ -2207,3 +2486,45 @@ button {
   background: none;
   color: inherit;
 }
+
+/* ==========================================================================
+   PHONE SHOWCASE (.phone-showcase-*) — 3D iPhone demo stage
+   ========================================================================== */
+.phone-showcase-section {
+  position: relative;
+  z-index: 10;
+  padding: 3.5rem 1.25rem;
+}
+
+.phone-showcase-inner {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 56rem;
+  text-align: center;
+}
+
+.phone-showcase-eyebrow {
+  font-family: var(--font-pixel, monospace);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  line-height: 1.625;
+  color: #ff6b9d;
+}
+
+.phone-showcase-stage {
+  margin-top: 1rem;
+  height: 430px;
+}
+
+@media (min-width: 640px) {
+  .phone-showcase-stage {
+    height: 540px;
+  }
+}
+
+.phone-showcase-caption {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+

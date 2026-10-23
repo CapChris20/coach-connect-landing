@@ -24,3 +24,8 @@ yarn-error.log*
 
 # Yarn's local install snapshot. Not needed to install the project.
 .yarn/install-state.gz
+
+# Raw uncompressed screen recordings (web-optimized versions are in public/videos/)
+/For Clients/
+/For Trainers/
+/.taste-skill/

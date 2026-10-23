@@ -1,0 +1,65 @@
+/* landing-page.css
+   Clean, regular CSS for the main landing page, auto-sliding cards, and story sections.
+*/
+
+.auto-sliding-card {
+  position: relative;
+  border-radius: 1.5rem;
+  padding: 2.5rem 1.5rem 1.5rem 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .auto-sliding-card {
+    padding: 2.5rem 1.75rem 1.75rem 1.75rem;
+  }
+}
+
+.auto-sliding-card-dots {
+  margin-top: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.auto-sliding-dot {
+  height: 8px;
+  width: 8px;
+  border-radius: 9999px;
+  background-color: rgba(255, 255, 255, 0.25);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.3s ease;
+}
+
+.auto-sliding-dot:hover {
+  background-color: rgba(255, 255, 255, 0.45);
+}
+
+.auto-sliding-dot.active {
+  width: 28px;
+  background: linear-gradient(90deg, #FF6B9D, #F97316);
+}
+
+/* Startup Intro Animation */
+.startup-intro-curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #07060a;
+}
+
+.startup-intro-line {
+  margin-top: 1.5rem;
+  height: 2px;
+  width: 11rem;
+  transform-origin: left;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #FF6B9D, #C084FC, #F97316);
+}
+

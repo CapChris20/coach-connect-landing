@@ -1,0 +1,32 @@
+/* audience-pages.css
+   Clean, regular CSS for the /for-clients, /for-trainers, and /for-both audience feature pages.
+*/
+
+.audience-page-container {
+  position: relative;
+  min-height: 100vh;
+  background-color: var(--page-bg, #0a0a0f);
+}
+
+.audience-page-footer {
+  position: relative;
+  z-index: 10;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 2rem 1.25rem;
+}
+
+.audience-page-footer-inner {
+  margin: 0 auto;
+  max-width: 72rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .audience-page-footer-inner {
+    flex-direction: row;
+  }
+}
