@@ -8,7 +8,8 @@ import react from '@vitejs/plugin-react';
 
 // base './' (artifact build only) makes every asset URL relative to the page.
 export default defineConfig({
-  base: process.env.VITE_ARTIFACT ? './' : '/',
+  // VITE_BASE: the folder the site is served from (GitHub Pages serves it under /<repo>/).
+  base: process.env.VITE_ARTIFACT ? './' : process.env.VITE_BASE || '/',
   plugins: [react()],
   envPrefix: ['VITE_', 'REACT_APP_'],
   // The artifact host blocks data: fonts, so never inline assets there.

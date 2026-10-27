@@ -20,7 +20,7 @@ const Router = import.meta.env.VITE_ARTIFACT ? MemoryRouter : BrowserRouter;
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <Router>
+    <Router basename={import.meta.env.VITE_ARTIFACT ? undefined : import.meta.env.BASE_URL.replace(/\/$/, '') || undefined}>
       <App />
     </Router>
   </StrictMode>,
