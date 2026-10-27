@@ -27,7 +27,7 @@ export default function HowItWorksPage() {
         aside={
           <figure className="phone3d-figure">
             <Suspense fallback={<div className="phone3d" aria-hidden="true" />}>
-              <Phone3D src="/videos/app-client-side.mp4" poster="/videos/app-client-side.jpg" />
+              <Phone3D src="videos/app-client-side.mp4" poster="videos/app-client-side.jpg" />
             </Suspense>
             <figcaption className="mono">Drag to turn. Client home, recorded in the app.</figcaption>
           </figure>

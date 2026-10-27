@@ -11,7 +11,7 @@ import { Canvas } from '@react-three/fiber';
 import { Center, Environment, Lightformer, OrbitControls, useGLTF, useTexture, useVideoTexture } from '@react-three/drei';
 import { useInView, usePrefersReducedMotion } from './hooks';
 
-const MODEL_URL = '/models/apple_iphone_18_pro_max_silver.glb';
+const MODEL_URL = import.meta.env.VITE_ARTIFACT ? 'models/apple_iphone_18_pro_max_silver.gltf.json' : 'models/apple_iphone_18_pro_max_silver.glb';
 const SCREEN_MESH_NAME = 'Front_Screen';
 // The recordings are 540 by 1094 portrait.
 const RECORDING_ASPECT = 540 / 1094;
@@ -75,7 +75,7 @@ export default function Phone3D({ src, poster }) {
       <Canvas
         dpr={[1, 1.5]}
         frameloop={isInView && !prefersReducedMotion ? 'always' : 'demand'}
-        camera={{ position: [0, 0, 4.4], fov: 36 }}
+        camera={{ position: [0, 0, 5.4], fov: 36 }}
         gl={{ antialias: true, alpha: true }}
         aria-hidden="true"
       >

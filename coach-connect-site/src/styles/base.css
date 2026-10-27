@@ -5,6 +5,7 @@
 
 /* ── 1. Tokens ─────────────────────────────────────────────────────── */
 :root {
+  color-scheme: dark;
   /* neutrals: dark scenes */
   --bg: #0b0a0d;
   --surface: #1f1c24;          /* about 10% lighter than --bg, so cards separate */

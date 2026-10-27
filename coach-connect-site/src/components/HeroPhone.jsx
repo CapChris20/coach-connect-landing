@@ -13,8 +13,8 @@ const PHONE_VIDEOS = [
     titleAccent: 'client side',
     titleGradient: 'linear-gradient(90deg, #FF6B9D, #F97316)',
     sub: 'Your whole day in one place: workouts, water, and what is on today.',
-    videoUrl: '/videos/app-client-side.mp4',
-    posterUrl: '/videos/app-client-side.jpg',
+    videoUrl: 'videos/app-client-side.mp4',
+    posterUrl: 'videos/app-client-side.jpg',
   },
   {
     side: 'trainer',
@@ -22,8 +22,8 @@ const PHONE_VIDEOS = [
     titleAccent: 'trainer side',
     titleGradient: 'linear-gradient(90deg, #C084FC, #06B6D4)',
     sub: 'Every client in one place: requests, weekly reports, and quick actions.',
-    videoUrl: '/videos/app-trainer-side.mp4',
-    posterUrl: '/videos/app-trainer-side.jpg',
+    videoUrl: 'videos/app-trainer-side.mp4',
+    posterUrl: 'videos/app-trainer-side.jpg',
   },
 ];
 

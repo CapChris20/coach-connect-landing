@@ -6,7 +6,9 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
+// base './' (artifact build only) makes every asset URL relative to the page.
 export default defineConfig({
+  base: process.env.VITE_ARTIFACT ? './' : '/',
   plugins: [react()],
   envPrefix: ['VITE_', 'REACT_APP_'],
   build: { chunkSizeWarningLimit: 1200 },

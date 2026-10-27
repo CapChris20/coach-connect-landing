@@ -8,7 +8,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { usePrefersReducedMotion } from './hooks';
 import { Center, Environment, Lightformer, OrbitControls, useGLTF } from '@react-three/drei';
 
-const LOGO_MODEL_URL = '/models/cc_logo.glb';
+const LOGO_MODEL_URL = import.meta.env.VITE_ARTIFACT ? 'models/cc_logo.gltf.json' : 'models/cc_logo.glb';
 // Manipulate here: how far either way the drag can turn the logo (radians).
 const TURN_LIMIT = Math.PI / 3;
 
