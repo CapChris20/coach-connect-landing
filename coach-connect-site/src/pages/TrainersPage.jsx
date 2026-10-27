@@ -1,10 +1,12 @@
-// TrainersPage.jsx — "/trainers". One question: what does a trainer get, and for how much?
-// Sections: head · the feature tour (real recordings) · pricing · waitlist.
-import { CheckIcon } from '../components/Icons';
-import { FeatureExplorer } from '../components/FeatureExplorer';
+// TrainersPage.jsx — "/trainers". Scenes: band over isometric blocks (reads as
+// analytics) · the trainer tour reel · pricing on paper with one poster tier ·
+// waitlist on an orange field.
+import { IsoBlocks } from '../backgrounds/IsoBlocks';
+import { LazyMount } from '../backgrounds/plumbing';
 import { JoinSection } from '../components/JoinSection';
 import { Layout } from '../components/Layout';
-import { PageHead } from '../components/PageHead';
+import { PageBand } from '../components/PageBand';
+import { Reel } from '../components/Reel';
 import { Seo } from '../components/Seo';
 import { PRICING, TRAINER_FEATURES } from '../data/content';
 
@@ -18,12 +20,16 @@ export default function TrainersPage() {
         title="For trainers: Coach Connect"
         description="Roster, client workspaces, scheduling, documents, weekly reports and Stripe payouts in one app. $59.99 a month, no per-client fees."
       />
-      <PageHead
-        label="For trainers"
-        title="Stop running your business out of five apps."
+      <PageBand
+        title="Run it from one app."
         lead="Your roster, plans, sessions, files, weekly reports and payouts live in Coach Connect. Your clients use the same app, so what you assign is what they see."
+        background={
+          <LazyMount>
+            <IsoBlocks />
+          </LazyMount>
+        }
       >
-        <div className="row">
+        <div className="row band-actions">
           <a href="#waitlist" className="btn btn-primary">
             Join as a founding trainer
           </a>
@@ -31,56 +37,41 @@ export default function TrainersPage() {
             See pricing
           </a>
         </div>
-      </PageHead>
+      </PageBand>
 
-      <section className="section" aria-labelledby="tour-title">
-        <div className="container stack-7">
-          <div className="stack-4">
-            <h2 id="tour-title" className="h-section">
-              A tour of the trainer side.
-            </h2>
-            <p className="body muted">Every clip is a real recording from the app. Pick a feature to jump to it.</p>
-          </div>
-          <FeatureExplorer features={TRAINER_FEATURES} listLabel="Trainer features" />
-        </div>
-      </section>
+      <Reel scenes={TRAINER_FEATURES} label="Trainer tour" />
 
-      <section id="pricing" className="section" aria-labelledby="pricing-title">
+      <section id="pricing" className="scene scene-paper pricing" aria-labelledby="pricing-title">
         <div className="container pricing-grid">
-          <div className="stack-5">
-            <h2 id="pricing-title" className="h-section">
-              One price. Your whole roster.
+          <div className="stack-6">
+            <h2 id="pricing-title" className="t-title">
+              One price. Whole roster.
             </h2>
             <p className="lead">Five clients or fifty, the subscription stays the same. Clients use the app for free.</p>
             <p className="body muted">{PRICING.fineprint}</p>
           </div>
-          <div className="card price-card">
-            <p className="label">{PRICING.name}</p>
+          <div className="poster price-card" style={{ '--tilt': '-1.2deg' }}>
+            <p className="mono">{PRICING.name}</p>
             <p className="price">
-              <span className="price-amount num">{PRICING.monthly}</span>
+              <span className="t-numeral price-amount">{PRICING.monthly}</span>
               <span className="price-unit">a month</span>
             </p>
-            <p className="body muted">
-              Or <strong className="price-strong num">{PRICING.annualMonthly}</strong> a month billed yearly at {PRICING.annualTotal}. Saves{' '}
-              {PRICING.annualSaving} a year.
+            <p className="body">
+              Or <strong>{PRICING.annualMonthly} a month</strong> billed yearly at {PRICING.annualTotal}. Saves {PRICING.annualSaving} a year.
             </p>
-            <hr className="rule" />
-            <ul className="check-list">
+            <ul className="price-list">
               {PRICING.includes.map((includedItem) => (
-                <li key={includedItem}>
-                  <CheckIcon />
-                  {includedItem}
-                </li>
+                <li key={includedItem}>{includedItem}</li>
               ))}
             </ul>
-            <a href="#waitlist" className="btn btn-secondary">
+            <a href="#waitlist" className="btn btn-ink">
               Start with a 3-day free trial
             </a>
           </div>
         </div>
       </section>
 
-      <JoinSection title="Founding trainers get in first." />
+      <JoinSection title="Founding trainers first." tone="orange" />
     </Layout>
   );
 }

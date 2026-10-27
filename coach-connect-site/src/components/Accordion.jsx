@@ -8,14 +8,15 @@ import { PlusIcon } from './Icons';
  * @param {Object} props
  * @param {Array<{ id: string, q: string, a: string }>} props.items
  * @param {string | null} [props.initiallyOpenId]
+ * @param {'md' | 'lg'} [props.size] - lg = the big editorial rows on the homepage
  * @returns {JSX.Element}
  */
-export function Accordion({ items, initiallyOpenId = null }) {
+export function Accordion({ items, initiallyOpenId = null, size = 'md' }) {
   const [openId, setOpenId] = useState(initiallyOpenId);
   const baseId = useId();
 
   return (
-    <div className="accordion">
+    <div className={`accordion accordion-${size}`}>
       {items.map((item) => {
         const isOpen = item.id === openId;
         const buttonId = `${baseId}-${item.id}-q`;

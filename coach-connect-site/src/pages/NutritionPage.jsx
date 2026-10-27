@@ -1,10 +1,10 @@
-// NutritionPage.jsx — "/nutrition". One question: how does food logging work?
-// Sections: head · three ways to log (one phone, step tabs above it) ·
-// why the numbers hold up · waitlist.
+// NutritionPage.jsx — "/nutrition". Scenes: band over a halftone dot field ·
+// three ways to log on paper (big step numerals, one oversized phone) ·
+// why the numbers hold up on an orange field · waitlist on pink.
 import { useState } from 'react';
 import { JoinSection } from '../components/JoinSection';
 import { Layout } from '../components/Layout';
-import { PageHead } from '../components/PageHead';
+import { PageBand } from '../components/PageBand';
 import { Phone } from '../components/Phone';
 import { Seo } from '../components/Seo';
 import { NUTRITION_METHODS } from '../data/content';
@@ -18,36 +18,39 @@ const TRUST_POINTS = [
 
 /**
  * Three logging methods, one phone. Picking a step swaps the clip; each clip
- * plays once and hands over to the next.
+ * hands over to the next when it ends.
  * @returns {JSX.Element}
  */
 function LoggingMethods() {
   const [methodIndex, setMethodIndex] = useState(0);
   const activeMethod = NUTRITION_METHODS[methodIndex];
-  const playNextMethod = () => methodIndex < NUTRITION_METHODS.length - 1 && setMethodIndex(methodIndex + 1);
+  const playNextMethod = () => setMethodIndex((methodIndex + 1) % NUTRITION_METHODS.length);
 
   return (
-    <section className="section" aria-labelledby="methods-title">
-      <div className="container stack-7">
-        <h2 id="methods-title" className="h-section methods-title">
-          Three ways in. All of them fast.
-        </h2>
-        <ol className="methods-steps">
-          {NUTRITION_METHODS.map((method, index) => (
-            <li key={method.id}>
-              <button type="button" className="method-step" aria-current={index === methodIndex ? 'step' : undefined} onClick={() => setMethodIndex(index)}>
-                <span className="label num">{method.step}</span>
-                <span className="h-card">{method.title}</span>
-                <span className="body muted">{method.text}</span>
-              </button>
-            </li>
-          ))}
-        </ol>
+    <section className="scene scene-paper methods" aria-labelledby="methods-title">
+      <div className="container methods-grid">
+        <div className="stack-7">
+          <h2 id="methods-title" className="t-title">
+            Three ways in.
+          </h2>
+          <ol className="methods-steps">
+            {NUTRITION_METHODS.map((method, index) => (
+              <li key={method.id}>
+                <button type="button" className="method-step" aria-current={index === methodIndex ? 'step' : undefined} onClick={() => setMethodIndex(index)}>
+                  <span className="t-numeral method-num" aria-hidden="true">
+                    {method.step}
+                  </span>
+                  <span className="stack-2">
+                    <span className="t-card method-title">{method.title}</span>
+                    <span className="body method-text">{method.text}</span>
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ol>
+        </div>
         <div className="methods-stage">
-          <Phone clip={activeMethod} onEnded={playNextMethod} />
-          <p className="label" aria-live="polite">
-            Real app recording: {activeMethod.title}
-          </p>
+          <Phone clip={activeMethod} onEnded={playNextMethod} className="phone-xl" />
         </div>
       </div>
     </section>
@@ -64,26 +67,31 @@ export default function NutritionPage() {
         title="Nutrition: Coach Connect"
         description="Log food with a barcode scan, food search or AI Coach. Calories and macros add up against your targets, and your coach sees it read-only."
       />
-      <PageHead
-        label="Nutrition"
-        title="Food logging people actually finish."
+      <PageBand
+        title="Food logging people finish."
         lead="Scanning a barcode takes a couple of seconds. Searching takes a few more. Your coach sees the result without asking for screenshots."
+        background={<div className="bg-layer halftone" aria-hidden="true" />}
       />
       <LoggingMethods />
 
-      <section className="section" aria-labelledby="trust-title">
+      <section className="scene scene-orange cut-diagonal trust" aria-labelledby="trust-title">
         <div className="container trust-grid">
-          <h2 id="trust-title" className="h-section">
+          <h2 id="trust-title" className="t-title">
             Numbers worth coaching from.
           </h2>
-          <ul className="trust-list">
-            {TRUST_POINTS.map((point) => (
+          <ol className="trust-list">
+            {TRUST_POINTS.map((point, pointIndex) => (
               <li key={point.title} className="trust-item">
-                <h3 className="h-card">{point.title}</h3>
-                <p className="body muted">{point.text}</p>
+                <span className="t-numeral trust-num" aria-hidden="true">
+                  {pointIndex + 1}
+                </span>
+                <div className="stack-2">
+                  <h3 className="t-card">{point.title}</h3>
+                  <p className="body">{point.text}</p>
+                </div>
               </li>
             ))}
-          </ul>
+          </ol>
         </div>
       </section>
 

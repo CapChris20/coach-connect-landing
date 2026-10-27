@@ -1,11 +1,12 @@
-// Layout.jsx — the frame every page sits in: skip link, aurora backdrop,
-// sticky glass nav, the page itself, footer.
-// The nav is the one always-on glass element (DESIGN.md section 3).
+// Layout.jsx — the frame every page sits in: skip link, sticky nav (the only
+// blurred surface on the site), the page, and the ASCII footer.
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { NAV_LINKS } from '../data/content';
 import { CloseIcon, MenuIcon } from './Icons';
 import { Wordmark } from './Wordmark';
+import { LazyMount } from '../backgrounds/plumbing';
+import { AsciiSun } from '../backgrounds/AsciiSun';
 
 /**
  * Sticky top bar with the site's five pages and the waitlist jump.
@@ -79,16 +80,20 @@ function SiteNav() {
 }
 
 /**
- * Plain footer: wordmark, page links, legal line.
+ * Footer over the ASCII sun (DESIGN.md D4): one huge line, links, legal.
  * @returns {JSX.Element}
  */
 function SiteFooter() {
   return (
     <footer className="site-footer">
+      <LazyMount>
+        <AsciiSun />
+      </LazyMount>
+      <div className="site-footer-scrim" aria-hidden="true" />
       <div className="container site-footer-inner">
-        <div className="stack-3">
+        <div className="stack-5">
           <Wordmark />
-          <p className="muted site-footer-line">Coaching app for personal trainers and their clients. iOS beta on TestFlight now, full launch late 2026.</p>
+          <p className="body site-footer-line">Coaching app for personal trainers and their clients. iOS beta on TestFlight now, full launch late 2026.</p>
         </div>
         <nav aria-label="Footer" className="site-footer-links">
           <Link to="/">Home</Link>
@@ -100,27 +105,27 @@ function SiteFooter() {
         </nav>
       </div>
       <div className="container">
-        <hr className="rule" />
-        <p className="label site-footer-legal">&copy; 2026 Coach Connect</p>
+        <p className="mono site-footer-legal">&copy; 2026 Coach Connect</p>
       </div>
     </footer>
   );
 }
 
 /**
- * Page frame. `auroraTone` picks the backdrop strength.
- * @param {{ children: React.ReactNode, auroraTone?: 'default' | 'quiet' }} props
+ * Page frame: skip link, nav, the page, footer.
+ * @param {{ children: React.ReactNode }} props
  * @returns {JSX.Element}
  */
-export function Layout({ children, auroraTone = 'default' }) {
+export function Layout({ children }) {
   return (
     <>
       <a href="#main" className="skip-link">
         Skip to content
       </a>
-      <div className="aurora" data-tone={auroraTone} aria-hidden="true" />
       <SiteNav />
-      <main id="main">{children}</main>
+      <main id="main" className="route-view">
+        {children}
+      </main>
       <SiteFooter />
     </>
   );

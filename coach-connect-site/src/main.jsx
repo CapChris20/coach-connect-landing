@@ -1,9 +1,7 @@
 // main.jsx — entry point: fonts, global styles, router.
 // Fonts are bundled from npm, only the weights in use (DESIGN.md section 5).
-import '@fontsource/syne/700.css';
-import '@fontsource/syne/800.css';
 import '@fontsource/plus-jakarta-sans/400.css';
-import '@fontsource/plus-jakarta-sans/600.css';
+import '@fontsource/plus-jakarta-sans/500.css';
 import '@fontsource/plus-jakarta-sans/700.css';
 import '@fontsource/space-mono/400.css';
 import '@fontsource/space-mono/700.css';

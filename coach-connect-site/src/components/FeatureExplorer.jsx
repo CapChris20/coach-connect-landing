@@ -42,7 +42,7 @@ export function FeatureExplorer({ features, listLabel }) {
                 aria-current={isActive ? 'step' : undefined}
                 onClick={() => chooseFeature(featureIndex)}
               >
-                <span className="explorer-num label num">{String(featureIndex + 1).padStart(2, '0')}</span>
+                <span className="explorer-num">{String(featureIndex + 1).padStart(2, '0')}</span>
                 <span className="explorer-copy">
                   <span className="explorer-title">{feature.title}</span>
                   <span className="explorer-text">{feature.text}</span>
@@ -59,7 +59,7 @@ export function FeatureExplorer({ features, listLabel }) {
 
       <div className="explorer-stage">
         <Phone clip={activeFeature} onEnded={goToNextFeature} onProgress={setProgress} />
-        <p className="label explorer-caption" aria-live="polite">
+        <p className="mono explorer-caption" aria-live="polite">
           Real app recording: {activeFeature.title}
         </p>
       </div>

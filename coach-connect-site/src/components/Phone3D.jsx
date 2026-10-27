@@ -75,7 +75,7 @@ export default function Phone3D({ src, poster }) {
       <Canvas
         dpr={[1, 1.5]}
         frameloop={isInView && !prefersReducedMotion ? 'always' : 'demand'}
-        camera={{ position: [0, 0, 6.2], fov: 36 }}
+        camera={{ position: [0, 0, 4.4], fov: 36 }}
         gl={{ antialias: true, alpha: true }}
         aria-hidden="true"
       >

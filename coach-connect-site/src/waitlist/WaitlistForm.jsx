@@ -92,7 +92,7 @@ export function WaitlistForm({ defaultRole = 'trainer' }) {
   return (
     <form className="waitlist-form" onSubmit={submit} noValidate>
       <fieldset className="role-toggle">
-        <legend className="label">I am joining as</legend>
+        <legend className="mono">I am joining as</legend>
         <div className="role-toggle-options">
           {ROLES.map((roleOption) => (
             <label key={roleOption.id} className="role-toggle-option">

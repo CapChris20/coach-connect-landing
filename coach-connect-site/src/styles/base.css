@@ -1,65 +1,63 @@
-/* base.css — tokens, reset, type, layout and the three primitives
-   (button, card, headline) every page is built from. DESIGN.md sections 4 to 8.
+/* base.css — tokens, reset, type and the primitives every scene is built from.
+   DESIGN.md (ShaderXD method): two hues (pink, orange) used LARGE, neutrals for the
+   rest, dark scenes alternating with light paper and full-bleed colour fields.
    Rule: components read these tokens only. A new colour or size starts here. */
 
-/* ── 4. Tokens ─────────────────────────────────────────────────────── */
+/* ── 1. Tokens ─────────────────────────────────────────────────────── */
 :root {
-  /* surfaces */
-  --bg: #0a0a0f;
-  --surface: #141419;
-  --surface-2: #1b1b22;
-  --border: rgba(255, 255, 255, .10);
-  --border-strong: rgba(255, 255, 255, .20);
+  /* neutrals: dark scenes */
+  --bg: #0b0a0d;
+  --surface: #1f1c24;          /* about 10% lighter than --bg, so cards separate */
+  --surface-2: #2b2731;
+  --line: rgba(255, 255, 255, .28); /* borders and inputs at 3:1 or better on --bg */
+  --text: #ffffff;
+  --text-body: rgba(255, 255, 255, .88);
+  --text-muted: rgba(255, 255, 255, .72); /* still passes 4.5:1 on --bg and --surface */
 
-  /* text */
-  --text: #f5f2fa;
-  --text-body: rgba(255, 255, 255, .86);
-  --text-muted: rgba(255, 255, 255, .64);
+  /* neutrals: light paper scenes */
+  --paper: #f3ede2;
+  --paper-2: #e6dccb;
+  --ink: #0b0a0d;
+  --ink-body: #26222b;
+  --ink-muted: #4d4655;
 
-  /* brand */
-  --purple: #5b16f0;
-  --pink: #c03c98;
-  --orange: #f59a33;
-  --grad-cool: linear-gradient(135deg, var(--purple), var(--pink));
-  --grad-warm: linear-gradient(135deg, var(--pink), var(--orange));
-  --grad-sweep: linear-gradient(90deg, var(--purple), var(--pink), var(--orange));
-  --success: #34d399;
+  /* the two hues, used as whole fields */
+  --pink: #ff5c93;
+  --orange: #ff7a1f;
+  --pink-deep: #be185d;        /* CTA pair: white text passes 4.5:1 on both */
+  --orange-deep: #c2410c;
+  --cta: linear-gradient(135deg, var(--pink-deep), var(--orange-deep));
 
-  /* glass */
-  --glass-fill: rgba(16, 16, 22, .62);
-  --glass-border: rgba(255, 255, 255, .12);
-  --glass-blur: blur(16px) saturate(1.25);
+  /* fonts: two voices plus mono for small labels and numbers */
+  --font-display: 'Unbounded', sans-serif;
+  --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-mono: 'Space Mono', ui-monospace, monospace;
 
-  /* depth: dark shadows only */
-  --shadow-card: 0 18px 36px -24px rgba(0, 0, 0, .78);
+  /* shape + depth */
+  --radius-pill: 9999px;
+  --radius-card: 18px;
   --shadow-panel: 0 30px 80px rgba(0, 0, 0, .55), 0 12px 32px rgba(0, 0, 0, .45), 0 4px 12px rgba(0, 0, 0, .35);
-  --highlight-top: inset 0 1px 0 rgba(255, 255, 255, .14);
+  --shadow-lift: 0 18px 36px -24px rgba(0, 0, 0, .78);
+  --highlight-top: inset 0 1px 0 rgba(255, 255, 255, .18);
+  --shadow-poster: 7px 7px 0 var(--ink);
+  --shadow-poster-hover: 11px 12px 0 var(--ink);
 
-  /* spacing */
+  /* spacing: 4px base, only these */
   --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px; --space-5: 24px;
   --space-6: 32px; --space-7: 48px; --space-8: 64px; --space-9: 96px; --space-10: 128px;
-
-  /* shape */
-  --radius-sm: 8px; --radius-card: 16px; --radius-pill: 9999px;
 
   /* motion */
   --ease-out: cubic-bezier(.16, 1, .3, 1);
   --ease-spring: cubic-bezier(.34, 1.25, .64, 1);
-  --dur-fast: .15s; --dur-base: .25s; --dur-slow: .45s;
 
-  /* fonts */
-  --font-display: 'Syne', sans-serif;
-  --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
-  --font-mono: 'Space Mono', ui-monospace, monospace;
-
-  /* layout (section 6) */
-  --content-max: 1200px;
-  --gutter: clamp(20px, 4vw, 64px);
-  --section-pad: var(--space-9);
+  /* layout */
+  --content-max: 1240px;
+  --gutter: clamp(20px, 4.5vw, 64px);
+  --section-pad: var(--space-10);
   --nav-height: 72px;
 }
 @media (max-width: 768px) {
-  :root { --section-pad: var(--space-8); --nav-height: 64px; }
+  :root { --section-pad: var(--space-9); --nav-height: 64px; }
 }
 
 /* ── Reset ─────────────────────────────────────────────────────────── */
@@ -70,171 +68,128 @@ body {
   background: var(--bg);
   color: var(--text-body);
   font-family: var(--font-body);
-  font-size: 17px;
-  line-height: 1.6;
+  font-size: 18px;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
 }
 img, video, svg, canvas { display: block; max-width: 100%; }
-h1, h2, h3, h4, p, ul, ol, figure, dl, dd { margin: 0; }
+h1, h2, h3, h4, p, ul, ol, figure, dl, dd, blockquote { margin: 0; }
 ul, ol { padding: 0; list-style: none; }
 a { color: inherit; text-decoration: none; }
 button, input, select { font: inherit; color: inherit; }
 button { background: none; border: 0; padding: 0; cursor: pointer; }
-:focus-visible { outline: 2px solid #fff; outline-offset: 4px; border-radius: var(--radius-sm); }
-::selection { background: color-mix(in srgb, var(--pink) 55%, transparent); color: #fff; }
+:focus-visible { outline: 3px solid currentColor; outline-offset: 4px; }
+::selection { background: var(--pink); color: var(--ink); }
 
-.visually-hidden {
-  position: absolute; width: 1px; height: 1px; overflow: hidden;
-  clip: rect(0 0 0 0); white-space: nowrap; margin: -1px; padding: 0; border: 0;
-}
-.skip-link {
-  position: absolute; left: var(--space-4); top: -100px; z-index: 100;
-  padding: var(--space-3) var(--space-4); background: var(--surface-2); color: var(--text);
-  border-radius: var(--radius-sm);
-}
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; margin: -1px; padding: 0; border: 0; }
+.skip-link { position: absolute; left: var(--space-4); top: -100px; z-index: 100; padding: var(--space-3) var(--space-4); background: var(--paper); color: var(--ink); border-radius: 8px; font-weight: 700; }
 .skip-link:focus { top: var(--space-4); }
 
-/* ── 5. Type ───────────────────────────────────────────────────────── */
-.h-hero, .h-page, .h-section, .h-card {
+/* ── 2. Type: three sizes that jump (hero, title, body) ───────────── */
+.t-band, .t-title, .t-reel, .t-cta, .t-h2, .t-card {
   font-family: var(--font-display);
-  color: var(--text);
   font-weight: 800;
-  text-wrap: balance;
-}
-.h-hero { font-size: clamp(40px, 7vw, 88px); line-height: 1.0; letter-spacing: -0.035em; }
-.h-page { font-size: clamp(36px, 5.5vw, 64px); line-height: 1.05; letter-spacing: -0.03em; }
-.h-section { font-size: clamp(28px, 4vw, 48px); line-height: 1.1; letter-spacing: -0.03em; }
-.h-card { font-size: 22px; line-height: 1.2; letter-spacing: -0.015em; font-weight: 700; }
-.lead { font-size: clamp(17px, 1.6vw, 20px); line-height: 1.5; color: var(--text-body); max-width: 560px; text-wrap: pretty; }
-.body { max-width: 62ch; text-wrap: pretty; }
-.muted { color: var(--text-muted); }
-.label {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  line-height: 1.4;
   text-transform: uppercase;
-  letter-spacing: .08em;
-  color: var(--text-muted);
+  color: inherit;
+  overflow-wrap: break-word;
+  hyphens: manual;
 }
-.num { font-variant-numeric: tabular-nums; }
+.t-band { font-size: clamp(40px, 8.6vw, 128px); line-height: .92; letter-spacing: -0.04em; }
+.t-title { font-size: clamp(36px, 7.2vw, 108px); line-height: .92; letter-spacing: -0.035em; }
+.t-reel { font-size: clamp(34px, 6.4vw, 104px); line-height: .9; letter-spacing: -0.04em; }
+.t-cta { font-size: clamp(44px, 10vw, 150px); line-height: .9; letter-spacing: -0.045em; }
+/* Titles that sit in a narrow column (5 of 12) */
+.t-title-narrow { font-size: clamp(36px, 5.2vw, 80px); line-height: .92; letter-spacing: -0.035em; }
+.t-h2 { font-size: clamp(26px, 3.6vw, 44px); line-height: 1; letter-spacing: -0.03em; }
+.t-card { font-size: clamp(22px, 2.2vw, 30px); line-height: 1.05; letter-spacing: -0.02em; }
+.t-numeral { font-family: var(--font-display); font-weight: 800; line-height: .8; letter-spacing: -0.05em; font-variant-numeric: tabular-nums; }
+.lead { font-size: clamp(18px, 1.5vw, 21px); line-height: 1.5; max-width: 560px; text-wrap: pretty; }
+.body { max-width: 62ch; text-wrap: pretty; }
+.mono { font-family: var(--font-mono); font-size: 12px; line-height: 1.4; text-transform: uppercase; letter-spacing: .08em; }
+.on-dark .muted, .muted { color: var(--text-muted); }
 
-/* 8.4 The one gradient word per page, hero headline only */
-.accent-word {
-  background: var(--grad-warm);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-/* ── 6. Layout ─────────────────────────────────────────────────────── */
+/* ── Layout ────────────────────────────────────────────────────────── */
 .container { width: 100%; max-width: calc(var(--content-max) + var(--gutter) * 2); margin-inline: auto; padding-inline: var(--gutter); }
-.section { padding-block: var(--section-pad); position: relative; }
+.scene { position: relative; padding-block: var(--section-pad); overflow: hidden; isolation: isolate; }
+.scene-dark { background: var(--bg); color: var(--text); }
+.scene-paper { background: var(--paper); color: var(--ink); }
+.scene-paper .lead, .scene-paper .body { color: var(--ink-body); }
+.scene-paper .muted { color: var(--ink-muted); }
+.scene-pink { background: var(--pink); color: var(--ink); }
+.scene-orange { background: var(--orange); color: var(--ink); }
+.scene-pink .lead, .scene-pink .body, .scene-orange .lead, .scene-orange .body { color: var(--ink-body); }
+.scene-pink .muted, .scene-orange .muted { color: #2a1f22; }
 .stack-2 > * + * { margin-top: var(--space-2); }
 .stack-3 > * + * { margin-top: var(--space-3); }
 .stack-4 > * + * { margin-top: var(--space-4); }
 .stack-5 > * + * { margin-top: var(--space-5); }
 .stack-6 > * + * { margin-top: var(--space-6); }
 .stack-7 > * + * { margin-top: var(--space-7); }
+.stack-8 > * + * { margin-top: var(--space-8); }
 .row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); }
-.rule { height: 1px; border: 0; margin: 0; background: var(--border); }
-.rule-brand { height: 2px; border: 0; margin: 0; background: var(--grad-sweep); width: 64px; border-radius: 2px; }
 
-/* ── 7. Buttons ────────────────────────────────────────────────────── */
+/* ── 6. Buttons: hover moves, press drops, focus is visible ────────── */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
-  min-height: 48px; padding: 0 var(--space-5);
+  min-height: 52px; padding: 0 var(--space-6);
   border-radius: var(--radius-pill);
   font-family: var(--font-body); font-size: 16px; font-weight: 700; line-height: 1;
   white-space: nowrap;
-  transition:
-    transform var(--dur-base) var(--ease-out),
-    background-color var(--dur-base) var(--ease-out),
-    background-position var(--dur-slow) var(--ease-out),
-    border-color var(--dur-base) var(--ease-out),
-    box-shadow var(--dur-base) var(--ease-out);
+  transition: transform .25s var(--ease-out), box-shadow .25s var(--ease-out), filter .25s var(--ease-out), background-color .25s var(--ease-out), color .25s var(--ease-out);
 }
-.btn:active { transform: translateY(3px); transition-timing-function: var(--ease-spring); transition-duration: var(--dur-fast); }
-.btn[disabled] { opacity: 1; color: var(--text-muted); cursor: not-allowed; }
-.btn-primary {
-  color: #fff;
-  /* 200% wide so hover can slide the gradient (section 7: something physical changes) */
-  background: linear-gradient(135deg, var(--purple), var(--pink), var(--purple)) 0% 50% / 200% 100%;
-  box-shadow: var(--highlight-top), 0 10px 24px -12px rgba(0, 0, 0, .8);
-}
-.btn-primary[disabled] { background: var(--surface-2); box-shadow: none; }
-.btn-secondary {
-  color: var(--text);
-  border: 1px solid var(--border-strong);
-  background-color: transparent;
-}
-.btn-sm { min-height: 44px; padding: 0 var(--space-4); font-size: 15px; }
 .btn svg { width: 18px; height: 18px; flex-shrink: 0; }
-
-.link {
-  color: var(--text);
-  font-weight: 600;
-  background: linear-gradient(currentColor, currentColor) 0 100% / 0% 1px no-repeat;
-  padding-bottom: 2px;
-  transition: background-size var(--dur-base) var(--ease-out);
-}
-.link-arrow { display: inline-flex; align-items: center; gap: var(--space-2); }
-.link-arrow svg { width: 16px; height: 16px; transition: transform var(--dur-base) var(--ease-out); }
-
+.btn:active { transform: translateY(4px); transition-timing-function: var(--ease-spring); transition-duration: .12s; }
+.btn-primary { color: #fff; background: var(--cta); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .18), 0 10px 24px -12px rgba(0, 0, 0, .8); }
+.btn-ghost { color: var(--text); background: rgba(255, 255, 255, .05); box-shadow: inset 0 0 0 1.5px var(--line); }
+/* On paper and colour fields the strong button is solid ink: highest contrast there */
+.btn-ink { color: #fff; background: var(--ink); box-shadow: 0 5px 0 rgba(0, 0, 0, .35); }
+.btn-ink:active { box-shadow: 0 1px 0 rgba(0, 0, 0, .35); }
+.btn[disabled] { cursor: not-allowed; filter: grayscale(.6); }
 @media (hover: hover) and (pointer: fine) {
-  .btn-primary:not([disabled]):hover { transform: translateY(-2px); background-position: 100% 50%; }
-  .btn-secondary:not([disabled]):hover { background-color: var(--surface-2); border-color: rgba(255, 255, 255, .42); transform: translateY(-2px); }
-  .link:hover { background-size: 100% 1px; }
-  .link-arrow:hover svg { transform: translateX(3px); }
+  .btn-primary:not([disabled]):hover { transform: translateY(-2px) scale(1.03); filter: brightness(1.15); }
+  .btn-ghost:hover { transform: translateY(-2px); box-shadow: inset 0 0 0 1.5px var(--orange); }
+  .btn-ink:not([disabled]):hover { transform: translateY(-2px) scale(1.03); background: #25212b; }
 }
 
-/* ── 8. Surfaces ───────────────────────────────────────────────────── */
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
-  box-shadow: var(--highlight-top), var(--shadow-card);
+/* Text link with an underline that sweeps in */
+.link {
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  font-weight: 700; color: inherit;
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0% 2px no-repeat;
+  padding-bottom: 3px; min-height: 44px;
+  transition: background-size .25s var(--ease-out);
 }
-.glass {
-  background: var(--glass-fill);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-card);
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
-  box-shadow: var(--highlight-top), var(--shadow-card);
-}
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .glass { background: rgba(14, 14, 20, .94); }
-}
-.card-hero {
-  border: 1px solid transparent;
-  border-radius: var(--radius-card);
-  background:
-    linear-gradient(var(--surface), var(--surface)) padding-box,
-    var(--grad-cool) border-box;
-  box-shadow: var(--shadow-panel);
+.link svg { width: 18px; height: 18px; transition: transform .25s var(--ease-out); }
+@media (hover: hover) and (pointer: fine) {
+  .link:hover { background-size: 100% 2px; }
+  .link:hover svg { transform: translateX(4px); }
 }
 
-/* ── 10. Aurora backdrop: one fixed field per page, brand hues only ─ */
-.aurora {
-  position: fixed; inset: 0; z-index: -1; pointer-events: none;
-  background:
-    radial-gradient(60% 50% at 12% 8%, rgba(91, 22, 240, .24), transparent 70%),
-    radial-gradient(45% 40% at 92% 18%, rgba(192, 60, 152, .20), transparent 70%),
-    radial-gradient(55% 45% at 78% 96%, rgba(245, 154, 51, .14), transparent 70%),
-    radial-gradient(40% 35% at 6% 88%, rgba(192, 60, 152, .12), transparent 70%),
-    var(--bg);
-}
-/* Quieter version for long reading pages (FAQ) */
-.aurora[data-tone="quiet"] {
-  background:
-    radial-gradient(55% 45% at 10% 4%, rgba(91, 22, 240, .20), transparent 70%),
-    radial-gradient(40% 35% at 95% 12%, rgba(192, 60, 152, .16), transparent 70%),
-    var(--bg);
+/* Chip / stamp: status ("Example data") or category */
+.stamp {
+  display: inline-block; padding: 4px 10px;
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
+  border: 1.5px dashed currentColor; border-radius: 6px; transform: rotate(-2deg);
 }
 
-/* ── 9. Reduced motion: removes every transition and animation ──── */
+/* ── 5. Cards ──────────────────────────────────────────────────────── */
+/* 5.2 Solid panel: a clearly lighter surface, no hairline-on-dark */
+.panel { background: var(--surface); border-radius: var(--radius-card); padding: var(--space-6); box-shadow: var(--highlight-top), var(--shadow-lift); color: var(--text); }
+/* 5.4 Poster card: solid fill, 2px ink border, hard offset shadow, slight tilt */
+.poster {
+  border: 2px solid var(--ink); border-radius: var(--radius-card);
+  box-shadow: var(--shadow-poster); color: var(--ink);
+  transform: rotate(var(--tilt, 0deg));
+  transition: transform .3s var(--ease-out), box-shadow .3s var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  a.poster:hover, .poster-hover:hover { transform: translate(-3px, -4px) rotate(0); box-shadow: var(--shadow-poster-hover); }
+}
+a.poster:active { transform: translate(2px, 3px) rotate(0); box-shadow: 3px 3px 0 var(--ink); transition-timing-function: var(--ease-spring); }
+
+/* ── 11. Reduced motion: everything off ───────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: .001ms !important;
