@@ -7,6 +7,8 @@ import { Layout } from '../components/Layout';
 import { PageBand } from '../components/PageBand';
 import { Seo } from '../components/Seo';
 import { StepsScene } from '../components/StepsScene';
+import { Phone } from '../components/Phone';
+import { SafeBoundary } from '../components/SafeBoundary';
 
 const Phone3D = lazy(() => import('../components/Phone3D'));
 
@@ -26,9 +28,11 @@ export default function HowItWorksPage() {
         lead="Same app for both sides. You pick Client or Trainer when you sign up, and the app shapes itself around that choice."
         aside={
           <figure className="phone3d-figure">
-            <Suspense fallback={<div className="phone3d" aria-hidden="true" />}>
-              <Phone3D src="videos/app-client-side.mp4" poster="videos/app-client-side.jpg" />
-            </Suspense>
+            <SafeBoundary fallback={<Phone clip={{ src: 'videos/app-client-side.mp4', poster: 'videos/app-client-side.jpg', label: 'Client home' }} loop />}>
+              <Suspense fallback={<div className="phone3d" aria-hidden="true" />}>
+                <Phone3D src="videos/app-client-side.mp4" poster="videos/app-client-side.jpg" />
+              </Suspense>
+            </SafeBoundary>
             <figcaption className="mono">Drag to turn. Client home, recorded in the app.</figcaption>
           </figure>
         }

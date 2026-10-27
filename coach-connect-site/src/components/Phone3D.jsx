@@ -7,11 +7,12 @@
 // Lazy-loaded so three.js stays off every other page.
 import { Suspense, useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import { Canvas } from '@react-three/fiber';
-import { Center, Environment, Lightformer, OrbitControls, useGLTF, useTexture, useVideoTexture } from '@react-three/drei';
+import { Canvas, useLoader } from '@react-three/fiber';
+import { Center, Environment, Lightformer, OrbitControls, useTexture, useVideoTexture } from '@react-three/drei';
+import { ModelLoader, modelUrl } from './modelLoader';
 import { useInView, usePrefersReducedMotion } from './hooks';
 
-const MODEL_URL = import.meta.env.VITE_ARTIFACT ? 'models/apple_iphone_18_pro_max_silver.gltf.json' : 'models/apple_iphone_18_pro_max_silver.glb';
+const MODEL_URL = modelUrl('apple_iphone_18_pro_max_silver');
 const SCREEN_MESH_NAME = 'Front_Screen';
 // The recordings are 540 by 1094 portrait.
 const RECORDING_ASPECT = 540 / 1094;
@@ -40,7 +41,7 @@ function paintScreen(scene, texture) {
 }
 
 function PhoneWithVideo({ src }) {
-  const { scene } = useGLTF(MODEL_URL);
+  const { scene } = useLoader(ModelLoader, MODEL_URL);
   const videoTexture = useVideoTexture(src, { muted: true, loop: true, start: true, playsInline: true });
   useEffect(() => paintScreen(scene, videoTexture), [scene, videoTexture]);
   return (
@@ -51,7 +52,7 @@ function PhoneWithVideo({ src }) {
 }
 
 function PhoneWithPoster({ poster }) {
-  const { scene } = useGLTF(MODEL_URL);
+  const { scene } = useLoader(ModelLoader, MODEL_URL);
   const posterTexture = useTexture(poster);
   useEffect(() => paintScreen(scene, posterTexture), [scene, posterTexture]);
   return (

@@ -5,6 +5,7 @@
 // around the pointer. Stacks phone, logo, watch on smaller screens.
 import { lazy, Suspense, useCallback, useRef, useState } from 'react';
 import { HeroPhone } from './HeroPhone';
+import { SafeBoundary } from './SafeBoundary';
 import { Watch } from './Watch';
 import '../styles/hero.css';
 import '../styles/watch.css';
@@ -61,9 +62,11 @@ export function HomeHero() {
             <HeroPhone />
           </div>
           <div className="hero-zone-logo hero-rise" aria-hidden="true">
-            <Suspense fallback={<div className="logo-model-stage" />}>
-              <Logo3D sway className="logo-model-stage" />
-            </Suspense>
+            <SafeBoundary fallback={<div className="logo-model-stage" />}>
+              <Suspense fallback={<div className="logo-model-stage" />}>
+                <Logo3D sway className="logo-model-stage" />
+              </Suspense>
+            </SafeBoundary>
           </div>
           <div className="hero-zone-watch hero-middle-watch hero-rise">
             <Watch />

@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:artifact": "VITE_ARTIFACT=1 vite build --outDir dist-artifact && python3 scripts/glb-to-gltf-json.py dist-artifact/models",
+    "build:artifact": "VITE_ARTIFACT=1 vite build --outDir dist-artifact --emptyOutDir && python3 scripts/glb-to-gltf-json.py dist-artifact/models && python3 scripts/write-artifact-page.py dist-artifact",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -20,7 +20,8 @@
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-router-dom": "^7.5.1",
-    "three": "^0.180.0"
+    "three": "^0.180.0",
+    "three-stdlib": "^2.36.1"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^5.0.0",

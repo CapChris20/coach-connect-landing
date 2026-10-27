@@ -4,11 +4,12 @@
 // runs across the chrome (the first site's behaviour). Reduced motion holds it still.
 // Lazy-loaded so three.js never blocks the first paint.
 import { Suspense, useRef } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useLoader } from '@react-three/fiber';
 import { usePrefersReducedMotion } from './hooks';
-import { Center, Environment, Lightformer, OrbitControls, useGLTF } from '@react-three/drei';
+import { Center, Environment, Lightformer, OrbitControls } from '@react-three/drei';
+import { ModelLoader, modelUrl } from './modelLoader';
 
-const LOGO_MODEL_URL = import.meta.env.VITE_ARTIFACT ? 'models/cc_logo.gltf.json' : 'models/cc_logo.glb';
+const LOGO_MODEL_URL = modelUrl('cc_logo');
 // Manipulate here: how far either way the drag can turn the logo (radians).
 const TURN_LIMIT = Math.PI / 3;
 
@@ -17,7 +18,7 @@ const SWAY_RADIANS = (16 * Math.PI) / 180;
 const SWAY_SECONDS = 8;
 
 function LogoModel({ sway }) {
-  const { scene } = useGLTF(LOGO_MODEL_URL);
+  const { scene } = useLoader(ModelLoader, LOGO_MODEL_URL);
   const groupRef = useRef(null);
   useFrame(({ clock }) => {
     if (!sway || !groupRef.current) return;

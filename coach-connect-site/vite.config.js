@@ -11,5 +11,6 @@ export default defineConfig({
   base: process.env.VITE_ARTIFACT ? './' : '/',
   plugins: [react()],
   envPrefix: ['VITE_', 'REACT_APP_'],
-  build: { chunkSizeWarningLimit: 1200 },
+  // The artifact host blocks data: fonts, so never inline assets there.
+  build: { chunkSizeWarningLimit: 1200, assetsInlineLimit: process.env.VITE_ARTIFACT ? 0 : 4096 },
 });
