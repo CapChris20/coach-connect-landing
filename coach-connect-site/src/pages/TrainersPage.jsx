@@ -1,6 +1,6 @@
-// TrainersPage.jsx — "/trainers". Scenes: band over isometric blocks (reads as
-// analytics) · the trainer tour reel · pricing on paper with one poster tier ·
-// waitlist on an orange field.
+// TrainersPage.jsx — "/trainers". Sections: band over a still isometric field ·
+// the pinned trainer tour · pricing on cream (poster card left, copy right) ·
+// the final call to action.
 import { IsoBlocks } from '../backgrounds/IsoBlocks';
 import { LazyMount } from '../backgrounds/plumbing';
 import { JoinSection } from '../components/JoinSection';
@@ -8,7 +8,7 @@ import { Layout } from '../components/Layout';
 import { PageBand } from '../components/PageBand';
 import { Reel } from '../components/Reel';
 import { Seo } from '../components/Seo';
-import { PRICING, TRAINER_FEATURES } from '../data/content';
+import { PRICING, TRAINER_FEATURES, TRAINER_FEATURES_TEXT } from '../data/content';
 
 /**
  * @returns {JSX.Element}
@@ -43,11 +43,19 @@ export default function TrainersPage() {
 
       <section id="pricing" className="scene scene-paper pricing" aria-labelledby="pricing-title">
         <div className="container pricing-grid">
-          <div className="stack-6">
+          <div className="pricing-copy stack-6">
             <h2 id="pricing-title" className="t-title">
               One price. Whole roster.
             </h2>
             <p className="lead">Five clients or fifty, the subscription stays the same. Clients use the app for free.</p>
+            <ul className="also-list">
+              {TRAINER_FEATURES_TEXT.map((feature) => (
+                <li key={feature.id}>
+                  <h3 className="t-card">{feature.title}</h3>
+                  <p className="body">{feature.text}</p>
+                </li>
+              ))}
+            </ul>
             <p className="body muted">{PRICING.fineprint}</p>
           </div>
           <div className="poster price-card" style={{ '--tilt': '-1.2deg' }}>
@@ -71,7 +79,7 @@ export default function TrainersPage() {
         </div>
       </section>
 
-      <JoinSection title="Founding trainers first." tone="orange" />
+      <JoinSection title="Founding trainers" accent="first." />
     </Layout>
   );
 }

@@ -28,9 +28,9 @@ export default function HowItWorksPage() {
         lead="Same app for both sides. You pick Client or Trainer when you sign up, and the app shapes itself around that choice."
         aside={
           <figure className="phone3d-figure">
-            <SafeBoundary fallback={<Phone clip={{ src: 'videos/app-client-side.mp4', poster: 'videos/app-client-side.jpg', label: 'Client home' }} loop />}>
+            <SafeBoundary fallback={<Phone clip={{ src: 'videos/clean/client-home.mp4', poster: 'videos/clean/client-home.jpg', label: 'Client home' }} loop />}>
               <Suspense fallback={<div className="phone3d" aria-hidden="true" />}>
-                <Phone3D src="videos/app-client-side.mp4" poster="videos/app-client-side.jpg" />
+                <Phone3D src="videos/clean/client-home.mp4" poster="videos/clean/client-home.jpg" />
               </Suspense>
             </SafeBoundary>
             <figcaption className="mono">Drag to turn. Client home, recorded in the app.</figcaption>
@@ -45,7 +45,8 @@ export default function HowItWorksPage() {
       </PageBand>
       <StepsScene showLink={false} title="Four steps." />
       <JoinSection
-        title="Start on the beta."
+        title="Start on the"
+        accent="beta."
         intro="Sign up below and your login works in the TestFlight beta right away. Or join the waitlist and we will email you when Coach Connect opens in late 2026."
       />
     </Layout>

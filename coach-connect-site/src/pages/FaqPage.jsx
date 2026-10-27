@@ -46,7 +46,7 @@ export default function FaqPage() {
         </div>
       </section>
 
-      <JoinSection title="Still deciding? Try the beta." tone="orange" />
+      <JoinSection title="Still deciding? Try the" accent="beta." />
     </Layout>
   );
 }

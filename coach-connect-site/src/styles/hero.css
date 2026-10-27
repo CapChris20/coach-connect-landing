@@ -208,6 +208,8 @@
    first site's fixed nav, so the watch band can run up to the nav's edge.
    Manipulate here: 5rem top padding = air between the nav and the title card. */
 .home-hero {
+  /* Pinned: the hero keeps these exact values whatever the site tokens become. */
+  --bg: #0b0a0d;
   --font-display: 'Unbounded', sans-serif;
   --pink-hero: #ff6b9d;
   --grid-line-soft: rgba(255, 107, 157, 0.14);

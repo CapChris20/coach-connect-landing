@@ -45,10 +45,12 @@ export function LazyMount({ children, margin = '150px' }) {
  * Runs `draw(context, width, height, seconds, pointer)` every frame on a canvas.
  * `timeRef`, when given, replaces the clock (scroll-driven backgrounds).
  * @param {Function} draw
- * @param {{ maxDpr?: number, timeRef?: { current: number }, fps?: number }} [options]
+ * `still: true` draws one frame (and again on resize) and never loops: used for
+ * every background below the homepage hero, which must not move on its own.
+ * @param {{ maxDpr?: number, timeRef?: { current: number }, fps?: number, still?: boolean }} [options]
  * @returns {{ current: HTMLCanvasElement | null }}
  */
-export function useCanvasLoop(draw, { maxDpr = 2, timeRef = null, fps = 60 } = {}) {
+export function useCanvasLoop(draw, { maxDpr = 2, timeRef = null, fps = 60, still = false } = {}) {
   const canvasRef = useRef(null);
   const drawRef = useRef(draw);
   useEffect(() => {
@@ -58,7 +60,7 @@ export function useCanvasLoop(draw, { maxDpr = 2, timeRef = null, fps = 60 } = {
   useEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const prefersReduced = still || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const pointer = { x: 0.5, y: 0.5 };
     const minFrameMs = 1000 / fps;
     let width = 1;
@@ -67,6 +69,7 @@ export function useCanvasLoop(draw, { maxDpr = 2, timeRef = null, fps = 60 } = {
     let lastDraw = 0;
 
     const resize = () => {
+      const isFirstSize = width === 1 && height === 1;
       const dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
       const box = canvas.getBoundingClientRect();
       width = box.width;
@@ -74,6 +77,8 @@ export function useCanvasLoop(draw, { maxDpr = 2, timeRef = null, fps = 60 } = {
       canvas.width = width * dpr;
       canvas.height = height * dpr;
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
+      // A still canvas redraws its single frame after a resize clears it.
+      if (prefersReduced && !isFirstSize) drawRef.current(context, width, height, 4, pointer);
     };
     const trackPointer = (event) => {
       const box = canvas.getBoundingClientRect();
@@ -98,7 +103,7 @@ export function useCanvasLoop(draw, { maxDpr = 2, timeRef = null, fps = 60 } = {
       window.removeEventListener('resize', resize);
       window.removeEventListener('pointermove', trackPointer);
     };
-  }, [maxDpr, timeRef, fps]);
+  }, [maxDpr, timeRef, fps, still]);
 
   return canvasRef;
 }

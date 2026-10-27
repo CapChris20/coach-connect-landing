@@ -1,25 +1,28 @@
-// JoinSection.jsx — the closing scene on every page (id="waitlist", where the
-// nav's Get Started lands). A full-bleed colour field, a huge heading, and a
-// solid dark form panel with the role toggle. `tone` lets each page own a colour.
+// JoinSection.jsx — the closing section on every page (id="waitlist", where the
+// nav's Get Started lands): an aurora gradient behind a huge heading with the
+// page's one gradient accent word, the TestFlight beta, and a solid form panel.
+// The form's behaviour lives in waitlist/ and is unchanged.
 import { TESTFLIGHT_URL } from '../data/content';
 import { WaitlistForm } from '../waitlist/WaitlistForm';
 import { AppleIcon, ArrowRightIcon } from './Icons';
-import { Kinetic } from './Kinetic';
 
 /**
- * @param {{ title?: string, intro?: string, defaultRole?: 'trainer' | 'client', tone?: 'pink' | 'orange' }} props
+ * @param {{ title?: string, accent?: string, intro?: string, defaultRole?: 'trainer' | 'client' }} props
+ *   title + accent: the heading reads "{title} {accent}", accent in the gradient.
  * @returns {JSX.Element}
  */
 export function JoinSection({
-  title = 'Be there on day one.',
+  title = 'Be there on',
+  accent = 'day one.',
   intro = 'Join the waitlist and your Coach Connect login is created now. Founding trainers and their clients get in first when we open in late 2026.',
   defaultRole = 'trainer',
-  tone = 'pink',
 }) {
   return (
-    <section id="waitlist" className={`scene scene-${tone} join`} aria-labelledby="join-title">
+    <section id="waitlist" className="scene join" aria-labelledby="join-title">
       <div className="container join-grid">
-        <Kinetic id="join-title" className="t-cta join-title" text={title} />
+        <h2 id="join-title" className="t-cta join-title">
+          {title} <span className="accent-word">{accent}</span>
+        </h2>
         <div className="join-copy stack-6">
           <p className="lead">{intro}</p>
           <div className="join-beta stack-3">

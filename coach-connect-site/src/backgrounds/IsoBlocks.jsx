@@ -1,6 +1,7 @@
-// IsoBlocks.jsx — a rolling field of isometric columns (DESIGN.md D2), the
-// trainer page's band: reads as analytics, roster, revenue. Drawn back to front,
-// three faces per block, height ramped through ink, pink and orange.
+// IsoBlocks.jsx — a field of isometric columns (DESIGN.md D2), the trainer
+// page's band: reads as analytics, roster, revenue. Drawn back to front, three
+// faces per block, height ramped through ink, pink and orange. Drawn once as a
+// still image: nothing below the hero loops.
 import { useCallback } from 'react';
 import { cssVar, hexToRgb, useCanvasLoop } from './plumbing';
 
@@ -58,6 +59,6 @@ export function IsoBlocks() {
       }
     }
   }, []);
-  const canvasRef = useCanvasLoop(draw, { maxDpr: 1.5 });
+  const canvasRef = useCanvasLoop(draw, { maxDpr: 1.5, still: true });
   return <canvas ref={canvasRef} className="bg-canvas" />;
 }

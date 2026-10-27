@@ -1,6 +1,6 @@
-// NutritionPage.jsx — "/nutrition". Scenes: band over a halftone dot field ·
-// three ways to log on paper (big step numerals, one oversized phone) ·
-// why the numbers hold up on an orange field · waitlist on pink.
+// NutritionPage.jsx — "/nutrition". Sections: band over a still halftone dot
+// field · three ways to log on cream (step numerals, one phone) · why the
+// numbers hold up on orange · the final call to action.
 import { useState } from 'react';
 import { JoinSection } from '../components/JoinSection';
 import { Layout } from '../components/Layout';
@@ -17,14 +17,14 @@ const TRUST_POINTS = [
 ];
 
 /**
- * Three logging methods, one phone. Picking a step swaps the clip; each clip
- * hands over to the next when it ends.
+ * Three logging methods, one phone. Picking a step swaps the clip.
  * @returns {JSX.Element}
  */
 function LoggingMethods() {
   const [methodIndex, setMethodIndex] = useState(0);
   const activeMethod = NUTRITION_METHODS[methodIndex];
-  const playNextMethod = () => setMethodIndex((methodIndex + 1) % NUTRITION_METHODS.length);
+  // One pass through the three methods, then it rests on the last one.
+  const playNextMethod = () => methodIndex < NUTRITION_METHODS.length - 1 && setMethodIndex(methodIndex + 1);
 
   return (
     <section className="scene scene-paper methods" aria-labelledby="methods-title">
@@ -74,7 +74,7 @@ export default function NutritionPage() {
       />
       <LoggingMethods />
 
-      <section className="scene scene-orange cut-diagonal trust" aria-labelledby="trust-title">
+      <section className="scene scene-orange trust" aria-labelledby="trust-title">
         <div className="container trust-grid">
           <h2 id="trust-title" className="t-title">
             Numbers worth coaching from.

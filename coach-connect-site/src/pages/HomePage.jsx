@@ -1,77 +1,66 @@
-// HomePage.jsx — "/". A sequence of scenes, each with one visual idea
-// (DESIGN.md "Coach Connect section plan"):
-// 1 hero (kept from the first site) · 2 what it is: oversized phone on a big
-//   orange circle · 3 pick your side: paper, two unequal poster cards · 4 the
-//   tour: pinned reel through five real recordings · 5 three things a day: the
-//   watch on an orange field, big numerals · 6 how it works: staggered steps over
-//   Bauhaus shapes · 7 FAQ on paper · 8 waitlist on a pink field.
+// HomePage.jsx — "/". The hero (untouched), then four sections, one idea each:
+// a. One app, two sides: a phone and the Client / Trainer toggle (dark)
+// b. Pick your side: two poster cards linking to /trainers and /clients (cream)
+// c. Before you ask: four questions and a link to /faq (dark)
+// d. The final call to action: waitlist and TestFlight beta (aurora)
+// The client tour, "Three things a day" and "Four steps" live on /clients,
+// /clients and /how-it-works now; their components are unchanged there.
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Shapes } from '../backgrounds/Shapes';
 import { TornEdge } from '../backgrounds/TornEdge';
 import { Accordion } from '../components/Accordion';
 import { HomeHero } from '../components/HomeHero';
 import { ArrowRightIcon } from '../components/Icons';
 import { JoinSection } from '../components/JoinSection';
-import { Kinetic } from '../components/Kinetic';
 import { Layout } from '../components/Layout';
 import { Phone } from '../components/Phone';
-import { Reel } from '../components/Reel';
 import { Seo } from '../components/Seo';
-import { StepsScene } from '../components/StepsScene';
-import { WatchScene } from '../components/WatchScene';
-import { CLIENT_FEATURES, FAQ_GROUPS, SIDE_CLIPS } from '../data/content';
+import { FAQ_GROUPS, SIDE_CLIPS } from '../data/content';
 
 const HIGHLIGHT_QUESTIONS = FAQ_GROUPS.flatMap((group) => group.items).filter((item) => item.highlight);
 
-// Behind the "what it is" phone: one big orange circle and a pink ring.
-const WHAT_SHAPES = [
-  { kind: 'circle', style: { width: '46vw', height: '46vw', right: '-6vw', top: '10%', background: 'var(--orange)' }, drift: 140 },
-  { kind: 'ring', style: { width: '22vw', height: '22vw', right: '34vw', bottom: '-6vw', borderColor: 'var(--pink)' }, drift: -90, turn: 60 },
-];
-
+// Stills from the name-free recordings, different from the clips the
+// neighbouring sections play.
 const SIDES = [
   {
     to: '/trainers',
     who: 'Trainers',
     title: 'Run the business from your phone.',
-    image: 'videos/app-trainer-side.jpg',
-    imageAlt: 'Coach Connect trainer home screen',
+    image: 'videos/clean/still-trainer.jpg',
+    imageAlt: 'A client’s weekly report in the Coach Connect trainer view',
     points: ['Roster, requests and one workspace per client', 'Sessions your clients confirm in the app', 'Stripe payouts. $59.99 a month, no per-client fees'],
     cta: 'See the trainer side',
     tone: 'pink',
-    tilt: '-0.9deg',
   },
   {
     to: '/clients',
     who: 'Clients',
     title: 'Your coach and your plan, together.',
-    image: 'videos/app-client-side.jpg',
-    imageAlt: 'Coach Connect client home screen',
+    image: 'videos/clean/still-client.jpg',
+    imageAlt: 'The Coach Connect nutrition screen with the day’s calories and macro rings',
     points: ['Find a trainer in the marketplace', 'Follow the plan, log meals with a scan', 'Free. Pay your coach in the app'],
     cta: 'See the client side',
     tone: 'orange',
-    tilt: '0.9deg',
   },
 ];
 
 /**
- * Scene 2: big statement left (5 cols), oversized tilted phone right (7 cols)
- * cropped by the scene's bottom edge, on a big orange circle.
+ * a. Statement left, one phone right on a flat orange disc. The toggle swaps
+ * the recording.
  * @returns {JSX.Element}
  */
 function WhatItIs() {
   const [sideIndex, setSideIndex] = useState(0);
   const activeClip = SIDE_CLIPS[sideIndex];
-  const playNextSide = () => setSideIndex((sideIndex + 1) % SIDE_CLIPS.length);
+  // Plays client, then trainer, then rests. The toggle replays either side.
+  const playNextSide = () => sideIndex < SIDE_CLIPS.length - 1 && setSideIndex(sideIndex + 1);
 
   return (
     <section id="what-is" className="scene scene-dark what" aria-labelledby="what-title">
-      <Shapes shapes={WHAT_SHAPES} />
       <div className="container what-grid">
         <div className="what-copy stack-6">
           <h2 id="what-title" className="t-title">
-            One app. <span className="hl-pink">Two sides.</span>
+            One app. <span className="hl-orange">Two sides.</span>
           </h2>
           <p className="lead">
             Trainers run their roster, plans, sessions and payouts from it. Clients find their coach, follow the plan, log food and check
@@ -89,6 +78,7 @@ function WhatItIs() {
           </p>
         </div>
         <div className="what-stage">
+          <div className="what-disc" aria-hidden="true" />
           <Phone clip={activeClip} onEnded={playNextSide} className="phone-xl" />
         </div>
       </div>
@@ -98,18 +88,19 @@ function WhatItIs() {
 }
 
 /**
- * Scene 3: light paper, two UNEQUAL poster cards (trainer wider, pink;
- * client narrower, orange), each with a big cropped screenshot.
+ * b. Cream section, two poster cards of different widths. One is tilted.
  * @returns {JSX.Element}
  */
 function PickYourSide() {
   return (
     <section className="scene scene-paper sides" aria-labelledby="sides-title">
       <div className="container stack-8">
-        <Kinetic id="sides-title" className="t-title" text="Pick your side." />
+        <h2 id="sides-title" className="t-title">
+          Pick your side.
+        </h2>
         <div className="sides-grid">
           {SIDES.map((side) => (
-            <Link key={side.to} to={side.to} className={`poster side-card side-${side.tone}`} style={{ '--tilt': side.tilt }}>
+            <Link key={side.to} to={side.to} className={`poster side-card side-${side.tone}`}>
               <div className="side-copy stack-5">
                 <p className="t-numeral side-who">{side.who}</p>
                 <h3 className="t-card">{side.title}</h3>
@@ -124,7 +115,7 @@ function PickYourSide() {
                 </span>
               </div>
               <div className="side-shot">
-                <img src={side.image} alt={side.imageAlt} loading="lazy" width="540" height="1094" />
+                <img src={side.image} alt={side.imageAlt} loading="lazy" width="390" height="848" />
               </div>
             </Link>
           ))}
@@ -135,23 +126,21 @@ function PickYourSide() {
 }
 
 /**
- * Scene 7: FAQ on paper, big accordion type.
+ * c. One narrow column: heading, the four questions, the link.
  * @returns {JSX.Element}
  */
 function QuestionHighlights() {
   return (
-    <section className="scene scene-paper faq-home" aria-labelledby="faq-title">
-      <div className="container faq-home-grid">
-        <div className="stack-5">
-          <h2 id="faq-title" className="t-title t-title-narrow">
-            Before you ask.
-          </h2>
-          <Link to="/faq" className="link">
-            Every question
-            <ArrowRightIcon />
-          </Link>
-        </div>
+    <section className="scene scene-dark faq-home" aria-labelledby="faq-title">
+      <div className="container faq-home-column stack-7">
+        <h2 id="faq-title" className="t-title">
+          Before you ask.
+        </h2>
         <Accordion items={HIGHLIGHT_QUESTIONS} size="lg" />
+        <Link to="/faq" className="link">
+          Every question
+          <ArrowRightIcon />
+        </Link>
       </div>
     </section>
   );
@@ -170,9 +159,6 @@ export default function HomePage() {
       <HomeHero />
       <WhatItIs />
       <PickYourSide />
-      <Reel id="tour" scenes={CLIENT_FEATURES} label="Client tour" />
-      <WatchScene />
-      <StepsScene />
       <QuestionHighlights />
       <JoinSection />
     </Layout>

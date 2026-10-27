@@ -1,6 +1,6 @@
 // AsciiSun.jsx — the footer scene (DESIGN.md D4): a sliced sun over a
-// perspective grid, drawn as characters. Redrawn at about 24fps because
-// fillText for thousands of cells is the cost.
+// perspective grid, drawn as characters. Drawn once as a still: the footer
+// does not animate.
 import { useCallback } from 'react';
 import { cssVar, useCanvasLoop } from './plumbing';
 
@@ -51,6 +51,6 @@ export function AsciiSun() {
       }
     }
   }, []);
-  const canvasRef = useCanvasLoop(draw, { maxDpr: 1.5, fps: 24 });
+  const canvasRef = useCanvasLoop(draw, { maxDpr: 1.5, still: true });
   return <canvas ref={canvasRef} className="bg-canvas" />;
 }

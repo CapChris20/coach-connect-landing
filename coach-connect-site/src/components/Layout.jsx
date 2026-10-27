@@ -123,7 +123,7 @@ export function Layout({ children }) {
         Skip to content
       </a>
       <SiteNav />
-      <main id="main" className="route-view">
+      <main id="main">
         {children}
       </main>
       <SiteFooter />

@@ -16,22 +16,23 @@ export const NAV_LINKS = [
 ];
 
 // ===== APP RECORDINGS =====
-// Real screen recordings from the iOS app. Captions describe what is on screen.
+// Real screen recordings from the iOS app, from videos/clean/: trimmed so no
+// real person's name is on screen (see README). Every clip has a poster frame,
+// shown until the video can play. Captions describe what is on screen.
+const clip = (name) => ({ src: `videos/clean/${name}.mp4`, poster: `videos/clean/${name}.jpg` });
 
 export const SIDE_CLIPS = [
   {
     id: 'client',
     label: 'Client home',
     caption: 'Today at a glance: the plan, sessions and check-ins.',
-    src: 'videos/app-client-side.mp4',
-    poster: 'videos/app-client-side.jpg',
+    ...clip('client-dashboard'),
   },
   {
     id: 'trainer',
-    label: 'Trainer home',
-    caption: 'Active clients, pending requests and quick actions.',
-    src: 'videos/app-trainer-side.mp4',
-    poster: 'videos/app-trainer-side.jpg',
+    label: 'Trainer view',
+    caption: 'One client\u2019s progress: weight, workouts, sleep, water and check-ins.',
+    ...clip('workspace-progress'),
   },
 ];
 
@@ -40,70 +41,73 @@ export const CLIENT_FEATURES = [
     id: 'find',
     title: 'Find a trainer',
     text: 'Search the marketplace by specialty, experience, price and Remote, In-person or Both. Read the profile, then send a request. Already have a coach? Join with their invite code.',
-    src: 'videos/clients/trainer-search-marketplace.mp4',
+    ...clip('marketplace-filters'),
   },
   {
     id: 'dashboard',
     title: 'Your day on one screen',
     text: 'Today’s workout from your coach, booked sessions and the check-ins still waiting for you.',
-    src: 'videos/clients/dashboard-home.mp4',
+    ...clip('client-dashboard'),
   },
   {
     id: 'checkin',
     title: 'Daily check-in',
     text: 'Sleep, water, energy, stress, mood, soreness and weight. Your coach sees it before the next session.',
-    src: 'videos/clients/checkin-soreness-energy.mp4',
+    ...clip('checkin-soreness-energy'),
   },
   {
     id: 'workouts',
     title: 'Workouts and the exercise library',
     text: 'Follow the plan your coach assigned, log sets as you train, and look up any exercise with a video demo.',
-    src: 'videos/clients/workouts-exercise-library.mp4',
+    ...clip('workouts-plan-summary'),
   },
   {
     id: 'ai',
     title: 'AI Coach',
     text: 'Ask it to log a meal, water, sleep or steps, or to edit a workout. Nothing changes until you confirm. Your trainer does not see these chats.',
-    src: 'videos/clients/ai-coach.mp4',
+    ...clip('ai-coach'),
   },
 ];
 
 export const TRAINER_FEATURES = [
   {
-    id: 'home',
-    title: 'Your business at a glance',
-    text: 'Active clients, pending requests and today’s sessions the moment you open the app.',
-    src: 'videos/trainers/dashboard-home.mp4',
-  },
-  {
-    id: 'roster',
-    title: 'Requests and roster',
-    text: 'Accept or decline new clients. Bring existing ones in with your invite code. Every client card shows age, weight, height and goal.',
-    src: 'videos/trainers/roster-clients.mp4',
-  },
-  {
     id: 'workspace',
     title: 'One workspace per client',
     text: 'Progress, nutrition, calendar, notes and files for one person, in tabs instead of scattered across chats.',
-    src: 'videos/trainers/client-workspace-progress.mp4',
+    ...clip('workspace-progress'),
   },
   {
     id: 'schedule',
     title: 'Session scheduling',
     text: 'Create a session, your client accepts or declines on their phone. No message threads about times.',
-    src: 'videos/trainers/session-scheduling.mp4',
+    ...clip('scheduling'),
   },
   {
     id: 'docs',
     title: 'Documents and spreadsheets',
     text: 'A document maker and a spreadsheet editor inside the app. Share the finished file straight to a client.',
-    src: 'videos/trainers/documents-spreadsheets.mp4',
+    ...clip('documents'),
   },
   {
     id: 'reports',
     title: 'Weekly reports',
     text: 'Each client’s week written up from real check-ins: trends, what went well, what needs work, and next week’s focus.',
-    src: 'videos/trainers/weekly-reports.mp4',
+    ...clip('weekly-reports'),
+  },
+];
+
+// Trainer features with no name-free recording yet. Shown as text on /trainers
+// until the app is re-recorded with demo accounts.
+export const TRAINER_FEATURES_TEXT = [
+  {
+    id: 'home',
+    title: 'Your business at a glance',
+    text: 'Active clients, pending requests and today’s sessions the moment you open the app.',
+  },
+  {
+    id: 'roster',
+    title: 'Requests and roster',
+    text: 'Accept or decline new clients. Bring existing ones in with your invite code. Every client card shows age, weight, height and goal.',
   },
 ];
 
@@ -113,21 +117,21 @@ export const NUTRITION_METHODS = [
     step: '01',
     title: 'Scan',
     text: 'Point the camera at a barcode and the product lands in the meal you picked.',
-    src: 'videos/clients/nutrition-meals-scan.mp4',
+    ...clip('nutrition-meals-scan'),
   },
   {
     id: 'search',
     step: '02',
     title: 'Search',
     text: 'Look up foods, brands and restaurants. Re-add the things you eat often with Quick Add.',
-    src: 'videos/clients/nutrition-food-search.mp4',
+    ...clip('nutrition-food-search'),
   },
   {
     id: 'rings',
     step: '03',
     title: 'See the day add up',
     text: 'Calories plus protein, carbs and fat rings fill against your targets as you log.',
-    src: 'videos/clients/nutrition-macro-rings.mp4',
+    ...clip('nutrition-macro-rings'),
   },
 ];
 

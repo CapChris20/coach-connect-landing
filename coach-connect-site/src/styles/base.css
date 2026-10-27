@@ -1,13 +1,16 @@
 /* base.css — tokens, reset, type and the primitives every scene is built from.
-   DESIGN.md (ShaderXD method): two hues (pink, orange) used LARGE, neutrals for the
-   rest, dark scenes alternating with light paper and full-bleed colour fields.
-   Rule: components read these tokens only. A new colour or size starts here. */
+   Poster look: big display type, flat cream / pink / orange / black blocks.
+   Brand colours: #0A0A0F (ink), #5B16F0 (purple), #C03C98 (pink), #F59A33 (orange).
+   Gradients only where the brief allows: the primary button (purple to pink),
+   the aurora behind the final call to action, and one accent word per page.
+   Rule: components read these tokens only. The homepage hero pins its own
+   values in hero.css, so nothing here can change it. */
 
 /* ── 1. Tokens ─────────────────────────────────────────────────────── */
 :root {
   color-scheme: dark;
   /* neutrals: dark scenes */
-  --bg: #0b0a0d;
+  --bg: #0a0a0f;
   --surface: #1f1c24;          /* about 10% lighter than --bg, so cards separate */
   --surface-2: #2b2731;
   --line: rgba(255, 255, 255, .28); /* borders and inputs at 3:1 or better on --bg */
@@ -18,16 +21,21 @@
   /* neutrals: light paper scenes */
   --paper: #f3ede2;
   --paper-2: #e6dccb;
-  --ink: #0b0a0d;
+  --ink: #0a0a0f;
   --ink-body: #26222b;
   --ink-muted: #4d4655;
 
-  /* the two hues, used as whole fields */
-  --pink: #ff5c93;
-  --orange: #ff7a1f;
-  --pink-deep: #be185d;        /* CTA pair: white text passes 4.5:1 on both */
-  --orange-deep: #c2410c;
-  --cta: linear-gradient(135deg, var(--pink-deep), var(--orange-deep));
+  /* brand hues, used as whole flat fields */
+  --purple: #5b16f0;
+  --pink: #c03c98;             /* white text on it passes 4.5:1, ink does not */
+  --orange: #f59a33;           /* ink text on it passes 4.5:1 */
+  --orange-deep: #b45309;      /* orange numerals on cream (passes 4.5:1) */
+  --cta: linear-gradient(135deg, var(--purple), var(--pink));
+  --aurora:
+    radial-gradient(60% 70% at 12% 20%, rgba(91, 22, 240, .45), transparent 70%),
+    radial-gradient(55% 60% at 88% 30%, rgba(192, 60, 152, .40), transparent 70%),
+    radial-gradient(60% 60% at 60% 100%, rgba(245, 154, 51, .28), transparent 70%),
+    var(--bg);
 
   /* fonts: two voices plus mono for small labels and numbers */
   --font-display: 'Unbounded', sans-serif;
@@ -51,7 +59,7 @@
   --ease-out: cubic-bezier(.16, 1, .3, 1);
   --ease-spring: cubic-bezier(.34, 1.25, .64, 1);
 
-  /* layout */
+  /* layout: ONE section padding, used by every section below the hero */
   --content-max: 1240px;
   --gutter: clamp(20px, 4.5vw, 64px);
   --section-pad: var(--space-10);
@@ -66,7 +74,10 @@
 html { -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--nav-height) + var(--space-4)); }
 body {
   margin: 0;
-  background: var(--bg);
+  /* Pinned to the hero's value: the glass nav blurs whatever is behind it, so the
+     page ground under the first screen must not change. Every section below the
+     hero paints its own background, so this colour is never seen on its own. */
+  background: #0b0a0d;
   color: var(--text-body);
   font-family: var(--font-body);
   font-size: 18px;
@@ -82,6 +93,8 @@ a { color: inherit; text-decoration: none; }
 button, input, select { font: inherit; color: inherit; }
 button { background: none; border: 0; padding: 0; cursor: pointer; }
 :focus-visible { outline: 3px solid currentColor; outline-offset: 4px; }
+/* On light sections the ring is always ink, even around a white-text card. */
+.scene-paper :focus-visible, .scene-orange :focus-visible { outline-color: var(--ink); }
 ::selection { background: var(--pink); color: var(--ink); }
 
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; margin: -1px; padding: 0; border: 0; }
@@ -97,7 +110,7 @@ button { background: none; border: 0; padding: 0; cursor: pointer; }
   overflow-wrap: break-word;
   hyphens: manual;
 }
-.t-band { font-size: clamp(40px, 8.6vw, 128px); line-height: .92; letter-spacing: -0.04em; }
+.t-band { font-size: clamp(38px, 7.4vw, 112px); line-height: .92; letter-spacing: -0.04em; }
 .t-title { font-size: clamp(36px, 7.2vw, 108px); line-height: .92; letter-spacing: -0.035em; }
 .t-reel { font-size: clamp(34px, 6.4vw, 104px); line-height: .9; letter-spacing: -0.04em; }
 .t-cta { font-size: clamp(44px, 10vw, 150px); line-height: .9; letter-spacing: -0.045em; }
@@ -118,10 +131,13 @@ button { background: none; border: 0; padding: 0; cursor: pointer; }
 .scene-paper { background: var(--paper); color: var(--ink); }
 .scene-paper .lead, .scene-paper .body { color: var(--ink-body); }
 .scene-paper .muted { color: var(--ink-muted); }
-.scene-pink { background: var(--pink); color: var(--ink); }
+.scene-pink { background: var(--pink); color: #fff; }
 .scene-orange { background: var(--orange); color: var(--ink); }
-.scene-pink .lead, .scene-pink .body, .scene-orange .lead, .scene-orange .body { color: var(--ink-body); }
-.scene-pink .muted, .scene-orange .muted { color: #2a1f22; }
+.scene-orange .lead, .scene-orange .body { color: var(--ink-body); }
+.scene-orange .muted { color: #2a1f22; }
+.scene-pink .lead, .scene-pink .body, .scene-pink .muted { color: #fff; }
+/* The one gradient accent word per page (in the final call to action) */
+.accent-word { background: linear-gradient(90deg, #a98bff, #f07cc8); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .stack-2 > * + * { margin-top: var(--space-2); }
 .stack-3 > * + * { margin-top: var(--space-3); }
 .stack-4 > * + * { margin-top: var(--space-4); }
@@ -150,7 +166,7 @@ button { background: none; border: 0; padding: 0; cursor: pointer; }
 .btn[disabled] { cursor: not-allowed; filter: grayscale(.6); }
 @media (hover: hover) and (pointer: fine) {
   .btn-primary:not([disabled]):hover { transform: translateY(-2px) scale(1.03); filter: brightness(1.15); }
-  .btn-ghost:hover { transform: translateY(-2px); box-shadow: inset 0 0 0 1.5px var(--orange); }
+  .btn-ghost:hover { transform: translateY(-2px); box-shadow: inset 0 0 0 1.5px #fff; background: rgba(255, 255, 255, .1); }
   .btn-ink:not([disabled]):hover { transform: translateY(-2px) scale(1.03); background: #25212b; }
 }
 

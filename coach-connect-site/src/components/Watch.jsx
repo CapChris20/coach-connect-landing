@@ -307,9 +307,13 @@ function WatchExteriorPicker({ selectedBandId, selectedCaseId, chooseBand, choos
  * lists apps. Picking a band or a case never touches the screen.
  * The whole watch is sized and positioned by the .ccw-* classes in
  * index.css.
+ * faceTitle: optional replacement for the face's "All in one app" title, used
+ * off the hero (it then renders as a <p>, not a heading). The hero passes
+ * nothing and keeps the original exactly.
+ * @param {{ faceTitle?: React.ReactNode }} props
  * @returns {JSX.Element}
  */
-export function HeroWatch() {
+export function HeroWatch({ faceTitle = null }) {
   // 1. The live clock: tick every second so the face never shows a
   // stale minute. vocab: the interval is the tick; clearing it on
   // unmount stops a dead timer calling setState forever.
@@ -428,9 +432,13 @@ export function HeroWatch() {
 
               {/* 5. The title and the eight features in two columns
                   across the full width — glyph, label, proof. */}
-              <h2 className="ccw-face-title" data-testid="hero-watch-title">
-                All in <span className="ccw-title-gradient">one app</span>
-              </h2>
+              {faceTitle ? (
+                <p className="ccw-face-title">{faceTitle}</p>
+              ) : (
+                <h2 className="ccw-face-title" data-testid="hero-watch-title">
+                  All in <span className="ccw-title-gradient">one app</span>
+                </h2>
+              )}
               <ul className="ccw-face-list">
                 {WATCH_ROWS.map((watchRow) => {
                   const WatchRowIcon = watchRow.icon;
