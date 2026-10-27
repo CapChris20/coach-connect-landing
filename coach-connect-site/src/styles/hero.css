@@ -1,0 +1,386 @@
+/* hero.css — the homepage hero, ported from the first landing site so it looks
+   the same: grid background with a pointer glow, the COACHCONNECT title card, the
+   phone (left), the 3D logo (center), the watch (right), and the Scroll pill.
+   Original palette and fonts (Unbounded for the title, Space Mono for labels) are
+   kept here on purpose, scoped to .home-hero. */
+.hero-phone-segments {
+  display: flex;
+  gap: 0.375rem;
+}
+
+.hero-phone-segment-button {
+  height: 20px;
+  flex: 1;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.hero-phone-segment-track {
+  display: block;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 9999px;
+  background-color: rgba(255, 255, 255, 0.14);
+}
+
+.hero-phone-segment-fill {
+  display: block;
+  height: 100%;
+  border-radius: 9999px;
+  background-color: #ffffff;
+  transition: width 0.1s linear;
+}
+
+.hero-phone-now-playing-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.hero-phone-counter {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.hero-phone-title {
+  margin-top: 0.375rem;
+  font-family: var(--font-display, sans-serif);
+  font-size: 1.08rem;
+  font-weight: 800;
+  line-height: 1.25;
+  color: #ffffff;
+}
+
+.hero-phone-title-gradient {
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.hero-phone-subtitle {
+  margin: 0.25rem auto 0 auto;
+  max-width: 19rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.68rem;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.5);
+}
+/* ════════════════════════════════════════════════════════════════════
+   HERO PHONE (.ccp-*) — the iPhone on the hero's left (ui/HeroPhone.jsx).
+   Titanium rails, a black bezel, and a glass sheen over the screen,
+   floating gently on its stage. The screen plays the owner's app
+   recordings edge to edge; the caption under the phone names the side
+   currently playing. Everything metal lives here.
+   Manipulate here: 330px wide (capped by viewport height at lg —
+   see the .ccp-phone rule) matched to the app recordings' own ratio
+   so the video fills the screen uncropped; widen it and the hero's
+   left column crowds the center.
+   ════════════════════════════════════════════════════════════════════ */
+.ccp-wrap {
+  position: relative;
+  width: fit-content;
+  margin-inline: auto;
+  animation: ccp-float 7s ease-in-out infinite;
+  filter: drop-shadow(0 44px 44px rgba(0, 0, 0, 0.55));
+}
+/* The float: a slow 6px rise and settle, like the phone is hovering
+   for its product shot. Manipulate here: 6px = travel; 7s = one cycle. */
+@keyframes ccp-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.ccp-phone {
+  position: relative;
+  width: min(380px, 92vw);
+  aspect-ratio: 300 / 585;
+  height: auto;
+  border-radius: 56px;
+  padding: 11px;
+  background: linear-gradient(160deg, #43434b 0%, #131316 28%, #2b2b31 55%, #0a0a0c 100%);
+  box-shadow:
+    inset 0 0 0 1.5px rgba(255, 255, 255, 0.22),
+    inset 0 0 0 4px #000,
+    0 24px 60px -18px rgba(0, 0, 0, 0.8);
+}
+/* Side hardware: thin metal tabs on the rails, silent switch shortest */
+.ccp-btn {
+  position: absolute;
+  width: 3px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #55555e, #26262b);
+}
+.ccp-btn-silent { left: -2.5px; top: 118px; height: 26px; }
+.ccp-btn-volume-up { left: -2.5px; top: 156px; height: 44px; }
+.ccp-btn-volume-down { left: -2.5px; top: 208px; height: 44px; }
+.ccp-btn-power { right: -2.5px; top: 172px; height: 64px; }
+.ccp-screen {
+  position: relative;
+  height: 100%;
+  border-radius: 45px;
+  overflow: hidden;
+  background: #000;
+  color: #fff;
+}
+/* The app recording itself, edge to edge inside the bezel */
+.ccp-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* The glass sheen: one soft diagonal of light across the screen,
+   clipped by the screen's own corners (overflow: hidden above) */
+.ccp-screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.07) 0%, transparent 32%);
+  pointer-events: none;
+}
+/* The caption above the phone (in HeroPhone.jsx): segments, the
+   "currently playing" line, the side's name. Width matches the phone
+   so the block reads as the phone's own nameplate.
+   Manipulate here: the 1.15rem bottom margin is the gap over the case. */
+.ccp-caption-wrap {
+  width: min(380px, 100%);
+  margin: 0 auto 0.9rem;
+  text-align: center;
+}
+/* Desktop: the phone (and its caption nameplate, same width) shrink
+   with the viewport HEIGHT, so caption + phone always fit between
+   the app line and the fold — no scrolling to see the whole device.
+   vocab: vh = percent of the viewport's height; at 900px tall the
+   phone runs ~360px wide instead of its full 380px.
+   Manipulate here: 40vh = the width cap; raise it and short screens
+   push the phone's foot under the fold again. */
+@media (min-width: 1024px) {
+  .ccp-phone { width: min(380px, 40vh); }
+  .ccp-caption-wrap { width: min(380px, 40vh); }
+}
+/* Short desktop windows: drop the caption's descriptive line so the
+   name of the side and the phone still fit above the fold together.
+   Manipulate here: 940px = the window height where the sub goes. */
+@media (min-width: 1024px) and (max-height: 940px) {
+  .ccp-caption-sub { display: none; }
+}
+/* Each switch re-mounts the caption (key change in HeroPhone.jsx),
+   replaying this rise — the text equivalent of a lower-third graphic.
+   Manipulate here: 0.45s = how fast the new side's name settles. */
+.ccp-caption {
+  margin-top: 0.55rem;
+  animation: ccp-caption-in 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes ccp-caption-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* The breathing dot beside "currently playing" — pink, on-air style */
+.ccp-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #ff6b9d;
+  box-shadow: 0 0 0 0 rgba(255, 107, 157, 0.55);
+  animation: testflight-pulse 1.8s ease-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ccp-wrap { animation: none; }
+  .ccp-caption { animation: none; }
+  .ccp-live-dot { animation: none; }
+}
+
+@keyframes testflight-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.55); }
+  70% { box-shadow: 0 0 0 8px rgba(52, 211, 153, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+}
+
+/* ── Hero frame ─────────────────────────────────────────────────────── */
+/* The hero slides up under the sticky nav (negative margin), exactly like the
+   first site's fixed nav, so the watch band can run up to the nav's edge.
+   Manipulate here: 5rem top padding = air between the nav and the title card. */
+.home-hero {
+  --font-display: 'Unbounded', sans-serif;
+  --pink-hero: #ff6b9d;
+  --grid-line-soft: rgba(255, 107, 157, 0.14);
+  --grid-line-strong: rgba(255, 107, 157, 0.65);
+  --pal-grid: rgba(255, 107, 157, 0.32);
+  --pal-grid-2: rgba(6, 182, 212, 0.08);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin-top: calc(var(--nav-height) * -1);
+  padding: calc(var(--nav-height) + 1.25rem) 0 2.25rem;
+  background:
+    radial-gradient(ellipse 60% 50% at 85% 12%, rgba(255, 107, 157, 0.16), transparent 55%),
+    radial-gradient(ellipse 45% 40% at 15% 15%, rgba(192, 132, 252, 0.12), transparent 50%),
+    var(--bg);
+}
+.home-hero-body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 0 1.25rem;
+}
+@media (min-width: 1024px) {
+  .home-hero { min-height: 100dvh; padding-bottom: 1.35rem; display: flex; flex-direction: column; justify-content: center; }
+  .home-hero-body { min-height: calc(100dvh - var(--nav-height) - 2.6rem); padding: 0 1.5rem; }
+}
+
+/* ── Grid background with the pointer glow ───────────────────────────── */
+.hero-grid-bg { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+.hero-grid-bg::before,
+.hero-grid-bg::after { content: ""; position: absolute; inset: 0; background-size: 44px 44px; pointer-events: none; }
+.hero-grid-bg::before {
+  background-image:
+    linear-gradient(var(--grid-line-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line-soft) 1px, transparent 1px);
+}
+.hero-grid-bg::after {
+  background-image:
+    radial-gradient(520px circle at var(--grid-x, 50%) var(--grid-y, 50%), var(--pal-grid), var(--pal-grid-2) 42%, transparent 70%),
+    linear-gradient(var(--grid-line-strong) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line-strong) 1px, transparent 1px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  -webkit-mask-image: radial-gradient(560px circle at var(--grid-x, 50%) var(--grid-y, 50%), black 0%, rgba(0, 0, 0, 0.65) 55%, transparent 78%);
+  mask-image: radial-gradient(560px circle at var(--grid-x, 50%) var(--grid-y, 50%), black 0%, rgba(0, 0, 0, 0.65) 55%, transparent 78%);
+}
+.home-hero.is-hovering .hero-grid-bg::after { opacity: 1; }
+
+/* ── Title card: one-line wordmark over the app line ──────────────────── */
+.hero-title-card {
+  position: relative;
+  z-index: 2;
+  margin: 0 auto;
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.7rem 2rem 0.6rem;
+  border-radius: 1.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(10, 10, 15, 0.58);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 24px 60px -24px rgba(0, 0, 0, 0.7);
+  text-align: center;
+}
+.hero-wordmark {
+  display: flex;
+  justify-content: center;
+  font-family: 'Unbounded', sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.55rem, 4.4vw, 2.75rem);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  white-space: nowrap;
+  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.65)) drop-shadow(0 6px 8px rgba(0, 0, 0, 0.28));
+}
+.hero-wordmark-coach { color: #fff; }
+.wordmark-connect {
+  background: linear-gradient(180deg, #ffd4e6 0%, #ff6b9d 46%, #f97316 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.hero-app-line {
+  margin-top: 0.5rem;
+  font-family: 'Unbounded', sans-serif;
+  font-size: 0.58rem;
+  font-weight: 700;
+  line-height: 1.6;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+}
+@media (min-width: 640px) { .hero-app-line { font-size: 0.66rem; } }
+@media (max-width: 480px) {
+  .hero-title-card { padding: 0.8rem 1.15rem 0.7rem; }
+  .hero-wordmark { font-size: clamp(1.35rem, 7.2vw, 1.9rem); }
+}
+
+/* ── The three zones: phone, logo, watch ──────────────────────────────── */
+/* minmax(0, 1fr) on both sides keeps the logo on the page's true center;
+   without it the watch's rigid 500px case inflates its track. */
+.hero-zones {
+  display: grid;
+  flex: 1;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+.hero-zone-phone, .hero-zone-logo, .hero-zone-watch { justify-self: center; }
+.hero-zone-watch { width: 100%; max-width: 560px; height: 100%; }
+@media (min-width: 1024px) {
+  .hero-zones { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 1.5rem; margin-top: 0; }
+  .hero-zone-phone { justify-self: start; align-self: start; }
+  .hero-zone-logo { margin-right: 2.5rem; }
+  .hero-zone-watch { justify-self: start; }
+}
+@media (min-width: 1400px) { .hero-zone-phone { margin-top: -5.25rem; } }
+
+/* The logo's stage. Its on-screen size comes from here, not the model. */
+.logo-model-stage { width: min(350px, 90vw); height: 200px; max-width: 100%; }
+@media (min-width: 640px) { .logo-model-stage { width: min(430px, 90vw); height: min(280px, 27vh); } }
+@media (min-width: 1024px) { .hero-zone-logo .logo-model-stage { width: min(460px, 34vw); height: min(345px, 38vh); } }
+
+/* ── Entrance: each piece rises in a beat after the last ──────────────── */
+.hero-rise { animation: hero-rise 1s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.hero-title-card.hero-rise { animation-name: hero-rise-blur; animation-duration: 0.9s; animation-delay: 0.1s; }
+.hero-zone-phone.hero-rise { animation-name: hero-rise-left; animation-delay: 0.24s; }
+.hero-zone-logo.hero-rise { animation-delay: 0.36s; }
+.hero-zone-watch.hero-rise { animation-name: hero-rise-right; animation-delay: 0.48s; }
+@keyframes hero-rise { from { opacity: 0; transform: translateY(24px) scale(0.92); } }
+@keyframes hero-rise-blur { from { opacity: 0; transform: translateY(28px); filter: blur(10px); } }
+@keyframes hero-rise-left { from { opacity: 0; transform: translateX(-48px); } }
+@keyframes hero-rise-right { from { opacity: 0; transform: translateX(48px); } }
+
+/* ── Scroll pill ──────────────────────────────────────────────────────── */
+.hero-scroll-hint {
+  position: absolute;
+  left: 50%;
+  bottom: calc(1.35rem + env(safe-area-inset-bottom, 0px));
+  z-index: 20;
+  transform: translateX(-50%);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.05rem;
+  min-width: 7.75rem;
+  padding: 0.72rem 1.4rem 0.45rem;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  background: rgba(10, 10, 15, 0.78);
+  color: #fff;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 0 6px rgba(255, 255, 255, 0.1);
+  font-family: 'Unbounded', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+@media (min-width: 1024px) { .hero-scroll-hint { display: flex; } }
+.hero-scroll-hint:hover { background: rgba(10, 10, 15, 0.92); border-color: #fff; }
+.hero-scroll-hint:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
+.hero-scroll-hint-chevrons { display: flex; flex-direction: column; align-items: center; height: 1.55rem; }
+.hero-scroll-hint-chevron { width: 22px; height: 22px; animation: hero-scroll-hint-bounce 1.35s ease-in-out infinite; }
+.hero-scroll-hint-chevron + .hero-scroll-hint-chevron { margin-top: -12px; }
+.hero-scroll-hint-chevron-delay { animation-delay: 0.18s; }
+@keyframes hero-scroll-hint-bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.45; }
+  50% { transform: translateY(7px); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-rise, .hero-scroll-hint-chevron { animation: none; opacity: 1; }
+}

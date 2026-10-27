@@ -46,8 +46,8 @@ function SiteNav() {
           ))}
         </nav>
 
-        <a href="#waitlist" className="btn btn-secondary btn-sm site-nav-cta">
-          Join the waitlist
+        <a href="#waitlist" className="btn btn-nav btn-sm site-nav-cta">
+          Get Started
         </a>
 
         <button

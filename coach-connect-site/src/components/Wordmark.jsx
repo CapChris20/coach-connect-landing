@@ -1,5 +1,5 @@
-// Wordmark.jsx — the COACH CONNECT text logo. The wordmark is one of the two
-// places the full three-colour sweep is allowed (DESIGN.md section 3).
+// Wordmark.jsx — the COACHCONNECT text logo, as on the first site: COACH in
+// white, CONNECT in the pink-to-orange gradient, Unbounded 800, one line.
 
 /**
  * @param {{ className?: string }} props
@@ -8,8 +8,8 @@
 export function Wordmark({ className = '' }) {
   return (
     <span className={`wordmark ${className}`}>
-      <span className="wordmark-mark" aria-hidden="true" />
-      <span className="wordmark-text">Coach Connect</span>
+      <span className="wordmark-coach">COACH</span>
+      <span className="wordmark-connect">CONNECT</span>
     </span>
   );
 }

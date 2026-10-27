@@ -1,19 +1,17 @@
 // HomePage.jsx — "/". Five sections, one idea each (DESIGN.md section 10):
-// 1 hero (the dumbbell film is the signature moment) · 2 what it is (real app
+// 1 hero (the first site's phone, 3D logo and watch) · 2 what it is (real app
 // recording) · 3 pick your side (links to /trainers and /clients) · 4 a few
 // questions · 5 the waitlist.
-import { lazy, Suspense, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Accordion } from '../components/Accordion';
-import { HeroSignature } from '../components/HeroSignature';
+import { HomeHero } from '../components/HomeHero';
 import { ArrowRightIcon, CheckIcon } from '../components/Icons';
 import { JoinSection } from '../components/JoinSection';
 import { Layout } from '../components/Layout';
 import { Phone } from '../components/Phone';
 import { Seo } from '../components/Seo';
 import { FAQ_GROUPS, SIDE_CLIPS } from '../data/content';
-
-const Logo3D = lazy(() => import('../components/Logo3D'));
 
 const HIGHLIGHT_QUESTIONS = FAQ_GROUPS.flatMap((group) => group.items).filter((item) => item.highlight);
 
@@ -48,7 +46,7 @@ function WhatItIs() {
   const playNextSide = () => sideIndex < SIDE_CLIPS.length - 1 && setSideIndex(sideIndex + 1);
 
   return (
-    <section className="section" aria-labelledby="what-title">
+    <section id="what-is" className="section" aria-labelledby="what-title">
       <div className="container what-grid">
         <div className="what-copy stack-5">
           <p className="label">What is Coach Connect</p>
@@ -160,42 +158,13 @@ export default function HomePage() {
         description="Plans, nutrition logging, messaging, scheduling and in-app payments for trainers and the people they coach. iOS beta live now, launching late 2026."
       />
 
-      {/* 1. Hero: headline, one line, one button, one link, one visual */}
-      <section className="hero" aria-labelledby="hero-title">
-        <HeroSignature />
-        <div className="container hero-inner">
-          <div className="hero-copy stack-5">
-            <h1 id="hero-title" className="h-hero">
-              Coach and client, <span className="accent-word">one app.</span>
-            </h1>
-            <p className="lead">
-              Coach Connect puts personal trainers and their clients in the same app: workout plans, nutrition logging, messaging,
-              scheduling and payments.
-            </p>
-            <div className="row hero-actions">
-              <a href="#waitlist" className="btn btn-primary">
-                Join the waitlist
-              </a>
-              <Link to="/how-it-works" className="link link-arrow">
-                See how it works
-                <ArrowRightIcon />
-              </Link>
-            </div>
-            <p className="label hero-note">iOS beta live on TestFlight. Full launch late 2026.</p>
-          </div>
-        </div>
-      </section>
+      {/* 1. Hero: matches the first site's hero (phone, 3D logo, watch) */}
+      <HomeHero />
 
       <WhatItIs />
       <PickYourSide />
       <QuestionHighlights />
-      <JoinSection
-        visual={
-          <Suspense fallback={<div className="logo3d" aria-hidden="true" />}>
-            <Logo3D />
-          </Suspense>
-        }
-      />
+      <JoinSection />
     </Layout>
   );
 }

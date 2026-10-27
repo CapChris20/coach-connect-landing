@@ -15,10 +15,17 @@
 }
 .site-nav-inner { display: flex; align-items: center; gap: var(--space-6); height: var(--nav-height); }
 .site-nav-home { display: inline-flex; align-items: center; min-height: 44px; }
-.site-nav-links { display: flex; gap: var(--space-1); margin-left: auto; }
+.site-nav-links { display: flex; gap: var(--space-3); margin-inline: auto; }
+/* "Get Started": the first site's pink-to-orange pill in Space Mono */
+.btn-nav {
+  color: #fff; font-family: var(--font-mono); font-weight: 700; letter-spacing: .02em;
+  background: linear-gradient(135deg, #be185d, #c2410c);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), 0 10px 24px -12px rgba(0, 0, 0, .8);
+}
+@media (hover: hover) and (pointer: fine) { .btn-nav:hover { transform: translateY(-2px); filter: brightness(1.08); } }
 .site-nav-link {
   display: inline-flex; align-items: center; min-height: 44px; padding: 0 var(--space-3);
-  font-size: 15px; font-weight: 600; color: var(--text-muted);
+  font-family: var(--font-mono); font-size: 14px; letter-spacing: .025em; color: rgba(255, 255, 255, .65);
   border-radius: var(--radius-sm);
   transition: color var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out);
 }
@@ -40,19 +47,16 @@
   .mobile-menu { max-height: calc(100dvh - var(--nav-height)); overflow-y: auto; }
 }
 
-/* ── Wordmark (gradient allowed here) ──────────────────────────────── */
-.wordmark { white-space: nowrap; display: inline-flex; align-items: center; gap: var(--space-3); }
-.wordmark-mark {
-  width: 26px; height: 26px; border-radius: var(--radius-sm);
-  background: var(--grad-cool);
-  box-shadow: var(--highlight-top);
-  -webkit-mask: radial-gradient(circle at 62% 50%, transparent 5.5px, #000 6px);
-  mask: radial-gradient(circle at 62% 50%, transparent 5.5px, #000 6px);
+/* ── Wordmark (matches the first site) ──────────────────────────────── */
+.wordmark {
+  display: inline-flex; white-space: nowrap;
+  font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: 15px;
+  line-height: 1.25; letter-spacing: -0.025em;
 }
-.wordmark-text {
-  font-family: var(--font-display); font-weight: 800; font-size: 15px;
-  letter-spacing: .08em; text-transform: uppercase;
-  background: var(--grad-sweep); -webkit-background-clip: text; background-clip: text; color: transparent;
+.wordmark-coach { color: #fff; }
+.wordmark .wordmark-connect {
+  background: linear-gradient(180deg, #ffd4e6 0%, #ff6b9d 46%, #f97316 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 
 /* ── Footer ────────────────────────────────────────────────────────── */
@@ -208,6 +212,10 @@
 .loops-row { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: var(--space-4); padding-block: var(--space-4); border-bottom: 1px solid var(--border); align-items: baseline; }
 .loops-row dd { margin: 0; }
 .loops-watch { display: grid; justify-items: center; gap: var(--space-2); }
+.loops-watch .ccw-wrap {
+  -webkit-mask-image: linear-gradient(to bottom, transparent, black 90px, black calc(100% - 70px), transparent);
+  mask-image: linear-gradient(to bottom, transparent, black 90px, black calc(100% - 70px), transparent);
+}
 .loops-watch figcaption { text-align: center; }
 
 /* ── Trainers: pricing ─────────────────────────────────────────────── */
@@ -344,8 +352,6 @@
   .phone3d { height: 480px; min-height: 0; }
 }
 @media (max-width: 600px) {
-  .wordmark-text { font-size: 13px; letter-spacing: .06em; }
-  .wordmark-mark { width: 22px; height: 22px; }
   .side-card, .track, .join-card, .price-card { padding: var(--space-5); }
   .explorer-item { padding: var(--space-4); grid-template-columns: 32px minmax(0, 1fr); }
   .explorer-progress { left: var(--space-4); right: var(--space-4); }

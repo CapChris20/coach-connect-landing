@@ -1,16 +1,27 @@
-/* watch.css — the Coach Connect watch (components/Watch.jsx), ported from the
-   first landing site's index.css. Changes: brand palette only (no cyan, no blue
-   band), dark shadows instead of coloured tile glows, shorter straps that fade
-   into the page, and phone sizes that fit a 360px screen.
-   Manipulate here: .ccw-watch width/height = the whole watch's size. */
+/* watch.css — the watch (components/Watch.jsx), ported unchanged from the first
+   landing site's index.css, plus its hero sizing rules (.hero-middle-watch). */
 
+/* ════════════════════════════════════════════════════════════════════
+   HERO WATCH (.ccw-*) — the Apple Watch-style card in the hero's right
+   cell (ui/HeroWatch.jsx). Ported from the owner's Uiverse component:
+   same case/crown/strap construction, but the cream page background is
+   gone (the stage is transparent so the watch floats on the site's
+   backdrop), the five swipeable faces were cut to one Coach Connect
+   screen, and the yellow accent became brand orange #F97316.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* The stage: fills the hero's right column (height: 100%) and crops the
+   straps, which run 970px past the case top and bottom — long enough that
+   the band always spans the full stage, from under the nav to the fold,
+   like a real watch product shot instead of a cut-off floating case. */
+/* Manipulate here: min-height 620px = the shortest the stage (and so the
+   band) ever gets, on mobile where the watch stacks under the logo */
 .ccw-wrap {
   position: relative;
   width: 100%;
   max-width: 560px;
-  height: 640px;
-  -webkit-mask-image: linear-gradient(to bottom, transparent, black 90px, black calc(100% - 90px), transparent);
-  mask-image: linear-gradient(to bottom, transparent, black 90px, black calc(100% - 90px), transparent);
+  height: 100%;
+  min-height: 620px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -42,7 +53,7 @@
   --ccw-band-loop-hi: #dfe3e9;
   --ccw-band-loop-lo: #ccd1d9;
   --ccw-band-mark: rgba(15, 23, 42, 0.2);
-  --ccw-band-stripe: linear-gradient(to bottom, #c03c98, #f59a33);
+  --ccw-band-stripe: linear-gradient(to bottom, #ff6b9d, #f97316);
   --ccw-case-bg: linear-gradient(145deg, #d8d4cd 0%, #c9c5bf 15%, #a39e96 38%, #918c84 58%, #7d7870 78%, #696560 100%);
   --ccw-case-border: #8a857d;
   --ccw-lug-bg-top: linear-gradient(180deg, #b5b0a8 0%, #a39e96 50%, #918c84 100%);
@@ -64,15 +75,22 @@
   --ccw-band-loop-lo: #17171c;
   --ccw-band-mark: rgba(255, 255, 255, 0.26);
 }
+.ccw-watch[data-band="ocean"] {
+  --ccw-band-hi: #38bdf8;
+  --ccw-band-lo: #1d4ed8;
+  --ccw-band-loop-hi: #2563eb;
+  --ccw-band-loop-lo: #172554;
+  --ccw-band-mark: rgba(255, 255, 255, 0.3);
+}
 .ccw-watch[data-band="sunset"] {
-  --ccw-band-hi: #d9559f;
-  --ccw-band-lo: #b8641f;
-  --ccw-band-loop-hi: #c03c98;
-  --ccw-band-loop-lo: #7a3a12;
+  --ccw-band-hi: #fb7185;
+  --ccw-band-lo: #ea580c;
+  --ccw-band-loop-hi: #f43f5e;
+  --ccw-band-loop-lo: #9a3412;
   --ccw-band-mark: rgba(255, 255, 255, 0.32);
 }
 .ccw-watch[data-band="alpine"] {
-  --ccw-band-hi: #f59a33;
+  --ccw-band-hi: #f97316;
   --ccw-band-lo: #7c2d12;
   --ccw-band-loop-hi: #c2410c;
   --ccw-band-loop-lo: #431407;
@@ -173,6 +191,21 @@
   white-space: nowrap;
   color: var(--ccw-band-mark);
 }
+/* The cropped ends of the band dissolve into the page instead of
+   ending in a hard white edge wherever the stage cuts them (the
+   top end used to read as a blank white slab floating over the
+   hero). The fade is a mask on the STAGE (.ccw-wrap), not on the
+   straps: the straps are 1000px long, so their own ends are never
+   the part on screen — the stage's crop is. Only the stage's top
+   and bottom 90px fade, well clear of the case in the middle.
+   vocab: mask-image = a stencil — black keeps, transparent
+   erases, the gradient between is the dissolve.
+   Manipulate here: 90px = how long each dissolve runs. */
+.hero-middle-watch .ccw-wrap {
+  -webkit-mask-image: linear-gradient(to bottom, transparent, black 90px, black calc(100% - 70px), transparent);
+  mask-image: linear-gradient(to bottom, transparent, black 90px, black calc(100% - 70px), transparent);
+}
+
 /* Band details — what makes it read as a band and not a gray rectangle.
    Like a real sport band: the top strap carries the metal pin stud, the
    bottom strap carries the keeper loop and the row of adjustment holes.
@@ -387,7 +420,7 @@
   height: 12px;
   background: radial-gradient(circle, #d8d4cd 30%, #918c84 100%);
   border-radius: 50%;
-  border: 2px solid rgba(245, 154, 51, 0.9);
+  border: 2px solid rgba(249, 115, 22, 0.9);
   z-index: 21;
 }
 .ccw-crown::after {
@@ -540,9 +573,7 @@
   pointer-events: none;
   transition: 0.8s cubic-bezier(0.2, 1, 0.2, 1);
 }
-@media (hover: hover) and (pointer: fine) {
-  .ccw-case:hover .ccw-display::after { transform: translate(20px, 20px); }
-}
+.ccw-case:hover .ccw-display::after { transform: translate(20px, 20px); }
 
 /* The watch face (ui/HeroWatch.jsx): a real watchOS-style face on
    the black screen. Top band: live time and date on the left, the
@@ -574,7 +605,7 @@
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.22em;
-  color: #e07ab8;
+  color: #ff6b9d;
 }
 /* The one number that owns the face. Unbounded at 800 is the site's
    display voice; tabular figures keep the time from jittering as
@@ -653,7 +684,7 @@
   letter-spacing: -0.01em;
 }
 .ccw-title-gradient {
-  background: linear-gradient(90deg, #c03c98, #f59a33);
+  background: linear-gradient(90deg, #ff6b9d, #f97316);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -688,7 +719,7 @@
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.45),
     inset 0 -8px 14px rgba(0, 0, 0, 0.22),
-    0 5px 12px -5px rgba(0, 0, 0, 0.6);
+    0 5px 14px -5px var(--tile-glow, rgba(255, 107, 157, 0.35));
 }
 .ccw-app-tile svg {
   width: 17px;
@@ -718,7 +749,7 @@
   font-size: 9px;
   font-weight: 800;
   letter-spacing: 0.14em;
-  background: linear-gradient(90deg, #c03c98, #f59a33);
+  background: linear-gradient(90deg, #ff6b9d, #f97316);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -726,14 +757,14 @@
 /* The exterior picker (WatchExteriorPicker in ui/HeroWatch.jsx): a
    dark pill floating over the lower strap, bands left, case metals
    right. It sits at bottom 92px because the stage's own fade mask
-   (see .ccw-wrap above) dissolves the bottom
+   (see .hero-middle-watch .ccw-wrap above) dissolves the bottom
    70px — any lower and the picker would melt with the strap ends.
    Manipulate here: bottom 92px is that clearance, not a style
    choice; move the mask's 70px and this must move with it. */
 .ccw-customizer {
   position: absolute;
   left: 50%;
-  bottom: 104px;
+  bottom: 92px;
   transform: translateX(-50%);
   z-index: 60;
   display: flex;
@@ -780,14 +811,12 @@
   flex-shrink: 0;
   transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.18s ease;
 }
-@media (hover: hover) and (pointer: fine) {
-  .ccw-swatch:hover { transform: scale(1.15); }
-}
+.ccw-swatch:hover { transform: scale(1.15); }
 .ccw-swatch:active { transform: scale(0.92); }
 .ccw-swatch[aria-pressed="true"] {
   box-shadow:
     0 0 0 2px #050508,
-    0 0 0 3.5px #f59a33;
+    0 0 0 3.5px #f97316;
 }
 .ccw-swatch:focus-visible {
   outline: 2px solid #fff;
@@ -801,15 +830,82 @@
   .ccw-ring-bar { transition: none; }
 }
 
-/* Phones: scale the whole watch so the 500px case fits a 360px screen. */
-@media (max-width: 600px) {
-  .ccw-wrap { height: 520px; }
-  .ccw-watch { transform: scale(0.72); }
-  .ccw-customizer { bottom: 84px; gap: 8px; padding: 7px 10px; }
+/* Small phones: shrink the whole watch rather than letting it crowd out
+   the logo stacked above it */
+/* Manipulate here: 0.66 = watch scale under 480px viewport width (the
+   wide 500px case needs a smaller scale than a real-width watch would) */
+@media (max-width: 480px) {
+  /* 470px of stage is plenty: the scaled case is ~250px tall and the
+     straps are drawn 1000px long, so the band still fills the stage
+     top to bottom — the old 540px just added empty hero on phones. */
+  .ccw-wrap { min-height: 470px; }
+  .ccw-watch { transform: scale(0.66); }
+  /* The picker shrinks with the watch: labels drop, dots stay thumb-
+     sized, and it rides a little lower over the strap. */
+  .ccw-customizer { bottom: 78px; gap: 8px; padding: 7px 10px; }
   .ccw-customizer-label { display: none; }
 }
-@media (max-width: 420px) {
-  .ccw-wrap { height: 460px; }
-  .ccw-watch { transform: scale(0.6); }
-  .ccw-customizer { bottom: 70px; }
+@media (prefers-reduced-motion: reduce) {
+  .ccw-display::after { transition: none; }
+}
+
+@media (min-width: 1024px) {
+  .hero-middle-watch {
+    align-self: start;
+    height: calc(100% + 6.75rem);
+    margin-top: -5.375rem;
+  }
+  .hero-middle-watch .ccw-wrap {
+    min-height: 540px;
+  }
+  .hero-middle-watch .ccw-watch {
+    transform: scale(0.82);
+  }
+}
+@media (min-width: 1440px) {
+  .hero-middle-watch .ccw-watch {
+    transform: scale(0.86);
+  }
+}
+/* Wide laptops (1280–1439px): the bigger logo stage narrows the
+   watch's track; 0.74 keeps the whole case inside it.
+   Manipulate here: raise past ~0.76 and the case's left bezel
+   starts cropping again at these widths. */
+@media (min-width: 1280px) and (max-width: 1439px) {
+  .hero-middle-watch .ccw-watch {
+    transform: scale(0.74);
+  }
+}
+/* Laptop widths (1024–1279px): the hero's three zones (phone,
+   centered logo, watch) only fit if the case runs smaller — the
+   stage crop eats bezel, never screen, at this scale.
+   Manipulate here: 0.56 = case scale in this band only. */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .hero-middle-watch .ccw-watch {
+    transform: scale(0.56);
+  }
+}
+/* The watch case sits centered in its column at lg and up, whole:
+   the column is sized (via the smaller logo stage above) so the
+   case's scaled width fits inside it — no side crop. The stage
+   still crops the band top and bottom, as a product shot should. */
+
+/* The 3D logo's stage (ui/LogoModel.jsx). Height follows the VIEWPORT
+   height: on a short screen the stage shrinks so wordmark, headline,
+   cards, and the whole logo still fit the first screen — nothing in the
+   hero should need a scroll to be seen. The logo's on-screen size rides
+   on this height (the model's own scale in LogoModel.jsx is already at
+   the edge of its frame), so the pixels for the 27vh below were taken
+   back from the card spacing above it — the column still ends in the
+   same place.
+   Manipulate here: 27vh = how much of the screen height the logo may
+
+/* Phones and tablets (from the first site's small-screen rules) */
+@media (min-width: 481px) and (max-width: 767px) {
+  .ccw-watch { transform: scale(0.82); }
+  .ccw-wrap { min-height: 500px; }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .ccw-watch { transform: scale(0.88); }
+  .ccw-wrap { min-height: 500px; }
 }

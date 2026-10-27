@@ -1,24 +1,35 @@
-// Watch.jsx — the Coach Connect watch face, ported from the first landing site.
-// Flow: a CSS-built watch (case, crown, lugs, sport band) around a black OLED
-// face: live clock, three daily-loop rings, and the app's eight features.
-// The picker under it swaps band and case metal (user action only).
-// Recoloured to the brand palette; copy rewritten to DESIGN.md section 13.
-// Styling: styles/watch.css (.ccw-* classes). Used by: /clients.
+// HeroWatch — the Apple Watch-style card filling the hero's right cell.
+// Flow: a customizable exterior (pure CSS shapes, exterior ported from
+// Cult UI's Apple Watch Ultra frame, then branded for Coach Connect)
+// → a true watchOS-style face on a black OLED screen. The exterior is
+// the customizable part: a picker under the watch swaps the band and
+// the case finish, and the hardware carries the details a product
+// shot would — brushed case, crown guards, speaker slots, screwed
+// lugs, a branded sport band with pin, keeper, and holes. The screen
+// inside is untouched by the picker: live clock and date beside three
+// activity rings (training, meal logging, water — the app's real
+// daily loops), then the same eight app features the watch has always
+// listed, in two columns at watch-list size, each wearing a
+// hand-drawn icon in a gradient app tile (drawn below, no icon
+// library) — the redesign changed the design, never the words.
+// All styling lives in index.css under .ccw-* classes.
+// Ported unchanged from the first landing site. Used by: the homepage hero and /clients.
 
 import { useEffect, useState } from 'react';
 
 // ===== NAMED CONSTANTS =====
 
 // The bands the exterior picker offers. id is the name the CSS
-// listens for (data-band on .ccw-watch in styles/watch.css); swatch paints
+// listens for (data-band on .ccw-watch in index.css); swatch paints
 // the picker's dot.
 // Manipulate here: add a band by adding a row here AND a matching
-// [data-band="..."] block in styles/watch.css — one without the other does
+// [data-band="..."] block in index.css — one without the other does
 // nothing. Alpine is the woven one; the rest are smooth sport bands.
 const BAND_STYLES = [
   { id: 'sport-light', label: 'Starlight sport band', swatch: 'linear-gradient(135deg, #F3F4F6, #D9DDE3)' },
   { id: 'midnight', label: 'Midnight sport band', swatch: 'linear-gradient(135deg, #2B2B31, #0C0C10)' },
-  { id: 'sunset', label: 'Sunset sport band', swatch: 'linear-gradient(135deg, #C03C98, #F59A33)' },
+  { id: 'ocean', label: 'Ocean sport band', swatch: 'linear-gradient(135deg, #38BDF8, #1D4ED8)' },
+  { id: 'sunset', label: 'Sunset sport band', swatch: 'linear-gradient(135deg, #FB7185, #F97316)' },
   { id: 'alpine', label: 'Alpine woven band', swatch: 'repeating-linear-gradient(45deg, #F97316 0 3px, #7C2D12 3px 6px)' },
 ];
 
@@ -26,7 +37,7 @@ const BAND_STYLES = [
 // titanium, gold titanium, slate titanium. id works exactly like the
 // bands' — the CSS hangs each metal off [data-case="..."].
 // Manipulate here: same rule as the bands — a row here plus its
-// [data-case="..."] block in styles/watch.css, or the dot changes nothing.
+// [data-case="..."] block in index.css, or the dot changes nothing.
 const CASE_FINISHES = [
   { id: 'natural', label: 'Natural titanium case', swatch: 'linear-gradient(135deg, #E8E4DC, #8A857C)' },
   { id: 'gold', label: 'Gold titanium case', swatch: 'linear-gradient(135deg, #F3D9A4, #A87B2D)' },
@@ -39,9 +50,9 @@ const CASE_FINISHES = [
 // Manipulate here: percent fills the ring; keep the three hues
 // distinct or the rings blur into one donut at a glance.
 const FACE_RINGS = [
-  { label: 'Train', display: '38 of 45 min', percent: 84, color: '#C03C98', radius: 66 },
-  { label: 'Meals logged', display: '3 of 4', percent: 75, color: '#7B3CF5', radius: 51 },
-  { label: 'Water', display: '5 of 8 glasses', percent: 62, color: '#F59A33', radius: 36 },
+  { label: 'Train', display: '38 of 45 min', percent: 84, color: '#FF6B9D', radius: 66 },
+  { label: 'Meals logged', display: '3 of 4', percent: 75, color: '#C084FC', radius: 51 },
+  { label: 'Water', display: '5 of 8 glasses', percent: 62, color: '#06B6D4', radius: 36 },
 ];
 
 // The eight features on the face's right side — the same rows the
@@ -51,17 +62,15 @@ const FACE_RINGS = [
 // the two tile colors, light end first.
 // Manipulate here: keep subs under ~30 characters or they wrap at
 // the column's ~200px width; swap gradient pairs to recolor a tile.
-const COOL = ['#5B16F0', '#C03C98'];
-const WARM = ['#C03C98', '#F59A33'];
 const WATCH_ROWS = [
-  { icon: FindTrainersIcon, gradient: WARM, label: 'Find trainers', sub: 'Search the marketplace' },
-  { icon: TrackProgressIcon, gradient: COOL, label: 'Track progress', sub: 'Check-ins + history' },
-  { icon: ExerciseHelpIcon, gradient: WARM, label: 'Exercise help', sub: 'Video library + plans' },
-  { icon: LogNutritionIcon, gradient: COOL, label: 'Log nutrition', sub: 'Barcode + food search' },
-  { icon: MessagingIcon, gradient: WARM, label: 'Messaging', sub: 'Message your coach' },
-  { icon: InAppPaymentsIcon, gradient: COOL, label: 'In-app payments', sub: 'Through Stripe' },
-  { icon: SchedulingIcon, gradient: WARM, label: 'Scheduling', sub: 'Book sessions' },
-  { icon: AiCoachIcon, gradient: COOL, label: 'AI Coach', sub: 'Logs for you, asks first' },
+  { icon: FindTrainersIcon, gradient: ['#FF6B9D', '#F97316'], label: 'Find trainers', sub: 'In the marketplace' },
+  { icon: TrackProgressIcon, gradient: ['#06B6D4', '#C084FC'], label: 'Track progress', sub: 'Via client dashboard + AI Coach' },
+  { icon: ExerciseHelpIcon, gradient: ['#C084FC', '#FF6B9D'], label: 'Exercise help', sub: 'Video Exercise Library +Plans + AI Coach' },
+  { icon: LogNutritionIcon, gradient: ['#34D399', '#06B6D4'], label: 'Log nutrition', sub: 'Barcode · Food Search + History' },
+  { icon: MessagingIcon, gradient: ['#F97316', '#FF6B9D'], label: 'Messaging', sub: 'Message your coach' },
+  { icon: InAppPaymentsIcon, gradient: ['#FF6B9D', '#C084FC'], label: 'In-app payments', sub: 'Through Stripe' },
+  { icon: SchedulingIcon, gradient: ['#2DD4BF', '#06B6D4'], label: 'Scheduling', sub: 'Book sessions' },
+  { icon: AiCoachIcon, gradient: ['#F97316', '#FFC24B'], label: 'AI Coach', sub: 'Guide you through your journey' },
 ];
 
 // ===== HELPER FUNCTIONS =====
@@ -236,7 +245,7 @@ function ActivityRing({ ring, radius, ringsHaveDrawn }) {
  * OUTSIDE the screen on purpose (the visitor is dressing the watch,
  * not using an app), and it only ever changes data-band / data-case
  * on .ccw-watch; every color it can pick is CSS hanging off those
- * two names in styles/watch.css.
+ * two names in index.css.
  * vocab: aria-pressed = how a screen reader hears a picker dot —
  * "pressed" is the one currently on the watch.
  * @param {Object} props
@@ -297,10 +306,10 @@ function WatchExteriorPicker({ selectedBandId, selectedCaseId, chooseBand, choos
  * draw on load, and the app's eight features listed the way a watch
  * lists apps. Picking a band or a case never touches the screen.
  * The whole watch is sized and positioned by the .ccw-* classes in
- * styles/watch.css.
+ * index.css.
  * @returns {JSX.Element}
  */
-export function Watch() {
+export function HeroWatch() {
   // 1. The live clock: tick every second so the face never shows a
   // stale minute. vocab: the interval is the tick; clearing it on
   // unmount stops a dead timer calling setState forever.
@@ -327,10 +336,10 @@ export function Watch() {
 
   // 4. The exterior the visitor dresses: which band is strapped on
   // and which metal the case is cut from. These two names are the
-  // whole contract with styles/watch.css — data-band and data-case on
+  // whole contract with index.css — data-band and data-case on
   // .ccw-watch restyle the straps, keeper, lugs, crown, and case,
   // and nothing on the screen reads them.
-  const [selectedBandId, setSelectedBandId] = useState('midnight');
+  const [selectedBandId, setSelectedBandId] = useState(BAND_STYLES[0].id);
   const [selectedCaseId, setSelectedCaseId] = useState(CASE_FINISHES[0].id);
   const chooseBand = (bandId) => setSelectedBandId(bandId);
   const chooseCaseFinish = (caseId) => setSelectedCaseId(caseId);
@@ -338,10 +347,10 @@ export function Watch() {
   return (
     // vocab: .ccw-wrap = the stage that centers the watch and crops the
     // straps (they run 970px past the case, top and bottom, so the band
-    // spans the full hero height — see styles/watch.css)
-    <div className="ccw-wrap" data-testid="watch">
+    // spans the full hero height — see index.css)
+    <div className="ccw-wrap" data-testid="hero-watch">
       {/* vocab: data-band / data-case = the two names the picker below
-          rewrites; every strap and metal color in styles/watch.css hangs off
+          rewrites; every strap and metal color in index.css hangs off
           them, so this one line is where the exterior changes. */}
       <div className="ccw-watch" data-band={selectedBandId} data-case={selectedCaseId}>
         {/* The band, branded: the name runs down the top strap and a
@@ -370,7 +379,7 @@ export function Watch() {
           <div className="ccw-action-btn-well" />
           <div className="ccw-action-btn" />
           {/* The speaker slots cut into the left case edge, under the
-              action button — drawn as one slotted strip in styles/watch.css */}
+              action button — drawn as one slotted strip in index.css */}
           <div className="ccw-speaker" aria-hidden="true" />
           {/* The band lugs — titanium connectors where the straps meet the case */}
           <div className="ccw-lug ccw-lug-top" />
@@ -419,14 +428,17 @@ export function Watch() {
 
               {/* 5. The title and the eight features in two columns
                   across the full width — glyph, label, proof. */}
-              <p className="ccw-face-title" data-testid="hero-watch-title">
-                Your day in Coach Connect
-              </p>
+              <h2 className="ccw-face-title" data-testid="hero-watch-title">
+                All in <span className="ccw-title-gradient">one app</span>
+              </h2>
               <ul className="ccw-face-list">
                 {WATCH_ROWS.map((watchRow) => {
                   const WatchRowIcon = watchRow.icon;
+                  // vocab: --tile-glow = this row's private CSS variable;
+                  // the tile's soft colored shadow in index.css reads it.
                   const tileStyle = {
                     background: `linear-gradient(135deg, ${watchRow.gradient[0]}, ${watchRow.gradient[1]})`,
+                    '--tile-glow': `${watchRow.gradient[0]}59`,
                   };
                   return (
                     <li key={watchRow.label} className="ccw-face-row" data-testid="hero-watch-row">
@@ -461,4 +473,5 @@ export function Watch() {
   );
 }
 
+export { HeroWatch as Watch };
 
